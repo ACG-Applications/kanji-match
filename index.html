@@ -425,6 +425,54 @@
         border-radius: 20px;
       }
 
+      /* Next Set Button */
+      .next-set-container {
+        grid-column: 1/-1;
+        text-align: center;
+        margin-top: 10px;
+        animation: fadeInUp 0.3s ease;
+      }
+
+      .next-set-btn {
+        padding: 14px 40px;
+        border: none;
+        border-radius: 50px;
+        background: #4a7a4a;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #2a5a2a;
+        transition: 0.05s linear;
+        font-family: inherit;
+      }
+
+      .next-set-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #2a5a2a;
+      }
+
+      .next-set-btn.review {
+        background: #c47d44;
+        box-shadow: 0 4px 0 #8a5a2a;
+      }
+
+      .next-set-btn.review:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #8a5a2a;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       @media (max-width: 550px) {
         .grid {
           gap: 8px;
@@ -462,6 +510,10 @@
           font-size: 0.75rem;
           padding: 4px 10px;
         }
+        .next-set-btn {
+          padding: 12px 30px;
+          font-size: 1rem;
+        }
       }
 
       @media (max-width: 400px) {
@@ -481,6 +533,10 @@
         .set-box,
         .penalty-box {
           justify-content: center;
+        }
+        .next-set-btn {
+          padding: 10px 24px;
+          font-size: 0.9rem;
         }
       }
     </style>
@@ -2024,7 +2080,7 @@
     </script>
 
     <!-- ============================================================
-     GAME LOGIC WITH PAUSE + SAVE FEATURES
+     GAME LOGIC WITH PAUSE + SAVE FEATURES + NEXT BUTTON
      ============================================================ -->
     <script>
       // ============================================================
@@ -2045,6 +2101,7 @@
       let totalPairsInActiveDeck = 0;
       let gameCompleted = false;
       let totalSets = 0;
+      let isWaitingForNext = false; // Track if we're showing the Next button
 
       // Pause state
       let isPaused = false;
@@ -2281,6 +2338,7 @@
         currentlyMatchedCount =
           activeDeck.filter((c) => c.matched === true).length / 2;
         totalPairsInActiveDeck = finalPairs.length;
+        isWaitingForNext = false;
 
         renderGrid();
         updateUI();
@@ -2300,16 +2358,81 @@
         return true;
       }
 
-      function checkCompletionAndAdvance() {
+      // ============================================================
+      // SHOW SET COMPLETE WITH NEXT BUTTON
+      // ============================================================
+
+      function showSetComplete() {
         const allMatched =
           activeDeck.length > 0 &&
           activeDeck.every((card) => card.matched === true);
-        if (allMatched && !gameCompleted && activeDeck.length > 0) {
-          if (carryoverPairs.length > 0) {
-            messageDiv.innerHTML = `✨ Great! You cleared ${carryoverPairs.length} pending mistake(s)! ✨`;
-          }
-          carryoverPairs = [];
+        if (!allMatched || gameCompleted || isWaitingForNext) return;
 
+        isWaitingForNext = true;
+        lockBoard = true;
+
+        const carryCount = carryoverPairs.length;
+        const setNum = Math.min(
+          currentOriginalSetIndex + 1,
+          MASTER_SETS.length,
+        );
+
+        let message;
+        let buttonClass = "next-set-btn";
+        let buttonText = "▶ Next Set";
+
+        if (carryCount > 0) {
+          message = `✅ All matched! ${carryCount} mistake(s) still need review.`;
+          buttonText = `📚 Review ${carryCount} Mistake(s)`;
+          buttonClass = "next-set-btn review";
+        } else {
+          message = `🎉 Perfect! Set ${setNum}/${MASTER_SETS.length} complete!`;
+          buttonText = "▶ Next Set";
+        }
+
+        messageDiv.innerHTML = message;
+        messageDiv.style.background = carryCount > 0 ? "#f5e6c8" : "#c8e6c9";
+        messageDiv.style.border =
+          carryCount > 0 ? "3px solid #c47d44" : "3px solid #4caf50";
+
+        // Add Next button below the grid - preserve existing cards
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "next-set-container";
+        btnContainer.innerHTML = `
+          <button class="${buttonClass}" onclick="advanceToNextSet()">
+            ${buttonText}
+          </button>
+        `;
+        gridContainer.appendChild(btnContainer);
+
+        // Disable card clicks
+        document.querySelectorAll(".card:not(.matched)").forEach((c) => {
+          c.style.cursor = "default";
+          c.style.pointerEvents = "none";
+        });
+
+        saveGameState();
+        updateStatusBadge();
+      }
+
+      // ============================================================
+      // ADVANCE TO NEXT SET
+      // ============================================================
+
+      function advanceToNextSet() {
+        // Remove the Next button
+        const btnContainer = document.querySelector(".next-set-container");
+        if (btnContainer) btnContainer.remove();
+
+        // Reset message styles
+        messageDiv.style.background = "";
+        messageDiv.style.border = "";
+
+        isWaitingForNext = false;
+        lockBoard = false;
+
+        // If there are no carryover pairs, advance normally
+        if (carryoverPairs.length === 0) {
           if (currentOriginalSetIndex < MASTER_SETS.length - 1) {
             currentOriginalSetIndex++;
             const success = buildActiveGame();
@@ -2317,48 +2440,58 @@
               updateUI();
               saveGameState();
             }
-          } else if (currentOriginalSetIndex === MASTER_SETS.length - 1) {
-            if (carryoverPairs.length === 0) {
-              gameCompleted = true;
-              messageDiv.innerHTML =
-                "🌟 PERFECT! You've conquered all N5 Kanji! 🌟";
-              gridContainer.innerHTML = `
-                    <div class="game-complete">
-                        🏅 日本一の記憶力！ 🏅
-                        <br><br>
-                        You matched all ${N5_MATCHING_DATA.length} N5 kanji!
-                        <br><br>
-                        <button onclick="fullGameReset()" style="padding:10px 24px;border:none;border-radius:50px;background:#746139;color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #47381f;">🔁 Play Again</button>
-                    </div>
-                `;
-              updateProgress();
-              clearSave();
-              return;
-            } else {
-              const success = buildActiveGame();
-              if (success !== false) updateUI();
-            }
           } else {
+            // All sets completed!
             gameCompleted = true;
-            messageDiv.innerHTML = "🏁 FINAL CLEAR! 🏁 Japanese master!";
+            messageDiv.innerHTML =
+              "🌟 PERFECT! You've conquered all N5 Kanji! 🌟";
             gridContainer.innerHTML = `
-                <div class="game-complete">
-                    🎌 完成！ 🎌
-                    <br><br>
-                    All ${N5_MATCHING_DATA.length} kanji mastered!
-                </div>
+              <div class="game-complete">
+                  🏅 日本一の記憶力！ 🏅
+                  <br><br>
+                  You matched all ${N5_MATCHING_DATA.length} N5 kanji!
+                  <br><br>
+                  <button onclick="fullGameReset()" style="padding:10px 24px;border:none;border-radius:50px;background:#746139;color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #47381f;">🔁 Play Again</button>
+              </div>
             `;
             updateProgress();
             clearSave();
             return;
           }
-          saveGameState();
-          updateProgress();
+        } else {
+          // There are carryover pairs - rebuild with them
+          const success = buildActiveGame();
+          if (success !== false) updateUI();
         }
+
+        renderGrid();
+        updateProgress();
+        updateStatusBadge();
+        saveGameState();
       }
 
+      // ============================================================
+      // ORIGINAL checkCompletionAndAdvance - MODIFIED to use Next button
+      // ============================================================
+
+      function checkCompletionAndAdvance() {
+        const allMatched =
+          activeDeck.length > 0 &&
+          activeDeck.every((card) => card.matched === true);
+        if (allMatched && !gameCompleted && activeDeck.length > 0) {
+          // Show completion UI with Next button instead of auto-advancing
+          showSetComplete();
+          return;
+        }
+        // If not all matched, we continue normally
+      }
+
+      // ============================================================
+      // CARD CLICK HANDLER - FIXED!
+      // ============================================================
+
       function onCardClick(clickedIdx) {
-        if (lockBoard || gameCompleted || isPaused) return;
+        if (lockBoard || gameCompleted || isPaused || isWaitingForNext) return;
         const clickedCard = activeDeck[clickedIdx];
         if (clickedCard.matched) return;
 
@@ -2400,16 +2533,14 @@
           // Auto-save after match
           saveGameState();
 
+          // Check if set is complete - but DON'T call renderGrid again
           const allNowMatched = activeDeck.every((c) => c.matched === true);
           if (allNowMatched) {
-            lockBoard = true;
-            messageDiv.innerHTML = "🎉 Set Completed! Moving forward... 🎉";
+            // Show the Next button after a brief delay
             setTimeout(() => {
               checkCompletionAndAdvance();
-              lockBoard = false;
-              renderGrid();
               updateProgress();
-            }, 800);
+            }, 2500);
           }
           updateProgress();
         } else {
@@ -2470,14 +2601,27 @@
             tile.classList.add("selected");
           tile.setAttribute("data-type", card.type);
           tile.innerText = card.displayValue;
-          if (!card.matched && !lockBoard && !gameCompleted && !isPaused) {
+          if (
+            !card.matched &&
+            !lockBoard &&
+            !gameCompleted &&
+            !isPaused &&
+            !isWaitingForNext
+          ) {
             tile.style.cursor = "pointer";
           } else {
             tile.style.cursor = "default";
           }
           tile.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (lockBoard || gameCompleted || isPaused || card.matched) return;
+            if (
+              lockBoard ||
+              gameCompleted ||
+              isPaused ||
+              card.matched ||
+              isWaitingForNext
+            )
+              return;
             onCardClick(i);
           });
           gridContainer.appendChild(tile);
@@ -2510,6 +2654,9 @@
         } else if (isPaused) {
           statusBadge.textContent = "⏸️ Paused";
           statusBadge.className = "status-badge paused-badge";
+        } else if (isWaitingForNext) {
+          statusBadge.textContent = "✅ Set Done";
+          statusBadge.className = "status-badge";
         } else {
           statusBadge.textContent = "▶️ Active";
           statusBadge.className = "status-badge";
@@ -2659,9 +2806,6 @@
 
         const total = N5_MATCHING_DATA.length;
         messageDiv.innerHTML = `📂 Resumed! ${totalScore}/${total} kanji matched (${Math.round((totalScore / total) * 100)}%). Carryover: ${carryoverPairs.length}`;
-
-        // Clear save after resume (optional - comment out to keep)
-        // clearSave();
       }
 
       // ============================================================
@@ -2687,9 +2831,12 @@
         lockBoard = false;
         gameCompleted = false;
         isPaused = false;
+        isWaitingForNext = false;
         pauseBtn.disabled = false;
         pauseBtn.textContent = "⏸️ Pause";
         document.querySelector(".grid").classList.remove("paused");
+        messageDiv.style.background = "";
+        messageDiv.style.border = "";
 
         rebuildMasterSets();
         const success = buildActiveGame();
@@ -2867,6 +3014,10 @@
           e.preventDefault();
           saveAndExit();
         }
+        if (e.key === "Enter" && isWaitingForNext) {
+          e.preventDefault();
+          advanceToNextSet();
+        }
       });
 
       // ============================================================
@@ -2877,7 +3028,9 @@
         "🎮 Kanji Master loaded with " + N5_MATCHING_DATA.length + " N5 kanji!",
       );
       console.log("📚 Total sets: " + MASTER_SETS.length);
-      console.log("⌨️ Keyboard shortcuts: ESC/P = Pause, Ctrl+S = Save");
+      console.log(
+        "⌨️ Keyboard shortcuts: ESC/P = Pause, Ctrl+S = Save, Enter = Next Set",
+      );
 
       // Initialize
       initGame();
