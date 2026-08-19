@@ -60,9 +60,6 @@
         padding: 20px;
       }
 
-      /* ============================================================
-         GAME CONTAINER - Outer Card
-         ============================================================ */
       .game-container {
         background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(5px);
@@ -73,9 +70,6 @@
         max-width: 950px;
       }
 
-      /* ============================================================
-         GAME PANEL - Inner Card
-         ============================================================ */
       .game-panel {
         background: #fff7ec;
         background-image: radial-gradient(
@@ -92,42 +86,100 @@
       }
 
       /* ============================================================
-         STATS BAR
+         SIMPLIFIED STATS BAR
          ============================================================ */
       .stats {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 16px;
         background: #2d3e2a;
-        padding: 10px 24px;
+        padding: 8px 20px;
         border-radius: 60px;
         color: #faefcf;
         font-weight: bold;
       }
 
-      .score-box,
-      .set-box,
-      .penalty-box {
+      .set-box {
         background: #1a2c18;
-        padding: 5px 18px;
+        padding: 4px 16px;
         border-radius: 50px;
         display: flex;
         align-items: baseline;
-        gap: 8px;
+        gap: 6px;
         font-size: 0.9rem;
       }
 
-      .score-box strong,
-      .set-box strong,
-      .penalty-box strong {
-        font-size: 1.5rem;
+      .set-box strong {
+        font-size: 1.3rem;
         font-weight: 800;
         color: #ffec9f;
         font-family: monospace;
-        margin-left: 5px;
+        margin-left: 4px;
+      }
+
+      .status-indicators {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .status-badge {
+        font-size: 0.7rem;
+        padding: 2px 12px;
+        border-radius: 20px;
+        background: #1a2c18;
+        color: #faefcf;
+      }
+
+      .status-badge.paused-badge {
+        background: #4a6a7a;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      .status-badge.quiz-badge {
+        background: #c47d44;
+      }
+
+      .auto-save-indicator {
+        font-size: 0.65rem;
+        color: #8aae89;
+        background: #1a2c18;
+        padding: 2px 10px;
+        border-radius: 20px;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* ============================================================
+         PROGRESS BAR
+         ============================================================ */
+      .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: #2d3e2a;
+        border-radius: 10px;
+        margin: 4px 0 16px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffec9f, #f5c842);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+        width: 0%;
       }
 
       /* ============================================================
@@ -138,7 +190,7 @@
         font-size: 0.95rem;
         font-weight: bold;
         background: #e8dccc;
-        margin: 8px 0 20px;
+        margin: 6px 0 16px;
         padding: 8px 12px;
         border-radius: 40px;
         color: #2f2a1f;
@@ -146,7 +198,7 @@
         box-shadow:
           inset 0 1px 3px #ba9f73,
           0 2px 6px rgba(0, 0, 0, 0.1);
-        min-height: 48px;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -217,13 +269,18 @@
         color: #4d3012;
       }
 
+      .card.wrong-flash {
+        background: #ffb4a2 !important;
+        border-color: #d46040 !important;
+      }
+
       .card[data-type="kana"] {
         font-family: "Noto Sans JP", "KaiTi", cursive;
         font-size: 1.6rem;
       }
 
       /* ============================================================
-         QUIZ MODE - Main Container
+         QUIZ MODE STYLES
          ============================================================ */
       .quiz-container {
         grid-column: 1/-1;
@@ -233,12 +290,8 @@
         box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
       }
 
-      /* ============================================================
-         QUIZ SENTENCE - The main sentence display
-         ============================================================ */
       .quiz-sentence {
         font-size: 1.3rem;
-        /* MODIFY: Line height - controls vertical spacing */
         line-height: 3.2;
         text-align: center;
         padding: 1.2rem 1rem;
@@ -264,9 +317,6 @@
         gap: 0px;
       }
 
-      /* ============================================================
-         TRANSLATION TOGGLE - Show/hide English translation
-         ============================================================ */
       .translation-toggle {
         display: flex;
         justify-content: center;
@@ -315,10 +365,7 @@
         display: block;
       }
 
-      /* ============================================================
-         FURIGANA - The reading above kanji
-         MODIFY: All furigana styling here
-         ============================================================ */
+      /* Furigana styles */
       .furigana {
         display: inline-flex;
         flex-direction: column;
@@ -326,80 +373,53 @@
         justify-content: flex-end;
         vertical-align: baseline;
         margin: 0 1px;
-        /* MODIFY: Minimum width for each furigana block */
         min-width: 1.2em;
-        /* MODIFY: Height of the furigana block (controls spacing) */
         height: 1.8em;
         position: relative;
       }
 
       .furigana .kanji {
         display: inline-block;
-        /* MODIFY: Font size of the kanji */
         font-size: 1.4rem;
-        /* MODIFY: Line height of the kanji */
         line-height: 1.3;
         vertical-align: bottom;
         position: relative;
-        /* MODIFY: Fine-tune vertical position of kanji */
         top: -0.1em;
       }
 
       .furigana .reading {
         display: block;
-        /* MODIFY: Font size of the furigana reading */
         font-size: 0.65rem;
-        /* MODIFY: Line height of the furigana reading */
         line-height: 1;
-        /* MODIFY: Color of furigana (Dark Red) */
         color: #8b0000;
-        /* MODIFY: Font weight of furigana */
         font-weight: 800;
-        /* MODIFY: Letter spacing of furigana */
         letter-spacing: 0.3px;
         font-family: "Noto Sans JP", "KaiTi", cursive;
         text-align: center;
         position: absolute;
-        /* MODIFY: Position of furigana above kanji (negative value moves up) */
         top: -1.2em;
         left: 50%;
         transform: translateX(-50%);
         white-space: nowrap;
-        /* MODIFY: Background behind furigana (optional) */
-        /* background: rgba(255,255,255,0.7); */
-        /* MODIFY: Padding around furigana (optional) */
-        /* padding: 0 2px; */
-        /* MODIFY: Border radius (optional) */
-        /* border-radius: 4px; */
       }
 
       .furigana .reading.dark-red {
         color: #8b0000;
       }
 
-      /* ============================================================
-         QUIZ BLANK - The underline placeholder
-         ============================================================ */
       .quiz-sentence .blank {
         display: inline-block;
-        /* MODIFY: Width of the blank space */
         min-width: 45px;
-        /* MODIFY: Border style of the blank underline */
         border-bottom: 3px dashed #c47d44;
         margin: 0 3px;
         color: #c47d44;
         font-weight: 800;
-        /* MODIFY: Font size of the blank placeholder */
         font-size: 1.5rem;
-        /* MODIFY: Height of the blank */
         height: 1.8em;
         line-height: 1.8;
         vertical-align: baseline;
       }
 
-      /* ============================================================
-         QUIZ OPTIONS - The answer buttons
-         ============================================================ */
       .quiz-options {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -454,9 +474,6 @@
         cursor: default;
       }
 
-      /* ============================================================
-         QUIZ EXPLANATION - The answer explanation
-         ============================================================ */
       .quiz-explanation {
         background: #e8f0e0;
         padding: 12px 16px;
@@ -488,9 +505,6 @@
         animation: fadeInUp 0.3s ease;
       }
 
-      /* ============================================================
-         QUIZ NAVIGATION BUTTONS
-         ============================================================ */
       .quiz-nav {
         display: flex;
         gap: 10px;
@@ -546,9 +560,6 @@
         box-shadow: 0 2px 0 #2a4a5a;
       }
 
-      /* ============================================================
-         QUIZ PROGRESS BAR
-         ============================================================ */
       .quiz-progress {
         display: flex;
         justify-content: space-between;
@@ -566,9 +577,6 @@
         color: #faefcf;
       }
 
-      /* ============================================================
-         QUIZ COMPLETE SCREEN
-         ============================================================ */
       .quiz-complete {
         grid-column: 1/-1;
         text-align: center;
@@ -610,12 +618,41 @@
       }
 
       /* ============================================================
-         FOOTER BUTTONS - Bottom action buttons
+         SETTINGS ROW
+         ============================================================ */
+      .settings-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+        justify-content: center;
+      }
+
+      .settings-row select {
+        background: #2d3e2a;
+        color: #faefcf;
+        border: none;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-family: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+
+      .settings-row label {
+        color: #2d3e2a;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      /* ============================================================
+         FOOTER BUTTONS
          ============================================================ */
       .footer {
         display: flex;
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
         margin-top: 5px;
         flex-wrap: wrap;
       }
@@ -623,9 +660,9 @@
       .footer button {
         background: #746139;
         border: none;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: bold;
-        padding: 8px 16px;
+        padding: 6px 14px;
         border-radius: 50px;
         color: #fef3df;
         cursor: pointer;
@@ -634,7 +671,7 @@
         letter-spacing: 0.5px;
         font-family: inherit;
         flex: 0 1 auto;
-        min-width: 60px;
+        min-width: 50px;
       }
 
       .footer button:active {
@@ -684,29 +721,14 @@
         box-shadow: 0 4px 0 #8a5a2a;
       }
 
+      .footer button.shuffle-btn {
+        background: #5a7a5a;
+        box-shadow: 0 4px 0 #2a4a2a;
+      }
+
       .footer button.katakana-btn:active {
         transform: translateY(2px);
         box-shadow: 0 2px 0 #4a3a4a;
-      }
-
-      /* ============================================================
-         PROGRESS BAR - Match progress
-         ============================================================ */
-      .progress-bar {
-        width: 100%;
-        height: 6px;
-        background: #2d3e2a;
-        border-radius: 10px;
-        margin: 8px 0 12px;
-        overflow: hidden;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #ffec9f, #f5c842);
-        border-radius: 10px;
-        transition: width 0.5s ease;
-        width: 0%;
       }
 
       /* ============================================================
@@ -783,80 +805,6 @@
       }
 
       /* ============================================================
-         STATUS INDICATORS
-         ============================================================ */
-      .status-indicators {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .status-badge {
-        font-size: 0.7rem;
-        padding: 2px 10px;
-        border-radius: 20px;
-        background: #1a2c18;
-        color: #faefcf;
-      }
-
-      .status-badge.paused-badge {
-        background: #4a6a7a;
-        animation: pulse 1.5s ease-in-out infinite;
-      }
-
-      .status-badge.quiz-badge {
-        background: #c47d44;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-      }
-
-      /* ============================================================
-         SETTINGS ROW
-         ============================================================ */
-      .settings-row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-        justify-content: center;
-      }
-
-      .settings-row select {
-        background: #2d3e2a;
-        color: #faefcf;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 30px;
-        font-family: inherit;
-        font-size: 0.85rem;
-        cursor: pointer;
-      }
-
-      .settings-row label {
-        color: #2d3e2a;
-        font-size: 0.85rem;
-        font-weight: bold;
-      }
-
-      .auto-save-indicator {
-        font-size: 0.7rem;
-        color: #4a7a4a;
-        background: #e8f0d6;
-        padding: 2px 10px;
-        border-radius: 20px;
-      }
-
-      /* ============================================================
          NEXT SET BUTTON
          ============================================================ */
       .next-set-container {
@@ -885,16 +833,6 @@
         box-shadow: 0 2px 0 #2a5a2a;
       }
 
-      .next-set-btn.review {
-        background: #c47d44;
-        box-shadow: 0 4px 0 #8a5a2a;
-      }
-
-      .next-set-btn.review:active {
-        transform: translateY(2px);
-        box-shadow: 0 2px 0 #8a5a2a;
-      }
-
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -907,7 +845,7 @@
       }
 
       /* ============================================================
-         RESPONSIVE - Mobile Adjustments
+         RESPONSIVE
          ============================================================ */
       @media (max-width: 550px) {
         .grid {
@@ -920,31 +858,28 @@
         .card[data-type="kana"] {
           font-size: 1.1rem;
         }
-        .score-box strong,
         .set-box strong {
-          font-size: 1.2rem;
+          font-size: 1.1rem;
         }
         .stats {
-          padding: 8px 14px;
-          gap: 6px;
+          padding: 6px 14px;
+          gap: 4px;
         }
-        .score-box,
-        .set-box,
-        .penalty-box {
-          padding: 3px 12px;
+        .set-box {
           font-size: 0.75rem;
+          padding: 3px 12px;
         }
         .footer button {
-          font-size: 0.75rem;
-          padding: 6px 12px;
-          min-width: 50px;
+          font-size: 0.7rem;
+          padding: 5px 10px;
+          min-width: 40px;
         }
         .settings-row {
-          gap: 6px;
+          gap: 4px;
         }
         .settings-row select {
-          font-size: 0.75rem;
-          padding: 4px 10px;
+          font-size: 0.7rem;
+          padding: 3px 8px;
         }
         .next-set-btn {
           padding: 12px 30px;
@@ -974,10 +909,6 @@
           font-size: 1.1rem;
           padding: 12px;
         }
-        .mode-toggle button {
-          font-size: 0.75rem;
-          padding: 6px 12px;
-        }
         .quiz-nav button {
           font-size: 0.8rem;
           padding: 8px 14px;
@@ -990,6 +921,11 @@
         }
         .quiz-translation {
           font-size: 0.9rem;
+        }
+        .message-area {
+          font-size: 0.85rem;
+          min-height: 38px;
+          padding: 6px 10px;
         }
       }
 
@@ -1006,9 +942,7 @@
           align-items: stretch;
           gap: 4px;
         }
-        .score-box,
-        .set-box,
-        .penalty-box {
+        .set-box {
           justify-content: center;
         }
         .next-set-btn {
@@ -1049,22 +983,22 @@
         .quiz-translation {
           font-size: 0.8rem;
         }
+        .message-area {
+          font-size: 0.8rem;
+          min-height: 34px;
+          padding: 4px 8px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="game-container">
       <div class="game-panel">
+        <!-- SIMPLIFIED STATS -->
         <div class="stats">
-          <div class="score-box">
-            🎯 <span>Matches</span> <strong id="scoreValue">0</strong>
-          </div>
           <div class="set-box">
             📚 <span>Set</span> <strong id="setCounter">1</strong> /
             <span id="totalSets">0</span>
-          </div>
-          <div class="penalty-box">
-            ⚠️ <span>Unmatched</span> <strong id="carryCount">0</strong>
           </div>
           <div class="status-indicators">
             <span class="status-badge" id="statusBadge">▶️ Active</span>
@@ -1074,6 +1008,12 @@
           </div>
         </div>
 
+        <!-- PROGRESS BAR -->
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- SETTINGS -->
         <div class="settings-row">
           <label for="pairsPerSet">Pairs per set:</label>
           <select id="pairsPerSet">
@@ -1083,22 +1023,22 @@
             <option value="8">8</option>
             <option value="12">12 (Challenge)</option>
           </select>
-          <label style="margin-left: 10px">
+          <label style="margin-left: 6px">
             <input type="checkbox" id="autoSaveToggle" checked /> Auto-save
           </label>
         </div>
 
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-
+        <!-- MESSAGE AREA -->
         <div class="message-area" id="gameMessage">
-          🔍 Match Kanji → Hiragana. Wrong picks stay in the deck!
+          🔍 Match Kanji → Hiragana
         </div>
 
+        <!-- GAME GRID -->
         <div class="grid" id="gameGrid"></div>
 
+        <!-- FOOTER -->
         <div class="footer">
+          <button class="shuffle-btn" id="shuffleBtn">🔀 Shuffle</button>
           <button class="pause-btn" id="pauseBtn">⏸️ Pause</button>
           <button class="save-btn" id="saveBtn">💾 Save</button>
           <button class="stats-btn" id="showStatsBtn">📊 Stats</button>
@@ -1110,36 +1050,24 @@
     </div>
 
     <!-- ============================================================
-     N5 MATCHING DATA - 100% Reliable
-     All 103 N5 Kanji with primary readings
+     N5 MATCHING DATA
      ============================================================ -->
     <script src="n5-matching-data.js"></script>
 
     <!-- ============================================================
-     GAME LOGIC WITH PAUSE + SAVE FEATURES + QUIZ MODE + FURIGANA + TTS
+     GAME LOGIC
      ============================================================ -->
     <script>
       // ============================================================
       // FURIGANA HELPER FUNCTIONS
       // ============================================================
 
-      /**
-       * Convert a sentence with furigana notation to HTML with furigana
-       * Input: "毎日（まいにち）コーヒーを飲（の）みます"
-       * Output: HTML with furigana above kanji in dark red
-       */
       function addFurigana(text) {
         if (!text) return '';
-        
-        // Match pattern: kanji followed by (reading) in parentheses
-        // e.g., "毎日（まいにち）" -> kanji="毎日", reading="まいにち"
         const pattern = /([一-龯々]+)（([\u3040-\u309F\u30A0-\u30FF]+)）/g;
-        
         let result = text;
         let matches = [];
         let match;
-        
-        // Find all matches
         while ((match = pattern.exec(text)) !== null) {
           matches.push({
             kanji: match[1],
@@ -1148,124 +1076,71 @@
             index: match.index
           });
         }
-        
-        // Replace from end to start to preserve indices
         for (let i = matches.length - 1; i >= 0; i--) {
           const m = matches[i];
           const furiganaHtml = `<span class="furigana"><span class="reading dark-red">${m.reading}</span><span class="kanji">${m.kanji}</span></span>`;
           result = result.substring(0, m.index) + furiganaHtml + result.substring(m.index + m.fullMatch.length);
         }
-        
         return result;
       }
 
-      /**
-       * Add furigana to a sentence, handling the blank placeholder
-       */
       function addFuriganaWithBlank(text) {
         if (!text) return '';
-        // First add furigana to the whole text
         let withFurigana = addFurigana(text);
-        // Then replace any remaining ___ with the blank span
         withFurigana = withFurigana.replace(/___/g, '<span class="blank">___</span>');
         return withFurigana;
       }
 
-      /**
-       * Get furigana HTML for a single kanji
-       */
       function getFuriganaForKanji(kanji, hiragana) {
         if (!kanji || !hiragana) return kanji || '';
         return `<span class="furigana"><span class="reading dark-red">${hiragana}</span><span class="kanji">${kanji}</span></span>`;
       }
 
-      /**
-       * Display a sentence with furigana in the explanation
-       */
       function displaySentenceWithFurigana(sentence) {
         if (!sentence) return '';
         return addFurigana(sentence);
       }
 
-      /**
-       * Strip furigana notation from a sentence for TTS
-       * "毎日（まいにち）コーヒーを飲（の）みます" -> "毎日コーヒーを飲みます"
-       */
       function stripFuriganaForTTS(text) {
         if (!text) return '';
-        // Remove the (reading) parts but keep the kanji
         return text.replace(/（[\u3040-\u309F\u30A0-\u30FF]+）/g, '');
       }
 
-      /**
-       * Get the clean sentence for TTS (without furigana notation)
-       */
       function getCleanSentenceForTTS(sentence) {
         if (!sentence) return '';
-        // First strip furigana notation
         let clean = stripFuriganaForTTS(sentence);
-        // Remove any extra spaces
         clean = clean.replace(/\s+/g, ' ');
         return clean.trim();
       }
 
       // ============================================================
-      // TTS (TEXT-TO-SPEECH) HELPER FUNCTIONS
+      // TTS HELPERS
       // ============================================================
 
-      /**
-       * Speak Japanese text using the browser's Speech Synthesis API
-       */
       function speakJapanese(text) {
         if (!window.speechSynthesis) {
-          messageDiv.innerHTML = '⚠️ Speech not supported in this browser.';
+          messageDiv.innerHTML = '⚠️ Speech not supported.';
           return;
         }
-
-        // Cancel any ongoing speech
         window.speechSynthesis.cancel();
-
-        // Clean the text for TTS - remove any furigana notation
         const cleanText = getCleanSentenceForTTS(text);
-        
-        if (!cleanText) {
-          messageDiv.innerHTML = '⚠️ No text to speak.';
-          return;
-        }
-
+        if (!cleanText) return;
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = 'ja-JP';
         utterance.rate = 0.85;
         utterance.pitch = 1;
-        
-        // Try to find a Japanese voice
         const voices = window.speechSynthesis.getVoices();
         const japaneseVoice = voices.find(v => v.lang.startsWith('ja'));
-        if (japaneseVoice) {
-          utterance.voice = japaneseVoice;
-        }
-
-        utterance.onend = () => {
-          // Optional: update message when done
-        };
-        
-        utterance.onerror = () => {
-          messageDiv.innerHTML = '⚠️ Speech error. Please try again.';
-        };
-
+        if (japaneseVoice) utterance.voice = japaneseVoice;
         window.speechSynthesis.speak(utterance);
         return cleanText;
       }
 
-      /**
-       * Prime the speech synthesis system (required on some browsers)
-       */
       function primeSpeech() {
         if (window.speechSynthesis) {
           const dummy = new SpeechSynthesisUtterance('');
           window.speechSynthesis.speak(dummy);
           window.speechSynthesis.cancel();
-          // Load voices
           window.speechSynthesis.getVoices();
         }
       }
@@ -1278,20 +1153,17 @@
       const SETTINGS_KEY = "kanjiMasterSettings";
       const QUIZ_KEY = "kanjiMasterQuiz_v1";
 
-      // Game state
       let currentOriginalSetIndex = 0;
       let carryoverPairs = [];
       let activeDeck = [];
       let selectedCardIndex = null;
       let lockBoard = false;
       let totalScore = 0;
-      let currentlyMatchedCount = 0;
-      let totalPairsInActiveDeck = 0;
       let gameCompleted = false;
       let totalSets = 0;
       let isWaitingForNext = false;
+      let isShuffling = false;
 
-      // Quiz state
       let isQuizMode = false;
       let quizQuestions = [];
       let quizCurrentIndex = 0;
@@ -1302,21 +1174,15 @@
       let quizSkippedCount = 0;
       let quizCompleted = false;
       let quizAnsweredSet = new Set();
-
-      // Translation toggle state
       let showTranslation = false;
 
-      // Pause state
       let isPaused = false;
       let saveTimer = null;
       let autoSaveEnabled = true;
 
-      // DOM references
       const gridContainer = document.getElementById("gameGrid");
-      const scoreSpan = document.getElementById("scoreValue");
       const setCounterSpan = document.getElementById("setCounter");
       const totalSetsSpan = document.getElementById("totalSets");
-      const carrySpan = document.getElementById("carryCount");
       const messageDiv = document.getElementById("gameMessage");
       const progressFill = document.getElementById("progressFill");
       const statusBadge = document.getElementById("statusBadge");
@@ -1324,6 +1190,7 @@
       const saveBtn = document.getElementById("saveBtn");
       const resetBtn = document.getElementById("resetBtn");
       const showStatsBtn = document.getElementById("showStatsBtn");
+      const shuffleBtn = document.getElementById("shuffleBtn");
       const pairsPerSetSelect = document.getElementById("pairsPerSet");
       const autoSaveToggle = document.getElementById("autoSaveToggle");
       const quizBtn = document.getElementById("quizBtn");
@@ -1369,7 +1236,6 @@
 
       function saveGameState() {
         if (!autoSaveEnabled) return;
-
         try {
           const state = {
             currentOriginalSetIndex: currentOriginalSetIndex,
@@ -1392,8 +1258,6 @@
                 : null,
             })),
             selectedCardIndex: selectedCardIndex,
-            currentlyMatchedCount: currentlyMatchedCount,
-            totalPairsInActiveDeck: totalPairsInActiveDeck,
             isPaused: isPaused,
             timestamp: Date.now(),
             version: 2,
@@ -1408,7 +1272,6 @@
         try {
           const saved = localStorage.getItem(SAVE_KEY);
           if (!saved) return null;
-
           const state = JSON.parse(saved);
           if (state.version !== 2) {
             console.warn("Old save version, discarding");
@@ -1425,7 +1288,7 @@
       }
 
       // ============================================================
-      // QUIZ FUNCTIONS
+      // SHUFFLE FUNCTIONS - Works in both Match and Quiz modes
       // ============================================================
 
       function shuffleArray(arr) {
@@ -1436,46 +1299,149 @@
         return arr;
       }
 
+      function shuffleCurrentDeck() {
+        if (isShuffling || gameCompleted || isPaused) return;
+        
+        // If in Quiz Mode, shuffle the remaining questions
+        if (isQuizMode) {
+          shuffleQuizQuestions();
+          return;
+        }
+        
+        // Otherwise shuffle the matching game deck
+        if (activeDeck.length === 0) {
+          messageDiv.innerHTML = "⚠️ No cards to shuffle!";
+          return;
+        }
+
+        // Check if all cards are matched - if so, shuffle is pointless
+        const allMatched = activeDeck.every(c => c.matched === true);
+        if (allMatched) {
+          messageDiv.innerHTML = "✅ All cards already matched!";
+          return;
+        }
+
+        isShuffling = true;
+        
+        // Only shuffle unmatched cards
+        const unmatchedCards = activeDeck.filter(c => !c.matched);
+        const matchedCards = activeDeck.filter(c => c.matched);
+        
+        // Shuffle the unmatched cards
+        const shuffledUnmatched = shuffleArray([...unmatchedCards]);
+        
+        // Combine back - matched cards stay in place
+        const newDeck = [];
+        let unmatchedIndex = 0;
+        
+        for (let i = 0; i < activeDeck.length; i++) {
+          if (activeDeck[i].matched) {
+            newDeck.push(activeDeck[i]);
+          } else {
+            newDeck.push(shuffledUnmatched[unmatchedIndex]);
+            unmatchedIndex++;
+          }
+        }
+        
+        activeDeck = newDeck;
+        selectedCardIndex = null;
+        lockBoard = false;
+        
+        renderGrid();
+        messageDiv.innerHTML = "🔀 Deck shuffled!";
+        setTimeout(() => {
+          if (!isPaused && !gameCompleted) {
+            const carryCount = carryoverPairs.length;
+            if (carryCount > 0) {
+              messageDiv.innerHTML = `🔁 ${carryCount} pair(s) need review`;
+            } else {
+              const setNum = Math.min(currentOriginalSetIndex + 1, MASTER_SETS.length);
+              messageDiv.innerHTML = `🎴 Set ${setNum}/${MASTER_SETS.length}`;
+            }
+          }
+        }, 1500);
+        
+        isShuffling = false;
+        saveGameState();
+      }
+
+      // ============================================================
+      // SHUFFLE QUIZ QUESTIONS - Shuffles remaining quiz questions
+      // ============================================================
+
+      function shuffleQuizQuestions() {
+        if (isShuffling || quizCompleted) return;
+        if (quizQuestions.length === 0) {
+          messageDiv.innerHTML = "⚠️ No questions to shuffle!";
+          return;
+        }
+        
+        // Get questions from current position to end
+        const remainingQuestions = quizQuestions.slice(quizCurrentIndex);
+        const answeredQuestions = quizQuestions.slice(0, quizCurrentIndex);
+        
+        if (remainingQuestions.length <= 1) {
+          messageDiv.innerHTML = "⚠️ Not enough questions to shuffle!";
+          return;
+        }
+        
+        isShuffling = true;
+        
+        // Shuffle the remaining questions
+        const shuffledRemaining = shuffleArray([...remainingQuestions]);
+        
+        // Rebuild quiz questions: answered + shuffled remaining
+        quizQuestions = [...answeredQuestions, ...shuffledRemaining];
+        
+        // Reset current index (we're still at the same position)
+        // But the question at this position might be different now
+        // So we need to re-render the current question
+        quizAnswered = false;
+        renderQuiz();
+        
+        messageDiv.innerHTML = "🔀 Questions shuffled!";
+        setTimeout(() => {
+          if (!quizCompleted) {
+            messageDiv.innerHTML = `📝 Question ${quizCurrentIndex + 1}/${quizQuestions.length}`;
+          }
+        }, 1500);
+        
+        isShuffling = false;
+        saveQuizState();
+      }
+
+      // ============================================================
+      // QUIZ FUNCTIONS
+      // ============================================================
+
       function getRandomOptions(correctId, count = 3) {
         const correct = N5_MATCHING_DATA.find(d => d.id === correctId);
         if (!correct) return [];
-
         const others = N5_MATCHING_DATA.filter(d => d.id !== correctId);
         const shuffled = shuffleArray([...others]);
-        
         const distractors = shuffled.slice(0, count);
         let options = distractors.map(d => d.kanji);
         options.push(correct.kanji);
-        
         return shuffleArray(options);
       }
 
       function generateQuizQuestions() {
         const questions = [];
-        const usedIndices = new Set();
-        
         const available = N5_MATCHING_DATA.filter(d => d.example && d.example.sentence);
         const shuffled = shuffleArray([...available]);
         const count = Math.min(shuffled.length, 50);
-        
         for (let i = 0; i < count; i++) {
           const data = shuffled[i];
           if (!data.example) continue;
-          
           const sentence = data.example.sentence;
           const kanji = data.kanji;
           const reading = data.hiragana || '';
           const meaning = data.meaning || '';
-          
-          // Find where the kanji appears in the sentence
           const kanjiIndex = sentence.indexOf(kanji);
-          
           let displaySentence;
           if (kanjiIndex !== -1) {
-            // Replace the kanji with a blank
             const furiganaPattern = new RegExp(kanji + '（[\\u3040-\\u309F\\u30A0-\\u30FF]+）');
             const match = sentence.match(furiganaPattern);
-            
             if (match) {
               displaySentence = sentence.replace(match[0], '___');
             } else {
@@ -1484,10 +1450,7 @@
           } else {
             displaySentence = sentence;
           }
-          
-          // Get options
           const options = getRandomOptions(data.id, 3);
-          
           questions.push({
             id: data.id,
             kanji: kanji,
@@ -1502,13 +1465,8 @@
             hint: `This kanji means "${meaning}" and is read as "${reading}"`
           });
         }
-        
         return shuffleArray(questions);
       }
-
-      // ============================================================
-      // TRANSLATION TOGGLE FUNCTION
-      // ============================================================
 
       function toggleTranslation() {
         showTranslation = !showTranslation;
@@ -1520,7 +1478,6 @@
             translationElement.classList.remove('visible');
           }
         }
-        // Save preference
         try {
           localStorage.setItem('showTranslation', JSON.stringify(showTranslation));
         } catch (e) {}
@@ -1536,16 +1493,11 @@
         return showTranslation;
       }
 
-      // ============================================================
-      // RENDER QUIZ WITH TRANSLATION TOGGLE
-      // ============================================================
-
       function renderQuiz() {
         if (quizCompleted) {
           renderQuizComplete();
           return;
         }
-
         if (quizQuestions.length === 0) {
           quizQuestions = generateQuizQuestions();
           quizCurrentIndex = 0;
@@ -1556,18 +1508,14 @@
           quizAnswered = false;
           quizAnsweredSet = new Set();
         }
-
         const question = quizQuestions[quizCurrentIndex];
         if (!question) {
           quizCompleted = true;
           renderQuizComplete();
           return;
         }
-
         const total = quizQuestions.length;
         const current = quizCurrentIndex + 1;
-
-        // Build the quiz HTML with furigana and translation toggle
         let html = `
           <div class="quiz-container">
             <div class="quiz-progress">
@@ -1587,11 +1535,10 @@
               <input type="checkbox" ${showTranslation ? 'checked' : ''} />
             </div>
             <div style="text-align:center; font-size:0.9rem; color:#666; margin-bottom:8px;">
-              Choose the correct kanji to fill the blank:
+              Choose the correct kanji:
             </div>
             <div class="quiz-options" id="quizOptions">
         `;
-
         question.options.forEach((option, idx) => {
           const isCorrect = option === question.correctAnswer;
           let className = 'quiz-option';
@@ -1605,7 +1552,6 @@
             </button>
           `;
         });
-
         html += `
             </div>
             <div class="quiz-explanation" id="quizExplanation">
@@ -1614,9 +1560,6 @@
               <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
                 <button class="speak-btn" onclick="speakFullSentence()" style="padding:6px 14px;border:none;border-radius:30px;background:#4a6a7a;color:white;font-weight:bold;cursor:pointer;font-family:inherit;font-size:0.8rem;box-shadow:0 2px 0 #2a4a5a;">
                   🔊 Full Sentence
-                </button>
-                <button class="speak-btn" onclick="speakReading()" style="padding:6px 14px;border:none;border-radius:30px;background:#4a6a7a;color:white;font-weight:bold;cursor:pointer;font-family:inherit;font-size:0.8rem;box-shadow:0 2px 0 #2a4a5a;">
-                  🔊 Reading
                 </button>
               </div>
             </div>
@@ -1627,15 +1570,10 @@
             </div>
           </div>
         `;
-
         gridContainer.innerHTML = html;
         updateProgress();
         updateStatusBadge();
       }
-
-      // ============================================================
-      // QUIZ TTS FUNCTIONS
-      // ============================================================
 
       let currentQuizQuestion = null;
 
@@ -1653,33 +1591,10 @@
         }, 3000);
       }
 
-      function speakReading() {
-        const question = quizQuestions[quizCurrentIndex];
-        if (!question) return;
-        currentQuizQuestion = question;
-        const reading = question.readingFull || question.reading || '';
-        if (!reading) {
-          messageDiv.innerHTML = '⚠️ No reading available.';
-          return;
-        }
-        speakJapanese(reading);
-        messageDiv.innerHTML = `🔊 Reading: "${reading}"`;
-        setTimeout(() => {
-          if (!quizAnswered && !quizCompleted) {
-            messageDiv.innerHTML = `📝 Question ${quizCurrentIndex + 1}/${quizQuestions.length}`;
-          }
-        }, 3000);
-      }
-
-      // ============================================================
-      // QUIZ ANSWER HANDLERS
-      // ============================================================
-
       function handleQuizAnswer(idx, isCorrect) {
         if (quizAnswered) return;
         quizAnswered = true;
         quizAnsweredSet.add(quizCurrentIndex);
-
         const options = document.querySelectorAll('.quiz-option');
         options.forEach((opt, i) => {
           opt.classList.add('disabled');
@@ -1694,7 +1609,6 @@
             opt.classList.add('reveal-correct');
           }
         });
-
         const question = quizQuestions[quizCurrentIndex];
         if (isCorrect) {
           quizCorrectCount++;
@@ -1702,40 +1616,26 @@
           messageDiv.innerHTML = `✅ Correct! "${question.kanji}" is the right kanji!`;
         } else {
           quizWrongCount++;
-          messageDiv.innerHTML = `❌ Wrong! The correct answer was "${question.correctAnswer}".`;
+          messageDiv.innerHTML = `❌ Wrong! The answer was "${question.correctAnswer}".`;
         }
-
-        // Show explanation with furigana
         const explanation = document.getElementById('quizExplanation');
         const text = document.getElementById('explanationText');
         if (explanation && text) {
           explanation.classList.add('visible');
-          
           let explanationHtml = '';
           explanationHtml += `<strong>Kanji:</strong> ${getFuriganaForKanji(question.kanji, question.reading)} (${question.meaning})<br>`;
           explanationHtml += `<strong>Full sentence:</strong> ${displaySentenceWithFurigana(question.originalSentence)}<br>`;
-          if (question.readingFull) {
-            explanationHtml += `<strong>Reading:</strong> ${question.readingFull}<br>`;
-          } else {
-            explanationHtml += `<strong>Reading:</strong> ${question.reading || '—'}<br>`;
-          }
           explanationHtml += `<strong>Meaning:</strong> ${question.english || '—'}`;
-          
           text.innerHTML = explanationHtml;
         }
-
-        // Hide Hint and Skip buttons when answered
         const hintBtn = document.getElementById('quizHintBtn');
         const skipBtn = document.getElementById('quizSkipBtn');
         if (hintBtn) hintBtn.style.display = 'none';
         if (skipBtn) skipBtn.style.display = 'none';
-
-        // Show Next button
         const nextBtn = document.getElementById('quizNextBtn');
         if (nextBtn) {
           nextBtn.style.display = 'inline-block';
         }
-
         document.querySelector('.quiz-score').textContent = `⭐ ${quizCorrectCount} correct`;
         saveQuizState();
       }
@@ -1743,13 +1643,11 @@
       function nextQuizQuestion() {
         quizAnswered = false;
         quizCurrentIndex++;
-
         if (quizCurrentIndex >= quizQuestions.length) {
           quizCompleted = true;
           renderQuizComplete();
           return;
         }
-
         renderQuiz();
         messageDiv.innerHTML = `📝 Question ${quizCurrentIndex + 1}/${quizQuestions.length}`;
       }
@@ -1759,9 +1657,7 @@
         quizAnswered = true;
         quizSkippedCount++;
         quizAnsweredSet.add(quizCurrentIndex);
-
         const question = quizQuestions[quizCurrentIndex];
-        
         const options = document.querySelectorAll('.quiz-option');
         options.forEach((opt) => {
           opt.classList.add('disabled');
@@ -1769,39 +1665,25 @@
             opt.classList.add('reveal-correct');
           }
         });
-
         messageDiv.innerHTML = `⏭️ Skipped! The answer was "${question.correctAnswer}".`;
-
         const explanation = document.getElementById('quizExplanation');
         const text = document.getElementById('explanationText');
         if (explanation && text) {
           explanation.classList.add('visible');
-          
           let explanationHtml = '';
           explanationHtml += `<strong>Kanji:</strong> ${getFuriganaForKanji(question.kanji, question.reading)} (${question.meaning})<br>`;
           explanationHtml += `<strong>Full sentence:</strong> ${displaySentenceWithFurigana(question.originalSentence)}<br>`;
-          if (question.readingFull) {
-            explanationHtml += `<strong>Reading:</strong> ${question.readingFull}<br>`;
-          } else {
-            explanationHtml += `<strong>Reading:</strong> ${question.reading || '—'}<br>`;
-          }
           explanationHtml += `<strong>Meaning:</strong> ${question.english || '—'}`;
-          
           text.innerHTML = explanationHtml;
         }
-
-        // Hide Hint and Skip buttons when skipped
         const hintBtn = document.getElementById('quizHintBtn');
         const skipBtn = document.getElementById('quizSkipBtn');
         if (hintBtn) hintBtn.style.display = 'none';
         if (skipBtn) skipBtn.style.display = 'none';
-
-        // Show Next button
         const nextBtn = document.getElementById('quizNextBtn');
         if (nextBtn) {
           nextBtn.style.display = 'inline-block';
         }
-
         saveQuizState();
       }
 
@@ -1820,13 +1702,11 @@
         const total = quizQuestions.length;
         const answered = quizAnsweredSet.size;
         const percentage = total > 0 ? Math.round((quizCorrectCount / total) * 100) : 0;
-
         let message = '';
-        if (percentage >= 90) message = '🏆 日本語マスター！ Amazing! You\'re a kanji master!';
-        else if (percentage >= 70) message = '🌟 Great job! You really know your N5 kanji!';
+        if (percentage >= 90) message = '🏆 Amazing! You\'re a kanji master!';
+        else if (percentage >= 70) message = '🌟 Great job!';
         else if (percentage >= 50) message = '📚 Good effort! Keep practicing!';
-        else message = '💪 Keep going! Review the kanji and try again!';
-
+        else message = '💪 Keep going! Review and try again!';
         gridContainer.innerHTML = `
           <div class="quiz-complete">
             <div style="font-size:3rem;">🎉</div>
@@ -1902,7 +1782,6 @@
           const saved = localStorage.getItem(QUIZ_KEY);
           if (!saved) return false;
           const state = JSON.parse(saved);
-          
           if (state.questions && state.questions.length > 0) {
             quizQuestions = state.questions;
             quizCurrentIndex = state.currentIndex || 0;
@@ -1919,22 +1798,13 @@
         }
       }
 
-      // ============================================================
-      // TOGGLE QUIZ MODE
-      // ============================================================
-
       function toggleQuizMode() {
         isQuizMode = !isQuizMode;
-        
         if (isQuizMode) {
           quizBtn.classList.add('active');
           quizBtn.textContent = '🎌 Match';
-          
           primeSpeech();
-          
-          // Load translation preference
           loadTranslationPreference();
-          
           if (!loadQuizState() || quizQuestions.length === 0) {
             quizQuestions = generateQuizQuestions();
             quizCurrentIndex = 0;
@@ -1945,7 +1815,6 @@
             quizCompleted = false;
             quizAnsweredSet = new Set();
           }
-          
           if (quizCompleted || quizCurrentIndex >= quizQuestions.length) {
             quizCompleted = true;
             renderQuizComplete();
@@ -1953,32 +1822,20 @@
             renderQuiz();
             messageDiv.innerHTML = `📝 Quiz Mode - Question ${quizCurrentIndex + 1}/${quizQuestions.length}`;
           }
-          
           statusBadge.textContent = '📝 Quiz Mode';
           statusBadge.className = 'status-badge quiz-badge';
-          
-          document.querySelector('.penalty-box').style.display = 'none';
-          document.querySelector('.set-box').style.display = 'none';
-          
           if (!isPaused) {
             lockBoard = true;
           }
-          
           saveGameState();
         } else {
           quizBtn.classList.remove('active');
           quizBtn.textContent = '📝 Quiz';
-          
           statusBadge.textContent = '▶️ Active';
           statusBadge.className = 'status-badge';
-          
-          document.querySelector('.penalty-box').style.display = 'flex';
-          document.querySelector('.set-box').style.display = 'flex';
-          
           if (!isPaused) {
             lockBoard = false;
           }
-          
           if (activeDeck.length === 0) {
             buildActiveGame();
           } else {
@@ -1987,7 +1844,6 @@
             updateProgress();
             updateStatusBadge();
           }
-          
           messageDiv.innerHTML = '🎯 Back to Matching Mode!';
         }
       }
@@ -2004,14 +1860,12 @@
         const pairsPerSet = parseInt(pairsPerSetSelect.value) || 6;
         const shuffled = shuffleArray([...N5_MATCHING_DATA]);
         const sets = [];
-
         for (let i = 0; i < shuffled.length; i += pairsPerSet) {
           const set = shuffled.slice(i, i + pairsPerSet);
           if (set.length > 0) {
             sets.push(set);
           }
         }
-
         return sets;
       }
 
@@ -2025,13 +1879,52 @@
 
       function buildDeckFromPairs(pairsList) {
         const deck = [];
-        pairsList.forEach((pair, idx) => {
-          const pairKey = pair.id !== undefined ? pair.id : idx;
-
-          if (!pair.kanji || !pair.hiragana) {
-            console.warn("Skipping invalid pair:", pair);
-            return;
+        const readingCount = {};
+        const readingToPairs = {};
+        
+        pairsList.forEach((pair) => {
+          const reading = pair.hiragana;
+          if (!readingCount[reading]) {
+            readingCount[reading] = 0;
+            readingToPairs[reading] = [];
           }
+          readingCount[reading]++;
+          readingToPairs[reading].push(pair);
+        });
+
+        const duplicateReadings = Object.keys(readingCount).filter(r => readingCount[r] > 1);
+        let finalPairs = [...pairsList];
+        
+        duplicateReadings.forEach(reading => {
+          const pairsWithReading = readingToPairs[reading];
+          const keepPair = pairsWithReading[0];
+          const moveToCarryover = pairsWithReading.slice(1);
+          
+          moveToCarryover.forEach(pair => {
+            const pairKey = pair.id || pair.kanji + "_" + pair.hiragana;
+            const index = finalPairs.findIndex(p => (p.id || p.kanji + "_" + p.hiragana) === pairKey);
+            if (index !== -1) {
+              finalPairs.splice(index, 1);
+              const alreadyInCarryover = carryoverPairs.some(cp => 
+                (cp.id || cp.kanji + "_" + cp.hiragana) === pairKey
+              );
+              if (!alreadyInCarryover) {
+                carryoverPairs.push({
+                  id: pair.id || pair.kanji + "_" + Date.now(),
+                  kanji: pair.kanji,
+                  hiragana: pair.hiragana,
+                  meaning: pair.meaning || "",
+                  readingType: pair.readingType || "",
+                  alternativeReadings: pair.alternativeReadings || [],
+                });
+              }
+            }
+          });
+        });
+
+        finalPairs.forEach((pair, idx) => {
+          const pairKey = pair.id !== undefined ? pair.id : idx;
+          if (!pair.kanji || !pair.hiragana) return;
 
           deck.push({
             id: uid(),
@@ -2040,7 +1933,9 @@
             matchId: pairKey,
             pairRef: pair,
             matched: false,
+            meaning: pair.meaning || "",
           });
+          
           deck.push({
             id: uid(),
             type: "kana",
@@ -2048,14 +1943,23 @@
             matchId: pairKey,
             pairRef: pair,
             matched: false,
+            meaning: pair.meaning || "",
           });
         });
+        
+        saveGameState();
         return shuffleArray(deck);
       }
 
-      function buildActiveGame() {
+      function buildActiveGame(startRandom = false) {
         let freshPairs = [];
-        if (currentOriginalSetIndex < MASTER_SETS.length) {
+        
+        if (startRandom && MASTER_SETS.length > 0) {
+          currentOriginalSetIndex = Math.floor(Math.random() * MASTER_SETS.length);
+          freshPairs = MASTER_SETS[currentOriginalSetIndex];
+          totalScore = 0;
+          carryoverPairs = [];
+        } else if (currentOriginalSetIndex < MASTER_SETS.length) {
           freshPairs = MASTER_SETS[currentOriginalSetIndex];
         }
 
@@ -2068,7 +1972,41 @@
             uniqueMap.set(key, pair);
           }
         }
-        const finalPairs = Array.from(uniqueMap.values());
+        let finalPairs = Array.from(uniqueMap.values());
+
+        const readingCheck = {};
+        finalPairs.forEach(p => {
+          const r = p.hiragana;
+          if (!readingCheck[r]) readingCheck[r] = [];
+          readingCheck[r].push(p);
+        });
+        
+        Object.keys(readingCheck).forEach(reading => {
+          if (readingCheck[reading].length > 1) {
+            const keep = readingCheck[reading][0];
+            const extras = readingCheck[reading].slice(1);
+            extras.forEach(p => {
+              const key = p.id || p.kanji + "_" + p.hiragana;
+              const idx = finalPairs.findIndex(fp => (fp.id || fp.kanji + "_" + fp.hiragana) === key);
+              if (idx !== -1) {
+                finalPairs.splice(idx, 1);
+                const alreadyInCarryover = carryoverPairs.some(cp => 
+                  (cp.id || cp.kanji + "_" + cp.hiragana) === key
+                );
+                if (!alreadyInCarryover) {
+                  carryoverPairs.push({
+                    id: p.id || p.kanji + "_" + Date.now(),
+                    kanji: p.kanji,
+                    hiragana: p.hiragana,
+                    meaning: p.meaning || "",
+                    readingType: p.readingType || "",
+                    alternativeReadings: p.alternativeReadings || [],
+                  });
+                }
+              }
+            });
+          }
+        });
 
         if (
           finalPairs.length === 0 &&
@@ -2076,10 +2014,7 @@
           carryoverPairs.length === 0
         ) {
           gameCompleted = true;
-          messageDiv.innerHTML =
-            "🏆 PERFECT MEMORY! You mastered all " +
-            N5_MATCHING_DATA.length +
-            " N5 Kanji! 🏆";
+          messageDiv.innerHTML = "🏆 PERFECT MEMORY! You mastered all N5 Kanji! 🏆";
           gridContainer.innerHTML = `
             <div class="game-complete">
                 🎉 全問制覇 🎉
@@ -2097,9 +2032,6 @@
         activeDeck = newDeck;
         selectedCardIndex = null;
         lockBoard = false;
-        currentlyMatchedCount =
-          activeDeck.filter((c) => c.matched === true).length / 2;
-        totalPairsInActiveDeck = finalPairs.length;
         isWaitingForNext = false;
 
         renderGrid();
@@ -2109,59 +2041,66 @@
 
         const carryCount = carryoverPairs.length;
         if (carryCount > 0) {
-          messageDiv.innerHTML = `⚠️ ${carryCount} mistaken pair(s) follow you! Match them to proceed. ⚠️`;
+          messageDiv.innerHTML = `🔁 ${carryCount} pair(s) need review`;
         } else {
-          const setNum = Math.min(
-            currentOriginalSetIndex + 1,
-            MASTER_SETS.length,
-          );
-          messageDiv.innerHTML = `🎴 Set ${setNum}/${MASTER_SETS.length} + ${carryCount} review pairs. Match Kanji ↔ Hiragana.`;
+          const setNum = Math.min(currentOriginalSetIndex + 1, MASTER_SETS.length);
+          messageDiv.innerHTML = `🎴 Set ${setNum}/${MASTER_SETS.length}`;
         }
         return true;
       }
 
       // ============================================================
-      // SHOW SET COMPLETE WITH NEXT BUTTON
+      // renderGrid
+      // ============================================================
+
+      function renderGrid() {
+        if (isQuizMode) return;
+        gridContainer.innerHTML = "";
+        for (let i = 0; i < activeDeck.length; i++) {
+          const card = activeDeck[i];
+          const tile = document.createElement("div");
+          tile.className = "card";
+          if (card.matched) tile.classList.add("matched");
+          if (selectedCardIndex === i && !card.matched)
+            tile.classList.add("selected");
+          tile.setAttribute("data-type", card.type);
+          tile.innerText = card.displayValue;
+          
+          if (!card.matched && !lockBoard && !gameCompleted && !isPaused && !isWaitingForNext) {
+            tile.style.cursor = "pointer";
+          } else {
+            tile.style.cursor = "default";
+          }
+          tile.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (lockBoard || gameCompleted || isPaused || card.matched || isWaitingForNext || isQuizMode) return;
+            onCardClick(i);
+          });
+          gridContainer.appendChild(tile);
+        }
+      }
+
+      // ============================================================
+      // showSetComplete
       // ============================================================
 
       function showSetComplete() {
-        const allMatched =
-          activeDeck.length > 0 &&
-          activeDeck.every((card) => card.matched === true);
+        const allMatched = activeDeck.length > 0 && activeDeck.every((card) => card.matched === true);
         if (!allMatched || gameCompleted || isWaitingForNext) return;
 
         isWaitingForNext = true;
         lockBoard = true;
 
-        const carryCount = carryoverPairs.length;
-        const setNum = Math.min(
-          currentOriginalSetIndex + 1,
-          MASTER_SETS.length,
-        );
-
-        let message;
-        let buttonClass = "next-set-btn";
-        let buttonText = "▶ Next Set";
-
-        if (carryCount > 0) {
-          message = `✅ All matched! ${carryCount} mistake(s) still need review.`;
-          buttonText = `📚 Review ${carryCount} Mistake(s)`;
-          buttonClass = "next-set-btn review";
-        } else {
-          message = `🎉 Perfect! Set ${setNum}/${MASTER_SETS.length} complete!`;
-          buttonText = "▶ Next Set";
-        }
-
-        messageDiv.innerHTML = message;
-        messageDiv.style.background = carryCount > 0 ? "#f5e6c8" : "#c8e6c9";
-        messageDiv.style.border =
-          carryCount > 0 ? "3px solid #c47d44" : "3px solid #4caf50";
+        const setNum = Math.min(currentOriginalSetIndex + 1, MASTER_SETS.length);
+        messageDiv.innerHTML = `🎉 Perfect! Set ${setNum}/${MASTER_SETS.length} complete! 🎉`;
+        messageDiv.style.background = "#c8e6c9";
+        messageDiv.style.border = "3px solid #4caf50";
 
         const btnContainer = document.createElement("div");
         btnContainer.className = "next-set-container";
         btnContainer.innerHTML = `
-          <button class="${buttonClass}" onclick="advanceToNextSet()">
-            ${buttonText}
+          <button class="next-set-btn" onclick="advanceToNextSet()">
+            ▶ Next Set
           </button>
         `;
         gridContainer.appendChild(btnContainer);
@@ -2174,10 +2113,6 @@
         saveGameState();
         updateStatusBadge();
       }
-
-      // ============================================================
-      // ADVANCE TO NEXT SET
-      // ============================================================
 
       function advanceToNextSet() {
         const btnContainer = document.querySelector(".next-set-container");
@@ -2199,8 +2134,7 @@
             }
           } else {
             gameCompleted = true;
-            messageDiv.innerHTML =
-              "🌟 PERFECT! You've conquered all N5 Kanji! 🌟";
+            messageDiv.innerHTML = "🌟 PERFECT! You've conquered all N5 Kanji! 🌟";
             gridContainer.innerHTML = `
               <div class="game-complete">
                   🏅 日本一の記憶力！ 🏅
@@ -2225,22 +2159,22 @@
         saveGameState();
       }
 
-      // ============================================================
-      // ORIGINAL checkCompletionAndAdvance
-      // ============================================================
-
       function checkCompletionAndAdvance() {
-        const allMatched =
-          activeDeck.length > 0 &&
-          activeDeck.every((card) => card.matched === true);
+        const allMatched = activeDeck.length > 0 && activeDeck.every((card) => card.matched === true);
         if (allMatched && !gameCompleted && activeDeck.length > 0) {
+          if (carryoverPairs.length === 0) {
+            if (isWaitingForNext) {
+              const oldBtn = document.querySelector('.next-set-container');
+              if (oldBtn) oldBtn.remove();
+              isWaitingForNext = false;
+            }
+          }
           showSetComplete();
-          return;
         }
       }
 
       // ============================================================
-      // CARD CLICK HANDLER
+      // onCardClick
       // ============================================================
 
       function onCardClick(clickedIdx) {
@@ -2264,14 +2198,12 @@
         const cardA = selectedCard;
         const cardB = clickedCard;
 
-        let isMatch =
-          cardA.matchId === cardB.matchId && cardA.type !== cardB.type;
+        let isMatch = cardA.matchId === cardB.matchId && cardA.type !== cardB.type;
 
         if (isMatch) {
           cardA.matched = true;
           cardB.matched = true;
           totalScore++;
-          currentlyMatchedCount++;
           updateUI();
           selectedCardIndex = null;
           renderGrid();
@@ -2281,6 +2213,18 @@
             messageDiv.innerHTML = `✔️ Correct! ${cardA.displayValue} = ${cardB.displayValue} (${pairRef.meaning})`;
           } else {
             messageDiv.innerHTML = "✔️ Correct! Great job!";
+          }
+
+          const pairKey = pairRef ? (pairRef.id || pairRef.kanji + "_" + pairRef.hiragana) : null;
+          if (pairKey) {
+            const originalLength = carryoverPairs.length;
+            carryoverPairs = carryoverPairs.filter(p => 
+              (p.id || p.kanji + "_" + p.hiragana) !== pairKey
+            );
+            if (carryoverPairs.length !== originalLength) {
+              saveGameState();
+              updateUI();
+            }
           }
 
           saveGameState();
@@ -2294,41 +2238,41 @@
           }
           updateProgress();
         } else {
-          const mismatchedPairId = cardA.matchId;
-          let wrongPair = cardA.pairRef || cardB.pairRef;
-          if (
-            wrongPair &&
-            !carryoverPairs.some(
-              (p) => (p.id || p.kanji) === (wrongPair.id || wrongPair.kanji),
-            )
-          ) {
-            carryoverPairs.push({
-              id: wrongPair.id || wrongPair.kanji + "_" + Date.now(),
-              kanji: wrongPair.kanji,
-              hiragana: wrongPair.hiragana,
-              meaning: wrongPair.meaning || "",
-              readingType: wrongPair.readingType || "",
-              alternativeReadings: wrongPair.alternativeReadings || [],
-            });
-            updateUI();
-            messageDiv.innerHTML = `❌ Mismatch! "${cardA.displayValue}" ≠ "${cardB.displayValue}". This pair will reappear! ❌`;
-            saveGameState();
-          } else {
-            messageDiv.innerHTML = `❌ Wrong combination. Keep trying!`;
-          }
+          const pairRefA = cardA.pairRef;
+          const pairRefB = cardB.pairRef;
+          
+          [pairRefA, pairRefB].forEach(pairRef => {
+            if (pairRef) {
+              const key = pairRef.id || pairRef.kanji + "_" + pairRef.hiragana;
+              const alreadyInCarryover = carryoverPairs.some(p => 
+                (p.id || p.kanji + "_" + p.hiragana) === key
+              );
+              if (!alreadyInCarryover) {
+                carryoverPairs.push({
+                  id: pairRef.id || pairRef.kanji + "_" + Date.now() + "_" + Math.random(),
+                  kanji: pairRef.kanji,
+                  hiragana: pairRef.hiragana,
+                  meaning: pairRef.meaning || "",
+                  readingType: pairRef.readingType || "",
+                  alternativeReadings: pairRef.alternativeReadings || [],
+                });
+              }
+            }
+          });
+
+          updateUI();
+          messageDiv.innerHTML = `❌ Mismatch! "${cardA.displayValue}" ≠ "${cardB.displayValue}"`;
 
           lockBoard = true;
           renderGrid();
 
           const tiles = document.querySelectorAll(".card");
           if (tiles[selectedCardIndex] && tiles[clickedIdx]) {
-            tiles[selectedCardIndex].style.backgroundColor = "#ffb4a2";
-            tiles[clickedIdx].style.backgroundColor = "#ffb4a2";
+            tiles[selectedCardIndex].classList.add("wrong-flash");
+            tiles[clickedIdx].classList.add("wrong-flash");
             setTimeout(() => {
-              if (tiles[selectedCardIndex])
-                tiles[selectedCardIndex].style.backgroundColor = "";
-              if (tiles[clickedIdx])
-                tiles[clickedIdx].style.backgroundColor = "";
+              tiles[selectedCardIndex].classList.remove("wrong-flash");
+              tiles[clickedIdx].classList.remove("wrong-flash");
             }, 500);
           }
 
@@ -2337,59 +2281,15 @@
             renderGrid();
             lockBoard = false;
           }, 700);
-        }
-      }
-
-      function renderGrid() {
-        if (isQuizMode) return;
-        
-        gridContainer.innerHTML = "";
-        for (let i = 0; i < activeDeck.length; i++) {
-          const card = activeDeck[i];
-          const tile = document.createElement("div");
-          tile.className = "card";
-          if (card.matched) tile.classList.add("matched");
-          if (selectedCardIndex === i && !card.matched)
-            tile.classList.add("selected");
-          tile.setAttribute("data-type", card.type);
-          tile.innerText = card.displayValue;
-          if (
-            !card.matched &&
-            !lockBoard &&
-            !gameCompleted &&
-            !isPaused &&
-            !isWaitingForNext
-          ) {
-            tile.style.cursor = "pointer";
-          } else {
-            tile.style.cursor = "default";
-          }
-          tile.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (
-              lockBoard ||
-              gameCompleted ||
-              isPaused ||
-              card.matched ||
-              isWaitingForNext ||
-              isQuizMode
-            )
-              return;
-            onCardClick(i);
-          });
-          gridContainer.appendChild(tile);
+          
+          saveGameState();
         }
       }
 
       function updateUI() {
-        scoreSpan.innerText = totalScore;
-        const setDisplay = Math.min(
-          currentOriginalSetIndex + 1,
-          MASTER_SETS.length,
-        );
+        const setDisplay = Math.min(currentOriginalSetIndex + 1, MASTER_SETS.length);
         setCounterSpan.innerText = setDisplay;
         totalSetsSpan.innerText = MASTER_SETS.length;
-        carrySpan.innerText = carryoverPairs.length;
         updateProgress();
       }
 
@@ -2406,7 +2306,6 @@
           statusBadge.className = 'status-badge quiz-badge';
           return;
         }
-        
         if (gameCompleted) {
           statusBadge.textContent = "🏆 Complete";
           statusBadge.className = "status-badge";
@@ -2422,24 +2321,15 @@
         }
       }
 
-      // ============================================================
-      // PAUSE FUNCTIONALITY
-      // ============================================================
-
       function togglePause() {
         if (gameCompleted || isQuizMode) return;
-
         isPaused = !isPaused;
-
         if (isPaused) {
           lockBoard = true;
           pauseBtn.textContent = "▶️ Resume";
-          messageDiv.innerHTML =
-            "⏸️ Game Paused - Progress auto-saved! Click Resume to continue.";
+          messageDiv.innerHTML = "⏸️ Game Paused - Click Resume to continue.";
           gridContainer.classList.add("paused");
-          document
-            .querySelectorAll(".card")
-            .forEach((c) => (c.style.cursor = "default"));
+          document.querySelectorAll(".card").forEach((c) => (c.style.cursor = "default"));
           updateStatusBadge();
           saveGameState();
         } else {
@@ -2455,34 +2345,21 @@
         }
       }
 
-      // ============================================================
-      // SAVE & EXIT
-      // ============================================================
-
       function saveAndExit() {
         if (gameCompleted) {
           messageDiv.innerHTML = "🏆 Game already completed! Start a new game.";
           return;
         }
-
         if (activeDeck.length === 0) {
           messageDiv.innerHTML = "No game in progress to save.";
           return;
         }
-
-        if (
-          !confirm(
-            "💾 Save progress and exit?\n\nYou can resume later from the main menu.",
-          )
-        ) {
+        if (!confirm("💾 Save progress and exit?")) {
           return;
         }
-
         saveGameState();
-
         const total = N5_MATCHING_DATA.length;
         const progress = Math.round((totalScore / total) * 100);
-
         gridContainer.innerHTML = `
         <div class="save-screen">
             <div style="font-size:3rem;">💾</div>
@@ -2498,13 +2375,11 @@
             </div>
         </div>
     `;
-
         lockBoard = true;
         pauseBtn.disabled = true;
         document.querySelector(".grid").classList.add("paused");
         updateStatusBadge();
-        messageDiv.innerHTML =
-          "💾 Game saved successfully! You can close the tab safely.";
+        messageDiv.innerHTML = "💾 Game saved successfully!";
       }
 
       function resumeFromSave() {
@@ -2514,7 +2389,6 @@
           fullGameReset();
           return;
         }
-
         currentOriginalSetIndex = saved.currentOriginalSetIndex || 0;
         carryoverPairs = saved.carryoverPairs || [];
         totalScore = saved.totalScore || 0;
@@ -2523,7 +2397,6 @@
         lockBoard = false;
         pauseBtn.disabled = false;
         pauseBtn.textContent = "⏸️ Pause";
-
         if (saved.activeDeckState && saved.activeDeckState.length > 0) {
           activeDeck = saved.activeDeckState.map((card) => ({
             ...card,
@@ -2535,9 +2408,6 @@
               : null,
           }));
           selectedCardIndex = saved.selectedCardIndex || null;
-          currentlyMatchedCount = saved.currentlyMatchedCount || 0;
-          totalPairsInActiveDeck =
-            saved.totalPairsInActiveDeck || activeDeck.length / 2;
         } else {
           const success = buildActiveGame();
           if (!success) {
@@ -2545,33 +2415,22 @@
             return;
           }
         }
-
         renderGrid();
         updateUI();
         updateProgress();
         updateStatusBadge();
         document.querySelector(".grid").classList.remove("paused");
         gridContainer.querySelector(".save-screen")?.remove();
-
         const total = N5_MATCHING_DATA.length;
-        messageDiv.innerHTML = `📂 Resumed! ${totalScore}/${total} kanji matched (${Math.round((totalScore / total) * 100)}%). Carryover: ${carryoverPairs.length}`;
+        messageDiv.innerHTML = `📂 Resumed! ${totalScore}/${total} kanji matched (${Math.round((totalScore / total) * 100)}%).`;
       }
-
-      // ============================================================
-      // RESET
-      // ============================================================
 
       function fullGameReset() {
         if (activeDeck.length > 0 && totalScore > 0) {
-          if (
-            !confirm(
-              "🔄 Start a new game?\n\nYour current progress will be lost.",
-            )
-          ) {
+          if (!confirm("🔄 Start a new game? Your progress will be lost.")) {
             return;
           }
         }
-
         clearSave();
         currentOriginalSetIndex = 0;
         carryoverPairs = [];
@@ -2586,20 +2445,35 @@
         document.querySelector(".grid").classList.remove("paused");
         messageDiv.style.background = "";
         messageDiv.style.border = "";
-
         rebuildMasterSets();
         const success = buildActiveGame();
         if (success !== false) {
           updateUI();
           updateStatusBadge();
-          messageDiv.innerHTML =
-            "🔄 New game! Wrong picks will haunt you — match them wisely!";
+          messageDiv.innerHTML = "🔄 New game! Match Kanji ↔ Hiragana.";
         }
       }
 
-      // ============================================================
-      // STATS
-      // ============================================================
+      function startRandomNewGame() {
+        if (activeDeck.length > 0 && totalScore > 0) {
+          if (!confirm("🔄 Start a new random game? Your progress will be lost.")) {
+            return;
+          }
+        }
+        clearSave();
+        rebuildMasterSets();
+        const success = buildActiveGame(true);
+        if (success !== false) {
+          updateUI();
+          updateStatusBadge();
+          messageDiv.innerHTML = "🎲 Random set loaded! Match Kanji ↔ Hiragana.";
+        }
+        isPaused = false;
+        pauseBtn.textContent = "⏸️ Pause";
+        document.querySelector(".grid").classList.remove("paused");
+        lockBoard = false;
+        pauseBtn.disabled = false;
+      }
 
       function showStats() {
         if (isQuizMode) {
@@ -2617,61 +2491,33 @@
           );
           return;
         }
-
         const total = N5_MATCHING_DATA.length;
         const matched = totalScore;
         const remaining = total - matched;
         const carryCount = carryoverPairs.length;
-        const setsCompleted = Math.min(
-          currentOriginalSetIndex,
-          MASTER_SETS.length,
-        );
+        const setsCompleted = Math.min(currentOriginalSetIndex, MASTER_SETS.length);
         const totalSetsCount = MASTER_SETS.length;
         const progress = Math.round((matched / total) * 100);
-
         let msg = `📊 Game Stats\n\n`;
         msg += `Total N5 Kanji: ${total}\n`;
         msg += `Matched: ${matched}\n`;
         msg += `Remaining: ${remaining}\n`;
         msg += `Progress: ${progress}%\n`;
-        msg += `Carryover pairs: ${carryCount}\n`;
+        msg += `Review pairs: ${carryCount}\n`;
         msg += `Sets completed: ${setsCompleted}/${totalSetsCount}\n`;
-        msg += `Current deck: ${activeDeck.filter((c) => !c.matched).length} cards left\n`;
         msg += `Status: ${gameCompleted ? "🏆 COMPLETE!" : isPaused ? "⏸️ Paused" : "▶️ Active"}\n`;
-
-        if (carryCount > 0) {
-          msg += `\n⚠️ ${carryCount} pair(s) following you:\n`;
-          carryoverPairs.slice(0, 5).forEach((p, i) => {
-            msg += `  ${i + 1}. ${p.kanji} (${p.hiragana})${p.meaning ? " - " + p.meaning : ""}\n`;
-          });
-          if (carryCount > 5) msg += `  ... and ${carryCount - 5} more\n`;
-        }
-
         alert(msg);
       }
-
-      // ============================================================
-      // OPEN KATAKANA APP
-      // ============================================================
 
       function openKatakanaApp() {
         saveGameState();
         window.open("K7-Katakana.html", "_blank");
       }
 
-      // ============================================================
-      // AUTO-SAVE TIMER
-      // ============================================================
-
       function startAutoSaveTimer() {
         if (saveTimer) clearInterval(saveTimer);
         saveTimer = setInterval(() => {
-          if (
-            !isPaused &&
-            !gameCompleted &&
-            activeDeck.length > 0 &&
-            autoSaveEnabled
-          ) {
+          if (!isPaused && !gameCompleted && activeDeck.length > 0 && autoSaveEnabled) {
             saveGameState();
             const indicator = document.getElementById("autoSaveIndicator");
             if (indicator) {
@@ -2684,48 +2530,35 @@
         }, 30000);
       }
 
-      // ============================================================
-      // INITIALIZATION
-      // ============================================================
-
       function initGame() {
         const settings = loadSettings();
-        
         pairsPerSetSelect.addEventListener("change", () => {
           saveSettings();
-          if (
-            activeDeck.length === 0 ||
-            (totalScore === 0 && carryoverPairs.length === 0)
-          ) {
+          if (activeDeck.length === 0 || totalScore === 0) {
             rebuildMasterSets();
             fullGameReset();
           } else {
-            messageDiv.innerHTML =
-              "ℹ️ Settings changed. Start a new game to apply.";
+            messageDiv.innerHTML = "ℹ️ Settings changed. Start a new game to apply.";
           }
         });
-
         autoSaveToggle.addEventListener("change", () => {
           saveSettings();
           autoSaveEnabled = autoSaveToggle.checked;
-          messageDiv.innerHTML = autoSaveEnabled
-            ? "💾 Auto-save enabled"
-            : "💾 Auto-save disabled";
+          messageDiv.innerHTML = autoSaveEnabled ? "💾 Auto-save enabled" : "💾 Auto-save disabled";
           setTimeout(() => {
             if (!gameCompleted) updateStatusBadge();
           }, 1500);
         });
-
         quizBtn.addEventListener("click", toggleQuizMode);
-
+        shuffleBtn.addEventListener("click", shuffleCurrentDeck);
+        resetBtn.addEventListener("click", startRandomNewGame);
+        
         rebuildMasterSets();
-
         document.addEventListener('click', () => {
           if (window.speechSynthesis) {
             window.speechSynthesis.getVoices();
           }
         }, { once: true });
-
         const saved = loadGameState();
         if (saved && saved.totalScore > 0 && !saved.gameCompleted) {
           const total = N5_MATCHING_DATA.length;
@@ -2735,7 +2568,7 @@
               `Progress: ${saved.totalScore}/${total} kanji (${progress}%)\n` +
               `Sets remaining: ${MASTER_SETS.length - saved.currentOriginalSetIndex}\n` +
               `Carryover: ${saved.carryoverPairs?.length || 0} pairs\n\n` +
-              `Click OK to resume, Cancel to start fresh.`,
+              `Click OK to resume, Cancel to start fresh.`
           );
           if (confirmResume) {
             resumeFromSave();
@@ -2744,10 +2577,8 @@
             clearSave();
           }
         }
-
         fullGameReset();
         startAutoSaveTimer();
-
         window.addEventListener("beforeunload", () => {
           if (autoSaveEnabled && !gameCompleted && activeDeck.length > 0) {
             saveGameState();
@@ -2758,17 +2589,10 @@
         });
       }
 
-      // ============================================================
-      // EVENT BINDINGS
-      // ============================================================
-
       pauseBtn.addEventListener("click", togglePause);
       saveBtn.addEventListener("click", saveAndExit);
-      resetBtn.addEventListener("click", fullGameReset);
       showStatsBtn.addEventListener("click", showStats);
-      document
-        .getElementById("katakanaBtn")
-        .addEventListener("click", openKatakanaApp);
+      document.getElementById("katakanaBtn").addEventListener("click", openKatakanaApp);
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" || e.key === "p") {
@@ -2795,6 +2619,10 @@
           e.preventDefault();
           toggleTranslation();
         }
+        if (e.key === "r" || e.key === "R") {
+          e.preventDefault();
+          shuffleCurrentDeck();
+        }
         if (isQuizMode && !quizAnswered && !quizCompleted) {
           if (e.key >= '1' && e.key <= '4') {
             const idx = parseInt(e.key) - 1;
@@ -2809,14 +2637,9 @@
         }
       });
 
-      console.log(
-        "🎮 Kanji Master loaded with " + N5_MATCHING_DATA.length + " N5 kanji!",
-      );
+      console.log("🎮 Kanji Master loaded with " + N5_MATCHING_DATA.length + " N5 kanji!");
       console.log("📚 Total sets: " + MASTER_SETS.length);
-      console.log(
-        "⌨️ Keyboard shortcuts: ESC/P = Pause, Ctrl+S = Save, Enter = Next Set, Q = Quiz Mode, T = Translation Toggle",
-      );
-      console.log("📝 Quiz Mode: 1-4 = Select answer, H = Hint");
+      console.log("⌨️ Shortcuts: ESC/P=Pause, Ctrl+S=Save, Enter=Next Set, Q=Quiz, T=Translation, R=Shuffle");
 
       if (window.speechSynthesis) {
         window.speechSynthesis.getVoices();
