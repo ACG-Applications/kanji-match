@@ -283,6 +283,7 @@
         transform: scale(0.96);
       }
 
+      /* --- CONTAINER QUERY FIX --- */
       .card-face {
         background: #fffef8;
         margin: 14px 16px;
@@ -297,11 +298,11 @@
         padding: 1.2rem 0.8rem;
         flex: 1 1 auto;
         min-height: 0;
+        /* Create a container context for the word inside */
+        container-type: inline-size;
       }
 
-      /* --- FIX: Dynamic font size and wrapping for long words --- */
       .katakana-word {
-        font-size: clamp(1.8rem, 8vw, 3.8rem); /* Shrinks if word is long */
         font-weight: 800;
         letter-spacing: 0.04em;
         font-family: "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", monospace;
@@ -312,12 +313,26 @@
         margin-bottom: 1rem;
         color: #1c412e;
         text-align: center;
-        word-break: break-all; /* Prevents overflow */
+        word-break: break-all;
         line-height: 1.2;
-        max-width: 100%; /* Never exceed card width */
+        max-width: 100%;
         box-shadow:
           inset 0 -1px 0 #eedfc2,
           0 2px 8px rgba(0, 0, 0, 0.05);
+        
+        /* Dynamic scaling based on card width */
+        font-size: clamp(2rem, 14cqi, 4rem);
+      }
+
+      /* Small screens adjustment for the card padding */
+      @media (max-width: 400px) {
+        .card-face {
+          padding: 1rem 0.5rem;
+        }
+        .katakana-word {
+           /* Slightly more aggressive shrink on narrow phones */
+           font-size: clamp(1.6rem, 12cqi, 3rem);
+        }
       }
 
       .english-area {
@@ -819,10 +834,6 @@
       }
 
       @media (max-width: 560px) {
-        /* --- FIX: Force smaller font for tiny screens --- */
-        .katakana-word {
-          font-size: clamp(1.5rem, 7vw, 2.8rem);
-        }
         .english-meaning {
           font-size: 1.4rem;
         }
@@ -864,10 +875,6 @@
       }
 
       @media (max-width: 480px) {
-        /* --- FIX: Force even smaller font for tiny phones --- */
-        .katakana-word {
-          font-size: clamp(1.2rem, 6vw, 2.2rem);
-        }
         .english-meaning {
           font-size: 1.2rem;
         }
