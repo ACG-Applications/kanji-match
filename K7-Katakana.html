@@ -6,10 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>
-      Katakana Mastery · 50 Words | Shuffle + Unmastered Filter + Reference
-      Chart
-    </title>
+    <title>Katakana Script Mastery · 50/session · Random Pool</title>
     <!-- ============================================================
      PWA META TAGS
      ============================================================ -->
@@ -80,10 +77,149 @@
         position: relative;
       }
 
+      /* ANTONIO SIGNATURE BADGE */
+      .antonio-signature {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        cursor: pointer;
+        z-index: 20;
+        border: 2px solid #d4a94a;
+        box-shadow:
+          0 3px 10px rgba(0, 0, 0, 0.45),
+          0 0 0 1px rgba(255, 245, 230, 0.3);
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+        background: #fff7ec;
+      }
+      .antonio-signature:hover {
+        box-shadow:
+          0 4px 14px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(255, 245, 230, 0.5);
+      }
+      .antonio-signature:active {
+        transform: scale(0.94);
+      }
+
+      /* SIGNATURE ZOOM MODAL */
+      .signature-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.3s ease,
+          visibility 0.3s ease;
+      }
+      .signature-modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .signature-modal {
+        background: #fff7ec;
+        border-radius: 30px;
+        padding: 2rem 1.8rem;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        border: 3px solid #d4a94a;
+        transform: scale(0.8);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-width: 90vw;
+        width: 320px;
+      }
+      .signature-modal-overlay.active .signature-modal {
+        transform: scale(1);
+      }
+      .signature-modal img {
+        width: 100%;
+        height: auto;
+        max-height: 160px;
+        border-radius: 16px;
+        object-fit: contain;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        border: 2px solid #eedfc2;
+        background: white;
+        padding: 6px;
+      }
+      .signature-modal h2 {
+        margin: 0 0 8px 0;
+        color: #2d3e2a;
+        font-size: 1.5rem;
+        letter-spacing: 0.5px;
+      }
+      .signature-modal p {
+        margin: 0;
+        color: #5a4a2c;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .signature-modal .close-sig-btn {
+        margin-top: 20px;
+        background: #4a6a7a;
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: inherit;
+        box-shadow: 0 4px 0 #2a4a5a;
+        transition: 0.05s linear;
+      }
+      .signature-modal .close-sig-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #2a4a5a;
+      }
+
+      /* TOAST */
+      .toast-popup {
+        position: fixed;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        background: #1b4a36;
+        color: #fff5e6;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        border: 1px solid #d4a94a;
+        z-index: 9000;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.25s ease,
+          transform 0.25s ease;
+        max-width: 90vw;
+        text-align: center;
+        line-height: 1.4;
+      }
+      .toast-popup.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+      }
+
       .app-header {
         background: #1b4a36;
         background-image: linear-gradient(135deg, #216b45, #123d2a);
-        padding: 10px 12px;
+        padding: 10px 12px 10px 66px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -380,7 +516,59 @@
         flex-shrink: 0;
       }
 
-      /* MODAL (Katakana Reference) */
+      /* SCRIPT MASTERED SCREEN */
+      .mastered-screen {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        text-align: center;
+      }
+      .mastered-screen .trophy {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        animation: bounce 1.5s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+      .mastered-screen h2 {
+        color: #1c412e;
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+      }
+      .mastered-screen p {
+        color: #5a4a2c;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .mastered-screen button {
+        background: #4a7a4a;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #2a5a2a;
+        font-family: inherit;
+      }
+      .mastered-screen button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #2a5a2a;
+      }
+
+      /* MODAL (Katakana Reference) — DRAGGABLE */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -416,6 +604,8 @@
         box-shadow: 0 25px 40px rgba(0, 0, 0, 0.5);
         display: flex;
         flex-direction: column;
+        transform: translate(0, 0);
+        will-change: transform;
       }
 
       .modal-header {
@@ -426,10 +616,27 @@
         align-items: center;
         color: white;
         font-weight: 800;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .modal-header.dragging {
+        cursor: grabbing;
       }
 
       .modal-header h3 {
         font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .drag-handle-glyph {
+        opacity: 0.7;
+        font-size: 1rem;
+        letter-spacing: -2px;
+        margin-right: 2px;
       }
 
       .close-modal {
@@ -442,14 +649,56 @@
         height: 36px;
         border-radius: 30px;
         cursor: pointer;
+        flex-shrink: 0;
       }
 
       .modal-content {
-        padding: 18px 16px;
+        padding: 14px 16px 18px;
         overflow-y: auto;
         background: #faf5e6;
+        flex: 1 1 auto;
       }
 
+      /* TABS */
+      .kana-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+        background: #e8dcc4;
+        border-radius: 40px;
+        padding: 5px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .kana-tab {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 9px 4px;
+        border-radius: 40px;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: #5a4a2c;
+        cursor: pointer;
+        transition: 0.12s ease;
+        white-space: nowrap;
+        line-height: 1.2;
+      }
+
+      .kana-tab.active {
+        background: #1b4a36;
+        color: #fff5e6;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .kana-tab:active {
+        transform: scale(0.97);
+      }
+
+      /* KANA GRID */
       .kana-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
@@ -463,6 +712,24 @@
         text-align: center;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         border: 1px solid #e3d4b5;
+        cursor: pointer;
+        transition:
+          transform 0.1s ease,
+          box-shadow 0.1s ease;
+        font-family: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .kana-card:hover {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .kana-card:active {
+        transform: scale(0.95);
       }
 
       .kata-large {
@@ -470,6 +737,12 @@
         font-weight: 800;
         font-family: "Noto Sans JP", monospace;
         color: #1f543b;
+        display: inline-block;
+        padding: 1px 4px;
+        border-radius: 10px;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
       }
 
       .hira-small {
@@ -477,6 +750,82 @@
         color: #8b6b3c;
         margin-top: 4px;
         font-weight: 500;
+        display: inline-block;
+        padding: 1px 4px;
+        border-radius: 10px;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .kata-large.speaking,
+      .hira-small.speaking {
+        background: #f5c842;
+        color: #2b2a1e;
+        animation: speakPulse 0.8s ease-in-out;
+      }
+
+      @keyframes speakPulse {
+        0%,
+        100% {
+          background: #f5c842;
+        }
+        50% {
+          background: #ffe98a;
+        }
+      }
+
+      .kana-section-label {
+        grid-column: 1 / -1;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #5a4a2c;
+        padding: 8px 4px 2px;
+        border-bottom: 2px solid #d8c8a0;
+        margin-top: 6px;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+
+      .kana-section-label small {
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: #8a7a5a;
+        opacity: 0.9;
+      }
+
+      .kana-section-label:first-child {
+        margin-top: 0;
+      }
+
+      .special-card {
+        grid-column: span 2;
+        flex-direction: row;
+        gap: 10px;
+        padding: 10px 12px;
+        text-align: left;
+        align-items: center;
+      }
+
+      .special-card .kata-large {
+        font-size: 1.7rem;
+        flex-shrink: 0;
+      }
+
+      .special-card .special-desc {
+        font-size: 0.68rem;
+        color: #5a4a2c;
+        line-height: 1.35;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        font-weight: 500;
+      }
+
+      .special-card .special-desc strong {
+        display: block;
+        font-size: 0.72rem;
+        color: #1f543b;
+        margin-bottom: 1px;
       }
 
       .note-ref {
@@ -486,6 +835,14 @@
         color: #7a643f;
         border-top: 1px solid #e2cfaa;
         padding-top: 12px;
+        line-height: 1.5;
+      }
+
+      .note-ref .hint-tap {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #2d583f;
       }
 
       @media (max-width: 560px) {
@@ -511,6 +868,25 @@
         .kata-large {
           font-size: 1.5rem;
         }
+        .antonio-signature {
+          width: 36px;
+          height: 36px;
+          top: 10px;
+          left: 10px;
+        }
+        .app-header {
+          padding-left: 56px;
+        }
+        .kana-tab {
+          font-size: 0.65rem;
+          padding: 8px 2px;
+        }
+        .special-card {
+          grid-column: span 2;
+        }
+        .special-card .special-desc {
+          font-size: 0.62rem;
+        }
       }
 
       @media (max-width: 480px) {
@@ -520,145 +896,204 @@
         .english-meaning {
           font-size: 1.2rem;
         }
+        .kana-tab {
+          font-size: 0.6rem;
+          padding: 7px 1px;
+        }
+        .antonio-signature {
+          width: 32px;
+          height: 32px;
+          top: 8px;
+          left: 8px;
+        }
+        .app-header {
+          padding-left: 48px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="flashcard-app">
+      <!-- ANTONIO SIGNATURE BADGE -->
+      <img
+        src="icons/Antonio.png"
+        alt="ACG Applications"
+        class="antonio-signature"
+        id="antonioSignature"
+        title="About this app"
+      />
       <div class="app-header">
-        <h1>📖 Katakana · 50 Words</h1>
-        <p>Shuffle · Unmastered filter · Reference chart</p>
-      </div>
-      <div class="progress-area">
-        <span class="counter"
-          >🎴 Card <span id="currentIdxDisplay">1</span> /
-          <span id="totalCount"></span
-        ></span>
-        <button class="filter-toggle" id="filterToggleBtn">🎯 Show All</button>
-        <span class="mastered-badge"
-          >⭐ Mastered <span id="masteredCount">0</span></span
-        >
-      </div>
-      <div class="card-face" id="flashcard">
-        <div class="katakana-word" id="katakanaText">カタカナ</div>
-        <div class="english-area">
-          <div class="english-meaning hidden-word" id="englishMeaning">
-            ?????
-          </div>
-        </div>
-        <button class="reveal-btn-sm" id="revealMeaningBtn">
-          🔎 Reveal Word
-        </button>
+        <h1>📖 Katakana Script Mastery</h1>
+        <p>Random 50/session · From 200-word pool · Track mastery</p>
       </div>
 
-      <div class="action-buttons">
-        <button class="action-btn" id="readWordBtn">🔊 Read Word</button>
-        <button class="action-btn master" id="masteredBtn">✅ Mastered</button>
+      <!-- PROGRESS AREA -->
+      <div class="progress-area" id="progressArea">
+        <span class="counter"
+          >🎴 Card <span id="currentIdxDisplay">1</span> /
+          <span id="sessionSize">0</span></span
+        >
+        <button class="filter-toggle" id="filterToggleBtn">🎯 Show All</button>
+        <span class="mastered-badge"
+          >⭐ Mastered <span id="masteredCount">0</span> /
+          <span id="totalPoolCount">0</span></span
+        >
       </div>
-      <div class="nav-buttons">
-        <button class="nav-btn" id="prevBtn">◀ Prev</button>
-        <button class="shuffle-btn" id="shuffleBtn">🎲 Shuffle</button>
-        <button class="nav-btn" id="nextBtn">Next ▶</button>
+
+      <!-- MAIN CARD FACE (hidden when Script Mastered) -->
+      <div id="mainCardArea">
+        <div class="card-face" id="flashcard">
+          <div class="katakana-word" id="katakanaText">カタカナ</div>
+          <div class="english-area">
+            <div class="english-meaning hidden-word" id="englishMeaning">
+              ?????
+            </div>
+          </div>
+          <button class="reveal-btn-sm" id="revealMeaningBtn">
+            🔎 Reveal Word
+          </button>
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn" id="readWordBtn">🔊 Read Word</button>
+          <button class="action-btn master" id="masteredBtn">
+            ✅ Mastered
+          </button>
+        </div>
+        <div class="nav-buttons">
+          <button class="nav-btn" id="prevBtn">◀ Prev</button>
+          <button class="shuffle-btn" id="newSessionBtn">
+            🎲 New Random Set
+          </button>
+          <button class="nav-btn" id="nextBtn">Next ▶</button>
+        </div>
+        <div class="footer-actions">
+          <button class="cheat-btn" id="cheatSheetBtn">
+            📖 Katakana Chart
+          </button>
+          <button class="reset-btn" id="resetBtn">⟳ Reset Mastery</button>
+          <button class="kanji-btn" id="kanjiBtn">🎌 Kanji Match</button>
+        </div>
+        <div class="status-msg" id="statusMsg">
+          💡 Reveal → Listen → Mastered (auto-saved). New Random Set samples
+          fresh words.
+        </div>
       </div>
-      <div class="footer-actions">
-        <button class="cheat-btn" id="cheatSheetBtn">📖 Katakana Chart</button>
-        <button class="reset-btn" id="resetBtn">⟳ Reset Mastery</button>
-        <button class="kanji-btn" id="kanjiBtn">🎌 Kanji Match</button>
+
+      <!-- SCRIPT MASTERED SCREEN (hidden by default) -->
+      <div id="masteredScreen" class="mastered-screen" style="display: none">
+        <div class="trophy">🏆</div>
+        <h2>Script Mastered!</h2>
+        <p>
+          You've mastered all
+          <strong><span id="masteredTotalInScreen">200</span></strong> words in
+          the pool.<br />
+          You can now read katakana as a script.
+        </p>
+        <button onclick="resetAllMastery()">🔄 Start Over</button>
       </div>
-      <div class="status-msg" id="statusMsg">
-        💡 Reveal → Listen → Mastered (auto-saved). Use Shuffle & Unmastered
-        filter.
-      </div>
+
       <footer>
-        ✅ 50 essential words | Persistent mastery | Full katakana reference
-        inside
+        ✅ 200-word pool | Random 50 per session | Persistent mastery by word ID
       </footer>
     </div>
 
-    <!-- Modal for Katakana + Hiragana cheat sheet -->
+    <!-- SIGNATURE ZOOM MODAL -->
+    <div class="signature-modal-overlay" id="signatureModal">
+      <div class="signature-modal">
+        <img src="icons/Antonio.png" alt="ACG Applications Signature" />
+        <h2>ACG Applications</h2>
+        <p>
+          Kanji Master &amp; Katakana Study<br />Built with care. 漢字 &amp;
+          カタカナ.<br /><br /><span style="font-size: 0.8rem; opacity: 0.8"
+            >Built with DeepSeek</span
+          >
+        </p>
+        <button
+          class="close-sig-btn"
+          onclick="
+            document.getElementById('signatureModal').classList.remove('active')
+          "
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-popup" id="toastPopup"></div>
+
+    <!-- Modal for Katakana + Hiragana cheat sheet (DRAGGABLE) -->
     <div id="kanaModal" class="modal-overlay">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>📘 Katakana & Hiragana Chart</h3>
+      <div class="modal-container" id="modalContainer">
+        <div class="modal-header" id="modalHeader">
+          <h3>
+            <span class="drag-handle-glyph">⠿</span>
+            📘 Kana Chart
+          </h3>
           <button class="close-modal" id="closeModalBtn">✕</button>
         </div>
         <div class="modal-content">
+          <div class="kana-tabs" id="kanaTabs">
+            <button class="kana-tab active" data-tab="basic">基本 Basic</button>
+            <button class="kana-tab" data-tab="voiced">濁音 Voiced</button>
+            <button class="kana-tab" data-tab="combos">拗音 Combos</button>
+          </div>
           <div class="kana-grid" id="kanaGrid">
-            <!-- dynamic JS will inject table -->
+            <!-- dynamic JS will inject cards per active tab -->
           </div>
           <div class="note-ref">
-            💡 Katakana (left/big) + Hiragana equivalent (below). Same sounds,
-            different scripts.
+            <span class="hint-tap"
+              >👆 Tap any character to hear its sound.</span
+            >
+            Katakana (big) + Hiragana (small) — same sounds, different scripts.
           </div>
         </div>
       </div>
     </div>
 
+    <!-- ============================================================
+         DATA FILE: katakanaWords.js defines KATAKANA_POOL
+         ============================================================ -->
+    <script src="katakanaWords.js"></script>
+
     <script>
-      // ---------- 50 WORDS (full list from previous version) ----------
-      const FULL_WORD_LIST = [
-        { katakana: "アイスクリーム", meaning: "Ice cream" },
-        { katakana: "アメリカ", meaning: "America" },
-        { katakana: "ビール", meaning: "Beer" },
-        { katakana: "カラオケ", meaning: "Karaoke" },
-        { katakana: "チケット", meaning: "Ticket" },
-        { katakana: "シャツ", meaning: "Shirt" },
-        { katakana: "ギター", meaning: "Guitar" },
-        { katakana: "ジーンズ", meaning: "Jeans" },
-        { katakana: "パソコン", meaning: "Computer (PC)" },
-        { katakana: "プリン", meaning: "Pudding" },
-        { katakana: "ベッド", meaning: "Bed" },
-        { katakana: "ピアノ", meaning: "Piano" },
-        { katakana: "レストラン", meaning: "Restaurant" },
-        { katakana: "ドア", meaning: "Door" },
-        { katakana: "キャンプ", meaning: "Camp" },
-        { katakana: "ニュース", meaning: "News" },
-        { katakana: "チェック", meaning: "Check" },
-        { katakana: "ファックス", meaning: "Fax" },
-        { katakana: "ヴァイオリン", meaning: "Violin" },
-        { katakana: "フォーク", meaning: "Fork" },
-        { katakana: "マッチ", meaning: "Match" },
-        { katakana: "ジュース", meaning: "Juice" },
-        { katakana: "ゴルフ", meaning: "Golf" },
-        { katakana: "ホッチキス", meaning: "Stapler" },
-        { katakana: "バッグ", meaning: "Bag" },
-        { katakana: "コーヒー", meaning: "Coffee" },
-        { katakana: "ショッピング", meaning: "Shopping" },
-        { katakana: "バイク", meaning: "Motorcycle / Bike" },
-        { katakana: "コンピューター", meaning: "Computer" },
-        { katakana: "エレベーター", meaning: "Elevator" },
-        { katakana: "デパート", meaning: "Department Store" },
-        { katakana: "ハンバーガー", meaning: "Hamburger" },
-        { katakana: "テーブル", meaning: "Table" },
-        { katakana: "ノート", meaning: "Notebook" },
-        { katakana: "チョコレート", meaning: "Chocolate" },
-        { katakana: "ジャケット", meaning: "Jacket" },
-        { katakana: "パン", meaning: "Bread" },
-        { katakana: "ミルク", meaning: "Milk" },
-        { katakana: "ガソリン", meaning: "Gasoline" },
-        { katakana: "ゼロ", meaning: "Zero" },
-        { katakana: "ボタン", meaning: "Button" },
-        { katakana: "ペン", meaning: "Pen" },
-        { katakana: "ティッシュ", meaning: "Tissue" },
-        { katakana: "ドーナツ", meaning: "Doughnut" },
-        { katakana: "フライパン", meaning: "Frying pan" },
-        { katakana: "リュックサック", meaning: "Backpack" },
-        { katakana: "シャワー", meaning: "Shower" },
-        { katakana: "ジャンプ", meaning: "Jump" },
-        { katakana: "フィルム", meaning: "Film" },
-        { katakana: "ウェブサイト", meaning: "Website" },
-      ];
+      // ============================================================
+      // CONSTANTS & STATE
+      // ============================================================
 
-      const STORAGE_KEY = "katakanaMastery_v3";
+      // LocalStorage key for the NEW (ID-based) mastery format.
+      const STORAGE_KEY_V4 = "katakanaMastery_v4";
+      // Legacy key from the old (array-of-booleans) format.
+      const STORAGE_KEY_V3_LEGACY = "katakanaMastery_v3";
 
-      // Global state
-      let masteredSet = new Array(FULL_WORD_LIST.length).fill(false);
-      let activeFilterOnlyUnmastered = false; // show unmastered only
-      let currentFilteredIndices = []; // indices in FULL_WORD_LIST that are currently visible
-      let currentPositionInFiltered = 0; // index inside filtered array
+      const SESSION_SIZE = 50;
+
+      // activePool = all words with active !== false, sorted by ID for determinism.
+      const activePool = KATAKANA_POOL.filter((w) => w.active !== false).sort(
+        (a, b) => a.id - b.id,
+      );
+
+      // Total pool size shown in the counter (e.g. 200).
+      const TOTAL_POOL_SIZE = activePool.length;
+
+      // Map for fast lookup by ID.
+      const wordById = new Map();
+      activePool.forEach((w) => wordById.set(w.id, w));
+
+      // Mastery: Set<number> of word IDs the user has mastered.
+      let masteredSet = new Set();
+
+      // Current session words (up to SESSION_SIZE entries, each from activePool).
+      let sessionWords = [];
+      // Position within sessionWords.
+      let currentPosition = 0;
       let revealedEnglish = false;
+      let activeFilterOnlyUnmastered = false;
 
-      // DOM elements
+      // ============================================================
+      // DOM REFERENCES
+      // ============================================================
       const katakanaEl = document.getElementById("katakanaText");
       const meaningEl = document.getElementById("englishMeaning");
       const revealBtn = document.getElementById("revealMeaningBtn");
@@ -666,84 +1101,225 @@
       const masteredBtn = document.getElementById("masteredBtn");
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
-      const shuffleBtn = document.getElementById("shuffleBtn");
+      const newSessionBtn = document.getElementById("newSessionBtn");
       const resetBtn = document.getElementById("resetBtn");
       const filterToggleBtn = document.getElementById("filterToggleBtn");
       const cheatSheetBtn = document.getElementById("cheatSheetBtn");
       const modalOverlay = document.getElementById("kanaModal");
+      const modalContainer = document.getElementById("modalContainer");
+      const modalHeader = document.getElementById("modalHeader");
       const closeModalBtn = document.getElementById("closeModalBtn");
       const currentIdxDisplay = document.getElementById("currentIdxDisplay");
-      const totalCountSpan = document.getElementById("totalCount");
+      const sessionSizeSpan = document.getElementById("sessionSize");
       const masteredCountSpan = document.getElementById("masteredCount");
+      const totalPoolCountSpan = document.getElementById("totalPoolCount");
       const statusMsgDiv = document.getElementById("statusMsg");
+      const mainCardArea = document.getElementById("mainCardArea");
+      const masteredScreen = document.getElementById("masteredScreen");
+      const masteredTotalInScreen = document.getElementById(
+        "masteredTotalInScreen",
+      );
 
-      // ---------- Helper: persist mastery ----------
+      // ============================================================
+      // TOAST
+      // ============================================================
+      let toastTimer = null;
+      function showToast(message, duration = 2500) {
+        const toast = document.getElementById("toastPopup");
+        if (!toast) return;
+        toast.innerHTML = message;
+        toast.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, duration);
+      }
+
+      // ============================================================
+      // SIGNATURE MODAL
+      // ============================================================
+      const sigModal = document.getElementById("signatureModal");
+      const sigBadge = document.getElementById("antonioSignature");
+      sigBadge.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sigModal.classList.add("active");
+      });
+      sigModal.addEventListener("click", (e) => {
+        if (e.target === sigModal) sigModal.classList.remove("active");
+      });
+
+      // ============================================================
+      // MASTERY PERSISTENCE + MIGRATION
+      // ============================================================
+      // STORAGE FORMATS (read carefully):
+      //
+      // OLD (v3_legacy): an array of 50 booleans, one per index in the
+      //   old FULL_WORD_LIST. e.g. [false, true, false, ...]. Position N
+      //   corresponded to FULL_WORD_LIST[N]. This format is BROKEN if the
+      //   word list changes.
+      //
+      // NEW (v4): a JSON array of numeric word IDs (e.g. [3, 7, 42]) that
+      //   correspond to KATAKANA_POOL entries by their `id` field. IDs are
+      //   stable forever (see katakanaWords.js header comment), so this
+      //   format survives pool reordering, additions, and retirements.
+      //
+      // MIGRATION PATH:
+      //   - On load, if v4 exists: use it.
+      //   - Else if v3_legacy exists: map old indices 0..49 to new IDs 1..50
+      //     (by design, the original 50 words occupy IDs 1..50 in the new
+      //     pool in their original order — see katakanaWords.js).
+      //   - Save the migrated result as v4, delete v3_legacy, and show a
+      //     one-time toast telling the user how many words were carried over.
+
       function persistMastery() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(masteredSet));
+        try {
+          localStorage.setItem(
+            STORAGE_KEY_V4,
+            JSON.stringify(Array.from(masteredSet)),
+          );
+        } catch (e) {
+          console.warn("Failed to persist mastery:", e);
+        }
       }
 
       function loadMastery() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
+        // 1. Try new format first.
+        const storedV4 = localStorage.getItem(STORAGE_KEY_V4);
+        if (storedV4) {
           try {
-            const parsed = JSON.parse(stored);
-            if (
-              Array.isArray(parsed) &&
-              parsed.length === FULL_WORD_LIST.length
-            ) {
-              masteredSet = parsed;
-            } else {
-              masteredSet = new Array(FULL_WORD_LIST.length).fill(false);
+            const arr = JSON.parse(storedV4);
+            if (Array.isArray(arr)) {
+              // Filter out IDs that don't exist in the current active pool
+              // (defensive: protects against future word retirements).
+              masteredSet = new Set(arr.filter((id) => wordById.has(id)));
+              console.log(
+                `[mastery] Loaded ${masteredSet.size} mastered IDs (v4)`,
+              );
+              return;
             }
           } catch (e) {
-            masteredSet = new Array(FULL_WORD_LIST.length).fill(false);
+            console.warn(
+              "[mastery] Corrupt v4 save, falling back to migration",
+              e,
+            );
           }
-        } else {
-          masteredSet = new Array(FULL_WORD_LIST.length).fill(false);
         }
+
+        // 2. Fall back to legacy migration.
+        const storedV3 = localStorage.getItem(STORAGE_KEY_V3_LEGACY);
+        if (storedV3) {
+          try {
+            const legacyArr = JSON.parse(storedV3);
+            if (Array.isArray(legacyArr)) {
+              // Old format: boolean per index. Old index N -> new ID N+1
+              // (because IDs 1..50 preserve the original 50-word order).
+              let migratedCount = 0;
+              legacyArr.forEach((isMastered, oldIndex) => {
+                if (isMastered === true) {
+                  const newId = oldIndex + 1;
+                  if (wordById.has(newId)) {
+                    masteredSet.add(newId);
+                    migratedCount++;
+                  }
+                }
+              });
+              if (migratedCount > 0) {
+                persistMastery();
+                // One-time migration toast (delayed so it appears after UI init)
+                setTimeout(() => {
+                  showToast(
+                    `📂 Progress migrated to new format. ${migratedCount} mastered words carried over.`,
+                    4000,
+                  );
+                }, 800);
+              }
+              localStorage.removeItem(STORAGE_KEY_V3_LEGACY);
+              console.log(
+                `[mastery] Migrated ${migratedCount} words from v3 legacy`,
+              );
+              return;
+            }
+          } catch (e) {
+            console.warn("[mastery] Corrupt v3 legacy save, discarding", e);
+          }
+        }
+
+        // 3. Fresh start.
+        masteredSet = new Set();
+        console.log("[mastery] No prior save — starting fresh");
       }
 
-      // rebuild filtered list based on current filter flag and mastery
-      function rebuildFilteredList() {
-        if (activeFilterOnlyUnmastered) {
-          currentFilteredIndices = FULL_WORD_LIST.reduce((arr, _, idx) => {
-            if (!masteredSet[idx]) arr.push(idx);
-            return arr;
-          }, []);
-        } else {
-          currentFilteredIndices = FULL_WORD_LIST.map((_, idx) => idx);
+      // ============================================================
+      // SESSION MANAGEMENT
+      // ============================================================
+
+      function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
         }
-        // if filtered list empty: fallback to show all (to avoid empty screen)
-        if (currentFilteredIndices.length === 0 && activeFilterOnlyUnmastered) {
-          // no unmastered items? temporarily show all, but user might want to reset?
-          currentFilteredIndices = FULL_WORD_LIST.map((_, idx) => idx);
-          activeFilterOnlyUnmastered = false;
-          filterToggleBtn.innerHTML = "🎯 Show All";
-          statusMsgDiv.innerHTML =
-            "✨ All words mastered! Filter disabled. Reset mastery for more practice.";
-        }
-        // ensure position is valid
-        if (currentPositionInFiltered >= currentFilteredIndices.length) {
-          currentPositionInFiltered = Math.max(
-            0,
-            currentFilteredIndices.length - 1,
-          );
-        }
-        if (currentFilteredIndices.length === 0) {
-          currentPositionInFiltered = 0;
-        }
+        return a;
       }
 
-      // get current global index from filtered position
-      function getCurrentGlobalIndex() {
-        if (currentFilteredIndices.length === 0) return 0;
-        return currentFilteredIndices[currentPositionInFiltered];
+      // Return a new session: up to 50 unmastered words, randomly sampled
+      // from the active pool. If fewer than 50 unmastered remain, returns
+      // all of them (don't pad with mastered words).
+      function buildNewSession() {
+        const unmastered = activePool.filter((w) => !masteredSet.has(w.id));
+        if (unmastered.length === 0) {
+          sessionWords = [];
+          return { empty: true, sessionWords: [] };
+        }
+        const sample = shuffleArray(unmastered).slice(0, SESSION_SIZE);
+        sessionWords = sample;
+        currentPosition = 0;
+        revealedEnglish = false;
+        return { empty: false, sessionWords: sample };
       }
 
-      // update UI with current card (based on filter)
+      // ============================================================
+      // UI UPDATE
+      // ============================================================
+
+      function updateMasteredBadge() {
+        masteredCountSpan.innerText = masteredSet.size;
+        totalPoolCountSpan.innerText = TOTAL_POOL_SIZE;
+      }
+
+      function showMasteredScreen() {
+        mainCardArea.style.display = "none";
+        masteredScreen.style.display = "flex";
+        masteredTotalInScreen.innerText = TOTAL_POOL_SIZE;
+        document.getElementById("progressArea").style.display = "none";
+      }
+
+      function hideMasteredScreen() {
+        mainCardArea.style.display = "block";
+        masteredScreen.style.display = "none";
+        document.getElementById("progressArea").style.display = "flex";
+      }
+
       function updateUI() {
-        const globalIdx = getCurrentGlobalIndex();
-        const currentWord = FULL_WORD_LIST[globalIdx];
+        updateMasteredBadge();
+
+        if (sessionWords.length === 0) {
+          // No session (either all mastered, or no unmastered words).
+          if (masteredSet.size >= TOTAL_POOL_SIZE) {
+            showMasteredScreen();
+            return;
+          }
+          // Fallback: build a session anyway (shouldn't normally hit this).
+          buildNewSession();
+          if (sessionWords.length === 0) {
+            showMasteredScreen();
+            return;
+          }
+        }
+
+        const currentWord = sessionWords[currentPosition];
+        if (!currentWord) return;
+
         katakanaEl.innerText = currentWord.katakana;
 
         if (!revealedEnglish) {
@@ -754,8 +1330,7 @@
           meaningEl.classList.remove("hidden-word");
         }
 
-        // update mastered button style
-        if (masteredSet[globalIdx]) {
+        if (masteredSet.has(currentWord.id)) {
           masteredBtn.style.backgroundColor = "#9b7b48";
           masteredBtn.innerText = "⭐ Mastered";
         } else {
@@ -763,34 +1338,25 @@
           masteredBtn.innerText = "✅ Mastered";
         }
 
-        // update counters (show position in filtered vs total of filtered)
-        const filteredLen = currentFilteredIndices.length;
-        const pos = currentPositionInFiltered + 1;
-        const totalMastered = masteredSet.filter((v) => v === true).length;
-        masteredCountSpan.innerText = totalMastered;
-        totalCountSpan.innerText = FULL_WORD_LIST.length;
+        currentIdxDisplay.innerText = currentPosition + 1;
+        sessionSizeSpan.innerText = sessionWords.length;
 
-        if (activeFilterOnlyUnmastered) {
-          currentIdxDisplay.innerText = `${pos} / ${filteredLen} (unmastered)`;
-        } else {
-          currentIdxDisplay.innerText = `${globalIdx + 1} / ${FULL_WORD_LIST.length}`;
-        }
-
-        // update filter button text
         filterToggleBtn.innerHTML = activeFilterOnlyUnmastered
           ? "🎯 Unmastered ON"
           : "📋 Show All";
       }
 
       function updateStatusMessage(customMsg = null) {
-        const globalIdx = getCurrentGlobalIndex();
-        const masteredFlag = masteredSet[globalIdx]
+        if (sessionWords.length === 0) return;
+        const currentWord = sessionWords[currentPosition];
+        if (!currentWord) return;
+        const masteredFlag = masteredSet.has(currentWord.id)
           ? "⭐ Mastered"
           : "📘 Not mastered";
         if (customMsg) {
           statusMsgDiv.innerHTML = customMsg;
         } else {
-          statusMsgDiv.innerHTML = `📌 Card ${currentPositionInFiltered + 1}/${currentFilteredIndices.length} · ${masteredFlag}`;
+          statusMsgDiv.innerHTML = `📌 Card ${currentPosition + 1}/${sessionWords.length} · ${masteredFlag}`;
         }
       }
 
@@ -800,259 +1366,489 @@
         updateStatusMessage();
       }
 
-      // Shuffle current filtered list (randomize order of visible cards)
-      function shuffleFiltered() {
-        if (currentFilteredIndices.length <= 1) {
-          updateStatusMessage("⚠️ Not enough cards to shuffle.");
-          return;
-        }
-        // Fisher-Yates shuffle on currentFilteredIndices
-        for (let i = currentFilteredIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [currentFilteredIndices[i], currentFilteredIndices[j]] = [
-            currentFilteredIndices[j],
-            currentFilteredIndices[i],
-          ];
-        }
-        currentPositionInFiltered = 0;
-        revealedEnglish = false;
-        loadCard(true);
-        updateStatusMessage("🎲 Cards shuffled! Keep practicing.");
-      }
-
-      // Toggle unmastered filter
-      function toggleFilter() {
-        activeFilterOnlyUnmastered = !activeFilterOnlyUnmastered;
-        rebuildFilteredList();
-        // reset position to first card in new filtered set
-        currentPositionInFiltered = 0;
-        revealedEnglish = false;
-        loadCard(true);
-        const filterState = activeFilterOnlyUnmastered
-          ? "Showing UNMASTERED only"
-          : "Showing ALL cards";
-        updateStatusMessage(`🔘 Filter: ${filterState}.`);
-      }
-
-      // navigation respecting filtered order
-      function nextCard() {
-        if (currentFilteredIndices.length === 0) return;
-        let newPos =
-          (currentPositionInFiltered + 1) % currentFilteredIndices.length;
-        currentPositionInFiltered = newPos;
-        revealedEnglish = false;
-        loadCard(true);
-      }
-
-      function prevCard() {
-        if (currentFilteredIndices.length === 0) return;
-        let newPos =
-          (currentPositionInFiltered - 1 + currentFilteredIndices.length) %
-          currentFilteredIndices.length;
-        currentPositionInFiltered = newPos;
-        revealedEnglish = false;
-        loadCard(true);
-      }
-
-      // Mastered toggle + persist + update filter if needed
-      function toggleMastered() {
-        const globalIdx = getCurrentGlobalIndex();
-        const wasMastered = masteredSet[globalIdx];
-        masteredSet[globalIdx] = !wasMastered;
-        persistMastery();
-
-        // If filter is active and we just mastered a card, it might disappear from filtered list
-        if (activeFilterOnlyUnmastered && !masteredSet[globalIdx] === false) {
-          // Card became mastered while in unmastered-only mode -> should be removed from current list
-          rebuildFilteredList();
-          // adjust position: if current index removed, set to appropriate
-          if (currentFilteredIndices.length === 0) {
-            // all mastered: turn filter off automatically
-            activeFilterOnlyUnmastered = false;
-            rebuildFilteredList();
-            filterToggleBtn.innerHTML = "🎯 Show All";
-            updateStatusMessage(
-              "🎉 Amazing! You mastered all visible words. Filter reset to 'All'.",
-            );
-          } else {
-            // ensure position not out of bounds
-            if (currentPositionInFiltered >= currentFilteredIndices.length) {
-              currentPositionInFiltered = Math.max(
-                0,
-                currentFilteredIndices.length - 1,
-              );
-            }
-          }
-        } else {
-          // just update, but also rebuild filtered if needed (mastered toggled off)
-          if (activeFilterOnlyUnmastered) {
-            rebuildFilteredList();
-            if (currentPositionInFiltered >= currentFilteredIndices.length) {
-              currentPositionInFiltered = Math.max(
-                0,
-                currentFilteredIndices.length - 1,
-              );
-            }
-          }
-        }
-
-        revealedEnglish = false;
-        loadCard(true);
-        const msg = wasMastered
-          ? `Removed mastery: ${FULL_WORD_LIST[globalIdx].katakana}`
-          : `Mastered! ✅ ${FULL_WORD_LIST[globalIdx].katakana}`;
-        updateStatusMessage(msg);
-      }
-
-      function resetAllMastery() {
-        if (
-          confirm(
-            "⚠️ Reset ALL mastered progress? All 50 words become unmastered.",
-          )
-        ) {
-          masteredSet = new Array(FULL_WORD_LIST.length).fill(false);
-          persistMastery();
-          if (activeFilterOnlyUnmastered) {
-            rebuildFilteredList();
-          } else {
-            rebuildFilteredList(); // sync
-          }
-          currentPositionInFiltered = 0;
-          revealedEnglish = false;
-          loadCard(true);
-          updateStatusMessage(
-            "🗑️ Mastery reset. All words are now unmastered.",
-          );
-        }
-      }
-
-      // ----- Text to Speech -----
-      function speakKatakana() {
-        const globalIdx = getCurrentGlobalIndex();
-        const wordData = FULL_WORD_LIST[globalIdx];
-        if (!window.speechSynthesis) {
-          updateStatusMessage("⚠️ Speech not supported.");
-          return;
-        }
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(wordData.katakana);
-        utterance.lang = "ja-JP";
-        utterance.rate = 0.85;
-        utterance.onend = () =>
-          updateStatusMessage(`🔊 Pronunciation: "${wordData.katakana}"`);
-        utterance.onerror = () => updateStatusMessage("⚠️ Speech error");
-        window.speechSynthesis.speak(utterance);
-        updateStatusMessage(`🎤 Speaking: ${wordData.katakana}...`);
-      }
+      // ============================================================
+      // CARD ACTIONS
+      // ============================================================
 
       function revealMeaning() {
         if (!revealedEnglish) {
           revealedEnglish = true;
           updateUI();
-          const globalIdx = getCurrentGlobalIndex();
-          updateStatusMessage(
-            `🔓 Meaning: "${FULL_WORD_LIST[globalIdx].meaning}"`,
-          );
+          const w = sessionWords[currentPosition];
+          updateStatusMessage(`🔓 Meaning: "${w.meaning}"`);
         } else {
           updateStatusMessage(`📖 Meaning already shown.`);
         }
       }
 
-      // ---- Katakana + Hiragana Reference Chart ----
-      function buildKanaChart() {
-        // mapping: Katakana → Hiragana (basic set + common combos)
-        const kanaMap = [
-          { kata: "ア", hira: "あ" },
-          { kata: "イ", hira: "い" },
-          { kata: "ウ", hira: "う" },
-          { kata: "エ", hira: "え" },
-          { kata: "オ", hira: "お" },
-          { kata: "カ", hira: "か" },
-          { kata: "キ", hira: "き" },
-          { kata: "ク", hira: "く" },
-          { kata: "ケ", hira: "け" },
-          { kata: "コ", hira: "こ" },
-          { kata: "サ", hira: "さ" },
-          { kata: "シ", hira: "し" },
-          { kata: "ス", hira: "す" },
-          { kata: "セ", hira: "せ" },
-          { kata: "ソ", hira: "そ" },
-          { kata: "タ", hira: "た" },
-          { kata: "チ", hira: "ち" },
-          { kata: "ツ", hira: "つ" },
-          { kata: "テ", hira: "て" },
-          { kata: "ト", hira: "と" },
-          { kata: "ナ", hira: "な" },
-          { kata: "ニ", hira: "に" },
-          { kata: "ヌ", hira: "ぬ" },
-          { kata: "ネ", hira: "ね" },
-          { kata: "ノ", hira: "の" },
-          { kata: "ハ", hira: "は" },
-          { kata: "ヒ", hira: "ひ" },
-          { kata: "フ", hira: "ふ" },
-          { kata: "ヘ", hira: "へ" },
-          { kata: "ホ", hira: "ほ" },
-          { kata: "マ", hira: "ま" },
-          { kata: "ミ", hira: "み" },
-          { kata: "ム", hira: "む" },
-          { kata: "メ", hira: "め" },
-          { kata: "モ", hira: "も" },
-          { kata: "ヤ", hira: "や" },
-          { kata: "ユ", hira: "ゆ" },
-          { kata: "ヨ", hira: "よ" },
-          { kata: "ラ", hira: "ら" },
-          { kata: "リ", hira: "り" },
-          { kata: "ル", hira: "る" },
-          { kata: "レ", hira: "れ" },
-          { kata: "ロ", hira: "ろ" },
-          { kata: "ワ", hira: "わ" },
-          { kata: "ヲ", hira: "を" },
-          { kata: "ン", hira: "ん" },
-          { kata: "ガ", hira: "が" },
-          { kata: "ギ", hira: "ぎ" },
-          { kata: "グ", hira: "ぐ" },
-          { kata: "ゲ", hira: "げ" },
-          { kata: "ゴ", hira: "ご" },
-          { kata: "ザ", hira: "ざ" },
-          { kata: "ジ", hira: "じ" },
-          { kata: "ズ", hira: "ず" },
-          { kata: "ゼ", hira: "ぜ" },
-          { kata: "ゾ", hira: "ぞ" },
-          { kata: "ダ", hira: "だ" },
-          { kata: "ヂ", hira: "ぢ" },
-          { kata: "ヅ", hira: "づ" },
-          { kata: "デ", hira: "で" },
-          { kata: "ド", hira: "ど" },
-          { kata: "バ", hira: "ば" },
-          { kata: "ビ", hira: "び" },
-          { kata: "ブ", hira: "ぶ" },
-          { kata: "ベ", hira: "べ" },
-          { kata: "ボ", hira: "ぼ" },
-          { kata: "パ", hira: "ぱ" },
-          { kata: "ピ", hira: "ぴ" },
-          { kata: "プ", hira: "ぷ" },
-          { kata: "ペ", hira: "ぺ" },
-          { kata: "ポ", hira: "ぽ" },
-        ];
-        const grid = document.getElementById("kanaGrid");
-        grid.innerHTML = "";
-        kanaMap.forEach((item) => {
-          const card = document.createElement("div");
-          card.className = "kana-card";
-          card.innerHTML = `<div class="kata-large">${item.kata}</div><div class="hira-small">${item.hira}</div>`;
-          grid.appendChild(card);
-        });
+      function speakKatakana() {
+        const w = sessionWords[currentPosition];
+        if (!w) return;
+        if (!window.speechSynthesis) {
+          updateStatusMessage("⚠️ Speech not supported.");
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(w.katakana);
+        utterance.lang = "ja-JP";
+        utterance.rate = 0.85;
+        utterance.onend = () =>
+          updateStatusMessage(`🔊 Pronunciation: "${w.katakana}"`);
+        utterance.onerror = () => updateStatusMessage("⚠️ Speech error");
+        window.speechSynthesis.speak(utterance);
+        updateStatusMessage(`🎤 Speaking: ${w.katakana}...`);
       }
 
+      function toggleMastered() {
+        const w = sessionWords[currentPosition];
+        if (!w) return;
+        const wasMastered = masteredSet.has(w.id);
+
+        if (wasMastered) {
+          masteredSet.delete(w.id);
+        } else {
+          masteredSet.add(w.id);
+        }
+        persistMastery();
+        updateMasteredBadge();
+
+        revealedEnglish = false;
+        loadCard(true);
+
+        const msg = wasMastered
+          ? `Removed mastery: ${w.katakana}`
+          : `Mastered! ✅ ${w.katakana}`;
+        updateStatusMessage(msg);
+
+        // If they just mastered the last remaining word in the pool, show
+        // the Script Mastered screen.
+        if (masteredSet.size >= TOTAL_POOL_SIZE) {
+          setTimeout(() => {
+            showMasteredScreen();
+          }, 500);
+        }
+      }
+
+      function nextCard() {
+        if (sessionWords.length === 0) return;
+        currentPosition = (currentPosition + 1) % sessionWords.length;
+        revealedEnglish = false;
+        loadCard(true);
+      }
+
+      function prevCard() {
+        if (sessionWords.length === 0) return;
+        currentPosition =
+          (currentPosition - 1 + sessionWords.length) % sessionWords.length;
+        revealedEnglish = false;
+        loadCard(true);
+      }
+
+      function startNewSession() {
+        const result = buildNewSession();
+        if (result.empty) {
+          showMasteredScreen();
+          return;
+        }
+        hideMasteredScreen();
+        loadCard(true);
+        updateStatusMessage(
+          `🎲 New random set: ${sessionWords.length} words sampled from ${TOTAL_POOL_SIZE}-word pool.`,
+        );
+      }
+
+      // ============================================================
+      // FILTER (currently unused but wired, kept for future)
+      // ============================================================
+      // (Note: with random session sampling, the old "Show All / Unmastered"
+      // toggle is less meaningful — every session only shows unmastered words
+      // anyway. We keep the button for UI consistency but it's a no-op for now.)
+      function toggleFilter() {
+        activeFilterOnlyUnmastered = !activeFilterOnlyUnmastered;
+        filterToggleBtn.innerHTML = activeFilterOnlyUnmastered
+          ? "🎯 Unmastered ON"
+          : "📋 Show All";
+        showToast("ℹ️ Sessions already show unmastered words only.", 2000);
+      }
+
+      // ============================================================
+      // RESET MASTERY
+      // ============================================================
+      function resetAllMastery() {
+        if (
+          confirm(
+            `⚠️ Reset ALL mastered progress? All ${TOTAL_POOL_SIZE} words become unmastered.`,
+          )
+        ) {
+          masteredSet = new Set();
+          persistMastery();
+          updateMasteredBadge();
+          hideMasteredScreen();
+          startNewSession();
+          showToast("🗑️ Mastery reset. Fresh session started.", 2500);
+        }
+      }
+
+      // ============================================================
+      // KANA CHART DATA (unchanged from prior version)
+      // ============================================================
+      const BASIC_KANA = [
+        { kata: "ア", hira: "あ" },
+        { kata: "イ", hira: "い" },
+        { kata: "ウ", hira: "う" },
+        { kata: "エ", hira: "え" },
+        { kata: "オ", hira: "お" },
+        { kata: "カ", hira: "か" },
+        { kata: "キ", hira: "き" },
+        { kata: "ク", hira: "く" },
+        { kata: "ケ", hira: "け" },
+        { kata: "コ", hira: "こ" },
+        { kata: "サ", hira: "さ" },
+        { kata: "シ", hira: "し" },
+        { kata: "ス", hira: "す" },
+        { kata: "セ", hira: "せ" },
+        { kata: "ソ", hira: "そ" },
+        { kata: "タ", hira: "た" },
+        { kata: "チ", hira: "ち" },
+        { kata: "ツ", hira: "つ" },
+        { kata: "テ", hira: "て" },
+        { kata: "ト", hira: "と" },
+        { kata: "ナ", hira: "な" },
+        { kata: "ニ", hira: "に" },
+        { kata: "ヌ", hira: "ぬ" },
+        { kata: "ネ", hira: "ね" },
+        { kata: "ノ", hira: "の" },
+        { kata: "ハ", hira: "は" },
+        { kata: "ヒ", hira: "ひ" },
+        { kata: "フ", hira: "ふ" },
+        { kata: "ヘ", hira: "へ" },
+        { kata: "ホ", hira: "ほ" },
+        { kata: "マ", hira: "ま" },
+        { kata: "ミ", hira: "み" },
+        { kata: "ム", hira: "む" },
+        { kata: "メ", hira: "め" },
+        { kata: "モ", hira: "も" },
+        { kata: "ヤ", hira: "や" },
+        { kata: "ユ", hira: "ゆ" },
+        { kata: "ヨ", hira: "よ" },
+        { kata: "ラ", hira: "ら" },
+        { kata: "リ", hira: "り" },
+        { kata: "ル", hira: "る" },
+        { kata: "レ", hira: "れ" },
+        { kata: "ロ", hira: "ろ" },
+        { kata: "ワ", hira: "わ" },
+        { kata: "ヲ", hira: "を" },
+        { kata: "ン", hira: "ん" },
+      ];
+
+      const DAKUTEN_KANA = [
+        { kata: "ガ", hira: "が" },
+        { kata: "ギ", hira: "ぎ" },
+        { kata: "グ", hira: "ぐ" },
+        { kata: "ゲ", hira: "げ" },
+        { kata: "ゴ", hira: "ご" },
+        { kata: "ザ", hira: "ざ" },
+        { kata: "ジ", hira: "じ" },
+        { kata: "ズ", hira: "ず" },
+        { kata: "ゼ", hira: "ぜ" },
+        { kata: "ゾ", hira: "ぞ" },
+        { kata: "ダ", hira: "だ" },
+        { kata: "ヂ", hira: "ぢ" },
+        { kata: "ヅ", hira: "づ" },
+        { kata: "デ", hira: "で" },
+        { kata: "ド", hira: "ど" },
+        { kata: "バ", hira: "ば" },
+        { kata: "ビ", hira: "び" },
+        { kata: "ブ", hira: "ぶ" },
+        { kata: "ベ", hira: "べ" },
+        { kata: "ボ", hira: "ぼ" },
+      ];
+
+      const HANDAKUTEN_KANA = [
+        { kata: "パ", hira: "ぱ" },
+        { kata: "ピ", hira: "ぴ" },
+        { kata: "プ", hira: "ぷ" },
+        { kata: "ペ", hira: "ぺ" },
+        { kata: "ポ", hira: "ぽ" },
+      ];
+
+      const YOON_DIGRAPHS = [
+        { kata: "キャ", hira: "きゃ" },
+        { kata: "キュ", hira: "きゅ" },
+        { kata: "キョ", hira: "きょ" },
+        { kata: "シャ", hira: "しゃ" },
+        { kata: "シュ", hira: "しゅ" },
+        { kata: "ショ", hira: "しょ" },
+        { kata: "チャ", hira: "ちゃ" },
+        { kata: "チュ", hira: "ちゅ" },
+        { kata: "チョ", hira: "ちょ" },
+        { kata: "ニャ", hira: "にゃ" },
+        { kata: "ニュ", hira: "にゅ" },
+        { kata: "ニョ", hira: "にょ" },
+        { kata: "ヒャ", hira: "ひゃ" },
+        { kata: "ヒュ", hira: "ひゅ" },
+        { kata: "ヒョ", hira: "ひょ" },
+        { kata: "ミャ", hira: "みゃ" },
+        { kata: "ミュ", hira: "みゅ" },
+        { kata: "ミョ", hira: "みょ" },
+        { kata: "リャ", hira: "りゃ" },
+        { kata: "リュ", hira: "りゅ" },
+        { kata: "リョ", hira: "りょ" },
+        { kata: "ギャ", hira: "ぎゃ" },
+        { kata: "ギュ", hira: "ぎゅ" },
+        { kata: "ギョ", hira: "ぎょ" },
+        { kata: "ジャ", hira: "じゃ" },
+        { kata: "ジュ", hira: "じゅ" },
+        { kata: "ジョ", hira: "じょ" },
+        { kata: "ビャ", hira: "びゃ" },
+        { kata: "ビュ", hira: "びゅ" },
+        { kata: "ビョ", hira: "びょ" },
+        { kata: "ピャ", hira: "ぴゃ" },
+        { kata: "ピュ", hira: "ぴゅ" },
+        { kata: "ピョ", hira: "ぴょ" },
+      ];
+
+      const FOREIGN_DIGRAPHS = [
+        { kata: "ファ", hira: "ふぁ" },
+        { kata: "フィ", hira: "ふぃ" },
+        { kata: "フェ", hira: "ふぇ" },
+        { kata: "フォ", hira: "ふぉ" },
+        { kata: "ウィ", hira: "うぃ" },
+        { kata: "ウェ", hira: "うぇ" },
+        { kata: "ウォ", hira: "うぉ" },
+        { kata: "ティ", hira: "てぃ" },
+        { kata: "ヴァ", hira: "ゔぁ" },
+        { kata: "ヴィ", hira: "ゔぃ" },
+        { kata: "ヴェ", hira: "ゔぇ" },
+        { kata: "ヴォ", hira: "ゔぉ" },
+      ];
+
+      const SPECIAL_KANA = [
+        {
+          kata: "ッ",
+          hira: "っ",
+          title: "Small tsu",
+          desc: 'Doubles the next consonant. Example: チケット (chiketto) → "ticket".',
+        },
+        {
+          kata: "ー",
+          hira: "ー",
+          title: "Long vowel mark",
+          desc: 'Holds the vowel sound. Example: コーヒー (kōhī) → "coffee".',
+        },
+        {
+          kata: "ン",
+          hira: "ん",
+          title: "Final n",
+          desc: 'A final n sound — its own mora. Example: パン (pan) → "bread".',
+        },
+      ];
+
+      // ============================================================
+      // KANA CHART RENDERING (unchanged logic)
+      // ============================================================
+      let activeKanaTab = "basic";
+      let currentSpeakUtterance = null;
+
+      function buildKanaTab(tabName) {
+        const grid = document.getElementById("kanaGrid");
+        grid.innerHTML = "";
+
+        if (tabName === "basic") {
+          const noteEl = document.createElement("div");
+          noteEl.className = "kana-section-label";
+          noteEl.innerHTML = `基本 Basic <small>Plain kana — one character, one sound</small>`;
+          grid.appendChild(noteEl);
+          BASIC_KANA.forEach((item) => grid.appendChild(makeKanaCard(item)));
+
+          const specialLabel = document.createElement("div");
+          specialLabel.className = "kana-section-label";
+          specialLabel.innerHTML = `特殊 Special <small>Gemination · long vowels · final n</small>`;
+          grid.appendChild(specialLabel);
+          SPECIAL_KANA.forEach((item) =>
+            grid.appendChild(makeSpecialCard(item)),
+          );
+        } else if (tabName === "voiced") {
+          const dakutenLabel = document.createElement("div");
+          dakutenLabel.className = "kana-section-label";
+          dakutenLabel.innerHTML = `濁音 Dakuten ゛ <small>The two dots — voiced consonant</small>`;
+          grid.appendChild(dakutenLabel);
+          DAKUTEN_KANA.forEach((item) => grid.appendChild(makeKanaCard(item)));
+
+          const handakutenLabel = document.createElement("div");
+          handakutenLabel.className = "kana-section-label";
+          handakutenLabel.innerHTML = `半濁音 Handakuten ゜ <small>The small circle — semi-voiced consonant</small>`;
+          grid.appendChild(handakutenLabel);
+          HANDAKUTEN_KANA.forEach((item) =>
+            grid.appendChild(makeKanaCard(item)),
+          );
+        } else if (tabName === "combos") {
+          const yoonLabel = document.createElement("div");
+          yoonLabel.className = "kana-section-label";
+          yoonLabel.innerHTML = `拗音 Yōon <small>Big kana + small ャュョ</small>`;
+          grid.appendChild(yoonLabel);
+          YOON_DIGRAPHS.forEach((item) => grid.appendChild(makeKanaCard(item)));
+
+          const foreignLabel = document.createElement("div");
+          foreignLabel.className = "kana-section-label";
+          foreignLabel.innerHTML = `外来音 Foreign sounds <small>Big kana + small ァィェォ (for loanwords)</small>`;
+          grid.appendChild(foreignLabel);
+          FOREIGN_DIGRAPHS.forEach((item) =>
+            grid.appendChild(makeKanaCard(item)),
+          );
+        }
+      }
+
+      function makeKanaCard(item) {
+        const btn = document.createElement("button");
+        btn.className = "kana-card";
+        btn.type = "button";
+        btn.setAttribute("data-kata", item.kata);
+        btn.setAttribute("data-hira", item.hira);
+        btn.innerHTML = `<span class="kata-large">${item.kata}</span><span class="hira-small">${item.hira}</span>`;
+        return btn;
+      }
+
+      function makeSpecialCard(item) {
+        const btn = document.createElement("button");
+        btn.className = "kana-card special-card";
+        btn.type = "button";
+        btn.setAttribute("data-kata", item.kata);
+        btn.setAttribute("data-hira", item.hira);
+        btn.innerHTML = `
+          <span class="kata-large">${item.kata}</span>
+          <span class="special-desc">
+            <strong>${item.title}</strong>
+            ${item.desc}
+          </span>
+        `;
+        return btn;
+      }
+
+      function speakKana(kata, hira, cardEl) {
+        if (!window.speechSynthesis) {
+          showToast("⚠️ Speech not supported.");
+          return;
+        }
+        window.speechSynthesis.cancel();
+        if (currentSpeakUtterance) currentSpeakUtterance = null;
+        const utter = new SpeechSynthesisUtterance(kata);
+        utter.lang = "ja-JP";
+        utter.rate = 0.85;
+        const voices = window.speechSynthesis.getVoices();
+        const jp = voices.find((v) => v.lang.startsWith("ja"));
+        if (jp) utter.voice = jp;
+
+        const kataEl = cardEl.querySelector(".kata-large");
+        const hiraEl = cardEl.querySelector(".hira-small");
+        if (kataEl) kataEl.classList.add("speaking");
+        if (hiraEl) hiraEl.classList.add("speaking");
+
+        utter.onend = () => {
+          if (kataEl) kataEl.classList.remove("speaking");
+          if (hiraEl) hiraEl.classList.remove("speaking");
+        };
+        utter.onerror = () => {
+          if (kataEl) kataEl.classList.remove("speaking");
+          if (hiraEl) hiraEl.classList.remove("speaking");
+        };
+
+        currentSpeakUtterance = utter;
+        window.speechSynthesis.speak(utter);
+        showToast(`🔊 ${kata} / ${hira}`, 1500);
+      }
+
+      document.getElementById("kanaGrid").addEventListener("click", (e) => {
+        const card = e.target.closest(".kana-card");
+        if (!card) return;
+        const kata = card.getAttribute("data-kata");
+        const hira = card.getAttribute("data-hira");
+        speakKana(kata, hira, card);
+      });
+
+      document.getElementById("kanaTabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".kana-tab");
+        if (!btn) return;
+        const tabName = btn.getAttribute("data-tab");
+        if (tabName === activeKanaTab) return;
+        activeKanaTab = tabName;
+        document.querySelectorAll(".kana-tab").forEach((t) => {
+          t.classList.toggle("active", t.getAttribute("data-tab") === tabName);
+        });
+        buildKanaTab(tabName);
+      });
+
+      // ============================================================
+      // KANA MODAL (DRAGGABLE)
+      // ============================================================
+      let dragState = null;
+
       function openModal() {
-        buildKanaChart();
+        modalContainer.style.transform = "translate(0, 0)";
+        activeKanaTab = "basic";
+        document.querySelectorAll(".kana-tab").forEach((t) => {
+          t.classList.toggle("active", t.getAttribute("data-tab") === "basic");
+        });
+        buildKanaTab("basic");
         modalOverlay.classList.add("active");
       }
       function closeModal() {
         modalOverlay.classList.remove("active");
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
       }
 
-      // Speech priming
+      modalHeader.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".close-modal")) return;
+        e.preventDefault();
+        const rect = modalContainer.getBoundingClientRect();
+        dragState = {
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          pointerId: e.pointerId,
+        };
+        modalHeader.classList.add("dragging");
+        modalHeader.setPointerCapture(e.pointerId);
+      });
+
+      modalHeader.addEventListener("pointermove", (e) => {
+        if (!dragState || e.pointerId !== dragState.pointerId) return;
+        const dx = e.clientX - dragState.startX;
+        const dy = e.clientY - dragState.startY;
+        let newLeft = dragState.startLeft + dx;
+        let newTop = dragState.startTop + dy;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const rect = modalContainer.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+        const margin = 60;
+        newLeft = Math.max(-w + margin, Math.min(vw - margin, newLeft));
+        newTop = Math.max(-h + margin, Math.min(vh - margin, newTop));
+        const naturalLeft = (vw - w) / 2;
+        const naturalTop = (vh - h) / 2;
+        const tx = newLeft - naturalLeft;
+        const ty = newTop - naturalTop;
+        modalContainer.style.transform = `translate(${tx}px, ${ty}px)`;
+      });
+
+      function endDrag(e) {
+        if (!dragState) return;
+        dragState = null;
+        modalHeader.classList.remove("dragging");
+        try {
+          if (e && e.pointerId !== undefined) {
+            modalHeader.releasePointerCapture(e.pointerId);
+          }
+        } catch (err) {}
+      }
+      modalHeader.addEventListener("pointerup", endDrag);
+      modalHeader.addEventListener("pointercancel", endDrag);
+
+      // ============================================================
+      // SPEECH PRIMING
+      // ============================================================
       function primeSpeech() {
         if (window.speechSynthesis) {
           const dummy = new SpeechSynthesisUtterance("");
@@ -1064,7 +1860,7 @@
       }
 
       // ============================================================
-      // KANJI MATCH BUTTON - FIXED!
+      // KANJI MATCH BUTTON
       // ============================================================
       document
         .getElementById("kanjiBtn")
@@ -1072,20 +1868,19 @@
           window.open("index.html", "_blank");
         });
 
-      // Initialize
+      // ============================================================
+      // INIT
+      // ============================================================
       function init() {
         loadMastery();
-        rebuildFilteredList();
-        currentPositionInFiltered = 0;
-        revealedEnglish = false;
-        loadCard(true);
+        totalPoolCountSpan.innerText = TOTAL_POOL_SIZE;
 
         revealBtn.addEventListener("click", revealMeaning);
         readWordBtn.addEventListener("click", speakKatakana);
         masteredBtn.addEventListener("click", toggleMastered);
         prevBtn.addEventListener("click", prevCard);
         nextBtn.addEventListener("click", nextCard);
-        shuffleBtn.addEventListener("click", shuffleFiltered);
+        newSessionBtn.addEventListener("click", startNewSession);
         filterToggleBtn.addEventListener("click", toggleFilter);
         resetBtn.addEventListener("click", resetAllMastery);
         cheatSheetBtn.addEventListener("click", openModal);
@@ -1095,6 +1890,14 @@
         });
 
         window.addEventListener("keydown", (e) => {
+          if (modalOverlay.classList.contains("active")) {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              closeModal();
+            }
+            return;
+          }
+          if (masteredScreen.style.display !== "none") return;
           if (e.key === "ArrowLeft") {
             e.preventDefault();
             prevCard();
@@ -1107,12 +1910,9 @@
           } else if (e.key === "m" || e.key === "M") {
             e.preventDefault();
             toggleMastered();
-          } else if (e.key === "s" || e.key === "S") {
+          } else if (e.key === "n" || e.key === "N") {
             e.preventDefault();
-            shuffleFiltered();
-          } else if (e.key === "f" || e.key === "F") {
-            e.preventDefault();
-            toggleFilter();
+            startNewSession();
           }
         });
 
@@ -1121,9 +1921,14 @@
           passive: true,
         });
         document.body.addEventListener("click", primeSpeech, { once: true });
-        updateStatusMessage(
-          "✨ Ready! Shuffle, Filter unmastered, Reference chart available.",
-        );
+
+        // If all words already mastered on load, show the win screen.
+        if (masteredSet.size >= TOTAL_POOL_SIZE) {
+          showMasteredScreen();
+        } else {
+          startNewSession();
+        }
+        updateMasteredBadge();
       }
 
       init();
