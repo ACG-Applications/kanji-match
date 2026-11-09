@@ -1,0 +1,9 @@
+Here is the definitive rule set that I have now applied across all 200 words:
+
+Digraphs: Base + small ャュョ (e.g., キャ, ショ, ニュ) = 1 chunk
+
+Small tsu: ッ grabs the next consonant (e.g., ッチ, ッシュ) = 1 chunk
+
+Long vowel: ー attaches to the base character before it (e.g., ビー, マー, ジュー) = 1 chunk
+
+Everything else: Individual base kana (ア, メ, リ, カ) = 1 chunk each
