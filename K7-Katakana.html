@@ -6,7 +6,9 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>Katakana Script Mastery · 50/session · Random Pool</title>
+    <title>
+      Katakana Script Mastery · 50/session · Random Pool
+    </title>
     <!-- ============================================================
      PWA META TAGS
      ============================================================ -->
@@ -89,18 +91,12 @@
         cursor: pointer;
         z-index: 20;
         border: 2px solid #d4a94a;
-        box-shadow:
-          0 3px 10px rgba(0, 0, 0, 0.45),
-          0 0 0 1px rgba(255, 245, 230, 0.3);
-        transition:
-          transform 0.12s ease,
-          box-shadow 0.12s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 245, 230, 0.3);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
         background: #fff7ec;
       }
       .antonio-signature:hover {
-        box-shadow:
-          0 4px 14px rgba(0, 0, 0, 0.55),
-          0 0 0 1px rgba(255, 245, 230, 0.5);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 245, 230, 0.5);
       }
       .antonio-signature:active {
         transform: scale(0.94);
@@ -109,10 +105,7 @@
       /* SIGNATURE ZOOM MODAL */
       .signature-modal-overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(4px);
         display: flex;
@@ -121,9 +114,7 @@
         z-index: 9999;
         opacity: 0;
         visibility: hidden;
-        transition:
-          opacity 0.3s ease,
-          visibility 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
       }
       .signature-modal-overlay.active {
         opacity: 1;
@@ -203,9 +194,7 @@
         z-index: 9000;
         opacity: 0;
         pointer-events: none;
-        transition:
-          opacity 0.25s ease,
-          transform 0.25s ease;
+        transition: opacity 0.25s ease, transform 0.25s ease;
         max-width: 90vw;
         text-align: center;
         line-height: 1.4;
@@ -310,8 +299,9 @@
         min-height: 0;
       }
 
+      /* --- FIX: Dynamic font size and wrapping for long words --- */
       .katakana-word {
-        font-size: 4rem;
+        font-size: clamp(1.8rem, 8vw, 3.8rem); /* Shrinks if word is long */
         font-weight: 800;
         letter-spacing: 0.04em;
         font-family: "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", monospace;
@@ -322,8 +312,9 @@
         margin-bottom: 1rem;
         color: #1c412e;
         text-align: center;
-        word-break: keep-all;
+        word-break: break-all; /* Prevents overflow */
         line-height: 1.2;
+        max-width: 100%; /* Never exceed card width */
         box-shadow:
           inset 0 -1px 0 #eedfc2,
           0 2px 8px rgba(0, 0, 0, 0.05);
@@ -532,13 +523,8 @@
         animation: bounce 1.5s ease-in-out infinite;
       }
       @keyframes bounce {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-12px);
-        }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
       }
       .mastered-screen h2 {
         color: #1c412e;
@@ -583,9 +569,7 @@
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
-        transition:
-          opacity 0.2s ease,
-          visibility 0.2s;
+        transition: opacity 0.2s ease, visibility 0.2s;
         padding: 16px;
       }
 
@@ -713,9 +697,7 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         border: 1px solid #e3d4b5;
         cursor: pointer;
-        transition:
-          transform 0.1s ease,
-          box-shadow 0.1s ease;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
         font-family: inherit;
         display: flex;
         flex-direction: column;
@@ -740,9 +722,7 @@
         display: inline-block;
         padding: 1px 4px;
         border-radius: 10px;
-        transition:
-          background 0.15s ease,
-          color 0.15s ease;
+        transition: background 0.15s ease, color 0.15s ease;
       }
 
       .hira-small {
@@ -753,9 +733,7 @@
         display: inline-block;
         padding: 1px 4px;
         border-radius: 10px;
-        transition:
-          background 0.15s ease,
-          color 0.15s ease;
+        transition: background 0.15s ease, color 0.15s ease;
       }
 
       .kata-large.speaking,
@@ -766,13 +744,8 @@
       }
 
       @keyframes speakPulse {
-        0%,
-        100% {
-          background: #f5c842;
-        }
-        50% {
-          background: #ffe98a;
-        }
+        0%, 100% { background: #f5c842; }
+        50% { background: #ffe98a; }
       }
 
       .kana-section-label {
@@ -846,8 +819,9 @@
       }
 
       @media (max-width: 560px) {
+        /* --- FIX: Force smaller font for tiny screens --- */
         .katakana-word {
-          font-size: 3.2rem;
+          font-size: clamp(1.5rem, 7vw, 2.8rem);
         }
         .english-meaning {
           font-size: 1.4rem;
@@ -890,8 +864,9 @@
       }
 
       @media (max-width: 480px) {
+        /* --- FIX: Force even smaller font for tiny phones --- */
         .katakana-word {
-          font-size: 2.8rem;
+          font-size: clamp(1.2rem, 6vw, 2.2rem);
         }
         .english-meaning {
           font-size: 1.2rem;
@@ -931,12 +906,11 @@
       <div class="progress-area" id="progressArea">
         <span class="counter"
           >🎴 Card <span id="currentIdxDisplay">1</span> /
-          <span id="sessionSize">0</span></span
-        >
+          <span id="sessionSize">0</span
+        ></span>
         <button class="filter-toggle" id="filterToggleBtn">🎯 Show All</button>
         <span class="mastered-badge"
-          >⭐ Mastered <span id="masteredCount">0</span> /
-          <span id="totalPoolCount">0</span></span
+          >⭐ Mastered <span id="masteredCount">0</span> / <span id="totalPoolCount">0</span></span
         >
       </div>
 
@@ -956,38 +930,29 @@
 
         <div class="action-buttons">
           <button class="action-btn" id="readWordBtn">🔊 Read Word</button>
-          <button class="action-btn master" id="masteredBtn">
-            ✅ Mastered
-          </button>
+          <button class="action-btn master" id="masteredBtn">✅ Mastered</button>
         </div>
         <div class="nav-buttons">
           <button class="nav-btn" id="prevBtn">◀ Prev</button>
-          <button class="shuffle-btn" id="newSessionBtn">
-            🎲 New Random Set
-          </button>
+          <button class="shuffle-btn" id="newSessionBtn">🎲 New Random Set</button>
           <button class="nav-btn" id="nextBtn">Next ▶</button>
         </div>
         <div class="footer-actions">
-          <button class="cheat-btn" id="cheatSheetBtn">
-            📖 Katakana Chart
-          </button>
+          <button class="cheat-btn" id="cheatSheetBtn">📖 Katakana Chart</button>
           <button class="reset-btn" id="resetBtn">⟳ Reset Mastery</button>
           <button class="kanji-btn" id="kanjiBtn">🎌 Kanji Match</button>
         </div>
         <div class="status-msg" id="statusMsg">
-          💡 Reveal → Listen → Mastered (auto-saved). New Random Set samples
-          fresh words.
+          💡 Reveal → Listen → Mastered (auto-saved). New Random Set samples fresh words.
         </div>
       </div>
 
       <!-- SCRIPT MASTERED SCREEN (hidden by default) -->
-      <div id="masteredScreen" class="mastered-screen" style="display: none">
+      <div id="masteredScreen" class="mastered-screen" style="display: none;">
         <div class="trophy">🏆</div>
         <h2>Script Mastered!</h2>
         <p>
-          You've mastered all
-          <strong><span id="masteredTotalInScreen">200</span></strong> words in
-          the pool.<br />
+          You've mastered all <strong><span id="masteredTotalInScreen">200</span></strong> words in the pool.<br>
           You can now read katakana as a script.
         </p>
         <button onclick="resetAllMastery()">🔄 Start Over</button>
@@ -1003,20 +968,8 @@
       <div class="signature-modal">
         <img src="icons/Antonio.png" alt="ACG Applications Signature" />
         <h2>ACG Applications</h2>
-        <p>
-          Kanji Master &amp; Katakana Study<br />Built with care. 漢字 &amp;
-          カタカナ.<br /><br /><span style="font-size: 0.8rem; opacity: 0.8"
-            >Built with DeepSeek</span
-          >
-        </p>
-        <button
-          class="close-sig-btn"
-          onclick="
-            document.getElementById('signatureModal').classList.remove('active')
-          "
-        >
-          Close
-        </button>
+        <p>Kanji Master &amp; Katakana Study<br>Built with care. 漢字 &amp; カタカナ.<br><br><span style="font-size:0.8rem; opacity:0.8;">Built with DeepSeek</span></p>
+        <button class="close-sig-btn" onclick="document.getElementById('signatureModal').classList.remove('active')">Close</button>
       </div>
     </div>
 
@@ -1043,9 +996,7 @@
             <!-- dynamic JS will inject cards per active tab -->
           </div>
           <div class="note-ref">
-            <span class="hint-tap"
-              >👆 Tap any character to hear its sound.</span
-            >
+            <span class="hint-tap">👆 Tap any character to hear its sound.</span>
             Katakana (big) + Hiragana (small) — same sounds, different scripts.
           </div>
         </div>
@@ -1070,9 +1021,9 @@
       const SESSION_SIZE = 50;
 
       // activePool = all words with active !== false, sorted by ID for determinism.
-      const activePool = KATAKANA_POOL.filter((w) => w.active !== false).sort(
-        (a, b) => a.id - b.id,
-      );
+      const activePool = KATAKANA_POOL
+        .filter((w) => w.active !== false)
+        .sort((a, b) => a.id - b.id);
 
       // Total pool size shown in the counter (e.g. 200).
       const TOTAL_POOL_SIZE = activePool.length;
@@ -1116,9 +1067,7 @@
       const statusMsgDiv = document.getElementById("statusMsg");
       const mainCardArea = document.getElementById("mainCardArea");
       const masteredScreen = document.getElementById("masteredScreen");
-      const masteredTotalInScreen = document.getElementById(
-        "masteredTotalInScreen",
-      );
+      const masteredTotalInScreen = document.getElementById("masteredTotalInScreen");
 
       // ============================================================
       // TOAST
@@ -1173,10 +1122,7 @@
 
       function persistMastery() {
         try {
-          localStorage.setItem(
-            STORAGE_KEY_V4,
-            JSON.stringify(Array.from(masteredSet)),
-          );
+          localStorage.setItem(STORAGE_KEY_V4, JSON.stringify(Array.from(masteredSet)));
         } catch (e) {
           console.warn("Failed to persist mastery:", e);
         }
@@ -1192,16 +1138,11 @@
               // Filter out IDs that don't exist in the current active pool
               // (defensive: protects against future word retirements).
               masteredSet = new Set(arr.filter((id) => wordById.has(id)));
-              console.log(
-                `[mastery] Loaded ${masteredSet.size} mastered IDs (v4)`,
-              );
+              console.log(`[mastery] Loaded ${masteredSet.size} mastered IDs (v4)`);
               return;
             }
           } catch (e) {
-            console.warn(
-              "[mastery] Corrupt v4 save, falling back to migration",
-              e,
-            );
+            console.warn("[mastery] Corrupt v4 save, falling back to migration", e);
           }
         }
 
@@ -1229,14 +1170,12 @@
                 setTimeout(() => {
                   showToast(
                     `📂 Progress migrated to new format. ${migratedCount} mastered words carried over.`,
-                    4000,
+                    4000
                   );
                 }, 800);
               }
               localStorage.removeItem(STORAGE_KEY_V3_LEGACY);
-              console.log(
-                `[mastery] Migrated ${migratedCount} words from v3 legacy`,
-              );
+              console.log(`[mastery] Migrated ${migratedCount} words from v3 legacy`);
               return;
             }
           } catch (e) {
@@ -1453,16 +1392,13 @@
         hideMasteredScreen();
         loadCard(true);
         updateStatusMessage(
-          `🎲 New random set: ${sessionWords.length} words sampled from ${TOTAL_POOL_SIZE}-word pool.`,
+          `🎲 New random set: ${sessionWords.length} words sampled from ${TOTAL_POOL_SIZE}-word pool.`
         );
       }
 
       // ============================================================
       // FILTER (currently unused but wired, kept for future)
       // ============================================================
-      // (Note: with random session sampling, the old "Show All / Unmastered"
-      // toggle is less meaningful — every session only shows unmastered words
-      // anyway. We keep the button for UI consistency but it's a no-op for now.)
       function toggleFilter() {
         activeFilterOnlyUnmastered = !activeFilterOnlyUnmastered;
         filterToggleBtn.innerHTML = activeFilterOnlyUnmastered
@@ -1477,7 +1413,7 @@
       function resetAllMastery() {
         if (
           confirm(
-            `⚠️ Reset ALL mastered progress? All ${TOTAL_POOL_SIZE} words become unmastered.`,
+            `⚠️ Reset ALL mastered progress? All ${TOTAL_POOL_SIZE} words become unmastered.`
           )
         ) {
           masteredSet = new Set();
@@ -1493,155 +1429,69 @@
       // KANA CHART DATA (unchanged from prior version)
       // ============================================================
       const BASIC_KANA = [
-        { kata: "ア", hira: "あ" },
-        { kata: "イ", hira: "い" },
-        { kata: "ウ", hira: "う" },
-        { kata: "エ", hira: "え" },
-        { kata: "オ", hira: "お" },
-        { kata: "カ", hira: "か" },
-        { kata: "キ", hira: "き" },
-        { kata: "ク", hira: "く" },
-        { kata: "ケ", hira: "け" },
-        { kata: "コ", hira: "こ" },
-        { kata: "サ", hira: "さ" },
-        { kata: "シ", hira: "し" },
-        { kata: "ス", hira: "す" },
-        { kata: "セ", hira: "せ" },
-        { kata: "ソ", hira: "そ" },
-        { kata: "タ", hira: "た" },
-        { kata: "チ", hira: "ち" },
-        { kata: "ツ", hira: "つ" },
-        { kata: "テ", hira: "て" },
-        { kata: "ト", hira: "と" },
-        { kata: "ナ", hira: "な" },
-        { kata: "ニ", hira: "に" },
-        { kata: "ヌ", hira: "ぬ" },
-        { kata: "ネ", hira: "ね" },
-        { kata: "ノ", hira: "の" },
-        { kata: "ハ", hira: "は" },
-        { kata: "ヒ", hira: "ひ" },
-        { kata: "フ", hira: "ふ" },
-        { kata: "ヘ", hira: "へ" },
-        { kata: "ホ", hira: "ほ" },
-        { kata: "マ", hira: "ま" },
-        { kata: "ミ", hira: "み" },
-        { kata: "ム", hira: "む" },
-        { kata: "メ", hira: "め" },
-        { kata: "モ", hira: "も" },
-        { kata: "ヤ", hira: "や" },
-        { kata: "ユ", hira: "ゆ" },
-        { kata: "ヨ", hira: "よ" },
-        { kata: "ラ", hira: "ら" },
-        { kata: "リ", hira: "り" },
-        { kata: "ル", hira: "る" },
-        { kata: "レ", hira: "れ" },
-        { kata: "ロ", hira: "ろ" },
-        { kata: "ワ", hira: "わ" },
-        { kata: "ヲ", hira: "を" },
-        { kata: "ン", hira: "ん" },
+        { kata: "ア", hira: "あ" }, { kata: "イ", hira: "い" }, { kata: "ウ", hira: "う" },
+        { kata: "エ", hira: "え" }, { kata: "オ", hira: "お" },
+        { kata: "カ", hira: "か" }, { kata: "キ", hira: "き" }, { kata: "ク", hira: "く" },
+        { kata: "ケ", hira: "け" }, { kata: "コ", hira: "こ" },
+        { kata: "サ", hira: "さ" }, { kata: "シ", hira: "し" }, { kata: "ス", hira: "す" },
+        { kata: "セ", hira: "せ" }, { kata: "ソ", hira: "そ" },
+        { kata: "タ", hira: "た" }, { kata: "チ", hira: "ち" }, { kata: "ツ", hira: "つ" },
+        { kata: "テ", hira: "て" }, { kata: "ト", hira: "と" },
+        { kata: "ナ", hira: "な" }, { kata: "ニ", hira: "に" }, { kata: "ヌ", hira: "ぬ" },
+        { kata: "ネ", hira: "ね" }, { kata: "ノ", hira: "の" },
+        { kata: "ハ", hira: "は" }, { kata: "ヒ", hira: "ひ" }, { kata: "フ", hira: "ふ" },
+        { kata: "ヘ", hira: "へ" }, { kata: "ホ", hira: "ほ" },
+        { kata: "マ", hira: "ま" }, { kata: "ミ", hira: "み" }, { kata: "ム", hira: "む" },
+        { kata: "メ", hira: "め" }, { kata: "モ", hira: "も" },
+        { kata: "ヤ", hira: "や" }, { kata: "ユ", hira: "ゆ" }, { kata: "ヨ", hira: "よ" },
+        { kata: "ラ", hira: "ら" }, { kata: "リ", hira: "り" }, { kata: "ル", hira: "る" },
+        { kata: "レ", hira: "れ" }, { kata: "ロ", hira: "ろ" },
+        { kata: "ワ", hira: "わ" }, { kata: "ヲ", hira: "を" }, { kata: "ン", hira: "ん" },
       ];
 
       const DAKUTEN_KANA = [
-        { kata: "ガ", hira: "が" },
-        { kata: "ギ", hira: "ぎ" },
-        { kata: "グ", hira: "ぐ" },
-        { kata: "ゲ", hira: "げ" },
-        { kata: "ゴ", hira: "ご" },
-        { kata: "ザ", hira: "ざ" },
-        { kata: "ジ", hira: "じ" },
-        { kata: "ズ", hira: "ず" },
-        { kata: "ゼ", hira: "ぜ" },
-        { kata: "ゾ", hira: "ぞ" },
-        { kata: "ダ", hira: "だ" },
-        { kata: "ヂ", hira: "ぢ" },
-        { kata: "ヅ", hira: "づ" },
-        { kata: "デ", hira: "で" },
-        { kata: "ド", hira: "ど" },
-        { kata: "バ", hira: "ば" },
-        { kata: "ビ", hira: "び" },
-        { kata: "ブ", hira: "ぶ" },
-        { kata: "ベ", hira: "べ" },
-        { kata: "ボ", hira: "ぼ" },
+        { kata: "ガ", hira: "が" }, { kata: "ギ", hira: "ぎ" }, { kata: "グ", hira: "ぐ" },
+        { kata: "ゲ", hira: "げ" }, { kata: "ゴ", hira: "ご" },
+        { kata: "ザ", hira: "ざ" }, { kata: "ジ", hira: "じ" }, { kata: "ズ", hira: "ず" },
+        { kata: "ゼ", hira: "ぜ" }, { kata: "ゾ", hira: "ぞ" },
+        { kata: "ダ", hira: "だ" }, { kata: "ヂ", hira: "ぢ" }, { kata: "ヅ", hira: "づ" },
+        { kata: "デ", hira: "で" }, { kata: "ド", hira: "ど" },
+        { kata: "バ", hira: "ば" }, { kata: "ビ", hira: "び" }, { kata: "ブ", hira: "ぶ" },
+        { kata: "ベ", hira: "べ" }, { kata: "ボ", hira: "ぼ" },
       ];
 
       const HANDAKUTEN_KANA = [
-        { kata: "パ", hira: "ぱ" },
-        { kata: "ピ", hira: "ぴ" },
-        { kata: "プ", hira: "ぷ" },
-        { kata: "ペ", hira: "ぺ" },
-        { kata: "ポ", hira: "ぽ" },
+        { kata: "パ", hira: "ぱ" }, { kata: "ピ", hira: "ぴ" }, { kata: "プ", hira: "ぷ" },
+        { kata: "ペ", hira: "ぺ" }, { kata: "ポ", hira: "ぽ" },
       ];
 
       const YOON_DIGRAPHS = [
-        { kata: "キャ", hira: "きゃ" },
-        { kata: "キュ", hira: "きゅ" },
-        { kata: "キョ", hira: "きょ" },
-        { kata: "シャ", hira: "しゃ" },
-        { kata: "シュ", hira: "しゅ" },
-        { kata: "ショ", hira: "しょ" },
-        { kata: "チャ", hira: "ちゃ" },
-        { kata: "チュ", hira: "ちゅ" },
-        { kata: "チョ", hira: "ちょ" },
-        { kata: "ニャ", hira: "にゃ" },
-        { kata: "ニュ", hira: "にゅ" },
-        { kata: "ニョ", hira: "にょ" },
-        { kata: "ヒャ", hira: "ひゃ" },
-        { kata: "ヒュ", hira: "ひゅ" },
-        { kata: "ヒョ", hira: "ひょ" },
-        { kata: "ミャ", hira: "みゃ" },
-        { kata: "ミュ", hira: "みゅ" },
-        { kata: "ミョ", hira: "みょ" },
-        { kata: "リャ", hira: "りゃ" },
-        { kata: "リュ", hira: "りゅ" },
-        { kata: "リョ", hira: "りょ" },
-        { kata: "ギャ", hira: "ぎゃ" },
-        { kata: "ギュ", hira: "ぎゅ" },
-        { kata: "ギョ", hira: "ぎょ" },
-        { kata: "ジャ", hira: "じゃ" },
-        { kata: "ジュ", hira: "じゅ" },
-        { kata: "ジョ", hira: "じょ" },
-        { kata: "ビャ", hira: "びゃ" },
-        { kata: "ビュ", hira: "びゅ" },
-        { kata: "ビョ", hira: "びょ" },
-        { kata: "ピャ", hira: "ぴゃ" },
-        { kata: "ピュ", hira: "ぴゅ" },
-        { kata: "ピョ", hira: "ぴょ" },
+        { kata: "キャ", hira: "きゃ" }, { kata: "キュ", hira: "きゅ" }, { kata: "キョ", hira: "きょ" },
+        { kata: "シャ", hira: "しゃ" }, { kata: "シュ", hira: "しゅ" }, { kata: "ショ", hira: "しょ" },
+        { kata: "チャ", hira: "ちゃ" }, { kata: "チュ", hira: "ちゅ" }, { kata: "チョ", hira: "ちょ" },
+        { kata: "ニャ", hira: "にゃ" }, { kata: "ニュ", hira: "にゅ" }, { kata: "ニョ", hira: "にょ" },
+        { kata: "ヒャ", hira: "ひゃ" }, { kata: "ヒュ", hira: "ひゅ" }, { kata: "ヒョ", hira: "ひょ" },
+        { kata: "ミャ", hira: "みゃ" }, { kata: "ミュ", hira: "みゅ" }, { kata: "ミョ", hira: "みょ" },
+        { kata: "リャ", hira: "りゃ" }, { kata: "リュ", hira: "りゅ" }, { kata: "リョ", hira: "りょ" },
+        { kata: "ギャ", hira: "ぎゃ" }, { kata: "ギュ", hira: "ぎゅ" }, { kata: "ギョ", hira: "ぎょ" },
+        { kata: "ジャ", hira: "じゃ" }, { kata: "ジュ", hira: "じゅ" }, { kata: "ジョ", hira: "じょ" },
+        { kata: "ビャ", hira: "びゃ" }, { kata: "ビュ", hira: "びゅ" }, { kata: "ビョ", hira: "びょ" },
+        { kata: "ピャ", hira: "ぴゃ" }, { kata: "ピュ", hira: "ぴゅ" }, { kata: "ピョ", hira: "ぴょ" },
       ];
 
       const FOREIGN_DIGRAPHS = [
-        { kata: "ファ", hira: "ふぁ" },
-        { kata: "フィ", hira: "ふぃ" },
-        { kata: "フェ", hira: "ふぇ" },
-        { kata: "フォ", hira: "ふぉ" },
-        { kata: "ウィ", hira: "うぃ" },
-        { kata: "ウェ", hira: "うぇ" },
-        { kata: "ウォ", hira: "うぉ" },
+        { kata: "ファ", hira: "ふぁ" }, { kata: "フィ", hira: "ふぃ" },
+        { kata: "フェ", hira: "ふぇ" }, { kata: "フォ", hira: "ふぉ" },
+        { kata: "ウィ", hira: "うぃ" }, { kata: "ウェ", hira: "うぇ" }, { kata: "ウォ", hira: "うぉ" },
         { kata: "ティ", hira: "てぃ" },
-        { kata: "ヴァ", hira: "ゔぁ" },
-        { kata: "ヴィ", hira: "ゔぃ" },
-        { kata: "ヴェ", hira: "ゔぇ" },
-        { kata: "ヴォ", hira: "ゔぉ" },
+        { kata: "ヴァ", hira: "ゔぁ" }, { kata: "ヴィ", hira: "ゔぃ" },
+        { kata: "ヴェ", hira: "ゔぇ" }, { kata: "ヴォ", hira: "ゔぉ" },
       ];
 
       const SPECIAL_KANA = [
-        {
-          kata: "ッ",
-          hira: "っ",
-          title: "Small tsu",
-          desc: 'Doubles the next consonant. Example: チケット (chiketto) → "ticket".',
-        },
-        {
-          kata: "ー",
-          hira: "ー",
-          title: "Long vowel mark",
-          desc: 'Holds the vowel sound. Example: コーヒー (kōhī) → "coffee".',
-        },
-        {
-          kata: "ン",
-          hira: "ん",
-          title: "Final n",
-          desc: 'A final n sound — its own mora. Example: パン (pan) → "bread".',
-        },
+        { kata: "ッ", hira: "っ", title: "Small tsu", desc: "Doubles the next consonant. Example: チケット (chiketto) → \"ticket\"." },
+        { kata: "ー", hira: "ー", title: "Long vowel mark", desc: "Holds the vowel sound. Example: コーヒー (kōhī) → \"coffee\"." },
+        { kata: "ン", hira: "ん", title: "Final n", desc: "A final n sound — its own mora. Example: パン (pan) → \"bread\"." },
       ];
 
       // ============================================================
@@ -1665,9 +1515,7 @@
           specialLabel.className = "kana-section-label";
           specialLabel.innerHTML = `特殊 Special <small>Gemination · long vowels · final n</small>`;
           grid.appendChild(specialLabel);
-          SPECIAL_KANA.forEach((item) =>
-            grid.appendChild(makeSpecialCard(item)),
-          );
+          SPECIAL_KANA.forEach((item) => grid.appendChild(makeSpecialCard(item)));
         } else if (tabName === "voiced") {
           const dakutenLabel = document.createElement("div");
           dakutenLabel.className = "kana-section-label";
@@ -1679,9 +1527,7 @@
           handakutenLabel.className = "kana-section-label";
           handakutenLabel.innerHTML = `半濁音 Handakuten ゜ <small>The small circle — semi-voiced consonant</small>`;
           grid.appendChild(handakutenLabel);
-          HANDAKUTEN_KANA.forEach((item) =>
-            grid.appendChild(makeKanaCard(item)),
-          );
+          HANDAKUTEN_KANA.forEach((item) => grid.appendChild(makeKanaCard(item)));
         } else if (tabName === "combos") {
           const yoonLabel = document.createElement("div");
           yoonLabel.className = "kana-section-label";
@@ -1693,9 +1539,7 @@
           foreignLabel.className = "kana-section-label";
           foreignLabel.innerHTML = `外来音 Foreign sounds <small>Big kana + small ァィェォ (for loanwords)</small>`;
           grid.appendChild(foreignLabel);
-          FOREIGN_DIGRAPHS.forEach((item) =>
-            grid.appendChild(makeKanaCard(item)),
-          );
+          FOREIGN_DIGRAPHS.forEach((item) => grid.appendChild(makeKanaCard(item)));
         }
       }
 
@@ -1862,11 +1706,9 @@
       // ============================================================
       // KANJI MATCH BUTTON
       // ============================================================
-      document
-        .getElementById("kanjiBtn")
-        .addEventListener("click", function () {
-          window.open("index.html", "_blank");
-        });
+      document.getElementById("kanjiBtn").addEventListener("click", function () {
+        window.open("index.html", "_blank");
+      });
 
       // ============================================================
       // INIT
@@ -1898,22 +1740,11 @@
             return;
           }
           if (masteredScreen.style.display !== "none") return;
-          if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            prevCard();
-          } else if (e.key === "ArrowRight") {
-            e.preventDefault();
-            nextCard();
-          } else if (e.key === " " || e.key === "Space") {
-            e.preventDefault();
-            revealMeaning();
-          } else if (e.key === "m" || e.key === "M") {
-            e.preventDefault();
-            toggleMastered();
-          } else if (e.key === "n" || e.key === "N") {
-            e.preventDefault();
-            startNewSession();
-          }
+          if (e.key === "ArrowLeft") { e.preventDefault(); prevCard(); }
+          else if (e.key === "ArrowRight") { e.preventDefault(); nextCard(); }
+          else if (e.key === " " || e.key === "Space") { e.preventDefault(); revealMeaning(); }
+          else if (e.key === "m" || e.key === "M") { e.preventDefault(); toggleMastered(); }
+          else if (e.key === "n" || e.key === "N") { e.preventDefault(); startNewSession(); }
         });
 
         document.body.addEventListener("touchstart", primeSpeech, {
