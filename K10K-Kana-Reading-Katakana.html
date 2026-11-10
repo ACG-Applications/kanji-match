@@ -240,12 +240,13 @@
     <!-- DATA + STATE -->
     <script src="kanaMasterData.js"></script>
     <script src="kanaState.js"></script>
+    <script src="kanaData.js"></script>
 
     <script>
       // ============================================================
       // CONFIG
       // ============================================================
-      const SCRIPT = "katakana";       // <-- CHANGED to katakana
+      const SCRIPT = "katakana";
       const GRID_SIZE = 16;
       const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
       let AUTO_PLAY = true;
@@ -341,30 +342,103 @@
       }
 
       // ============================================================
-      // TTS - FIXED PRIMING
+      // AUDIO - MP3 WITH TTS FALLBACK
       // ============================================================
-      function primeAudio() {
-        if (audioPrimed || !window.speechSynthesis) return;
-        audioPrimed = true;
-        const primer = new SpeechSynthesisUtterance(" ");
-        primer.volume = 0;
-        window.speechSynthesis.speak(primer);
-      }
+      
+      const ROMAJI_MAP = {
+        "あ": "a", "い": "i", "う": "u", "え": "e", "お": "o",
+        "か": "ka", "き": "ki", "く": "ku", "け": "ke", "こ": "ko",
+        "さ": "sa", "し": "shi", "す": "su", "せ": "se", "そ": "so",
+        "た": "ta", "ち": "chi", "つ": "tsu", "て": "te", "と": "to",
+        "な": "na", "に": "ni", "ぬ": "nu", "ね": "ne", "の": "no",
+        "は": "ha", "ひ": "hi", "ふ": "fu", "へ": "he", "ほ": "ho",
+        "ま": "ma", "み": "mi", "む": "mu", "め": "me", "も": "mo",
+        "や": "ya", "ゆ": "yu", "よ": "yo",
+        "ら": "ra", "り": "ri", "る": "ru", "れ": "re", "ろ": "ro",
+        "わ": "wa", "を": "wo", "ん": "n",
+        
+        "が": "ga", "ぎ": "gi", "ぐ": "gu", "げ": "ge", "ご": "go",
+        "ざ": "za", "じ": "ji", "ず": "zu", "ぜ": "ze", "ぞ": "zo",
+        "だ": "da", "ぢ": "di", "づ": "du", "で": "de", "ど": "do",
+        "ば": "ba", "び": "bi", "ぶ": "bu", "べ": "be", "ぼ": "bo",
+        
+        "ぱ": "pa", "ぴ": "pi", "ぷ": "pu", "ぺ": "pe", "ぽ": "po",
+        
+        "きゃ": "kya", "きゅ": "kyu", "きょ": "kyo",
+        "しゃ": "sya", "しゅ": "syu", "しょ": "syo",
+        "ちゃ": "cya", "ちゅ": "cyu", "ちょ": "cyo",
+        "にゃ": "nya", "にゅ": "nyu", "にょ": "nyo",
+        "ひゃ": "hya", "ひゅ": "hyu", "ひょ": "hyo",
+        "みゃ": "mya", "みゅ": "myu", "みょ": "myo",
+        "りゃ": "rya", "りゅ": "ryu", "りょ": "ryo",
+        "ぎゃ": "gya", "ぎゅ": "gyu", "ぎょ": "gyo",
+        "じゃ": "zya", "じゅ": "zyu", "じょ": "zyo",
+        "びゃ": "bya", "びゅ": "byu", "びょ": "byo",
+        "ぴゃ": "pya", "ぴゅ": "pyu", "ぴょ": "pyo"
+      };
 
-            function speakKana(char, onEnd) {
-        if (!window.speechSynthesis) {
-          showToast("⚠️ Speech not supported.");
-          if (onEnd) onEnd();
-          return;
+      let currentAudio = null;
+
+      function speakKana(char, onEnd) {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
         }
-
         window.speechSynthesis.cancel();
+
         isSpeaking = true;
         if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.add("speaking");
 
+        let lookupChar = char;
+        if (SCRIPT === "katakana") {
+          const allKana = [...BASIC_KANA, ...DAKUTEN_KANA, ...HANDAKUTEN_KANA, ...YOON_DIGRAPHS];
+          const match = allKana.find(item => item.kata === char);
+          if (match) lookupChar = match.hira;
+        }
+
+        const romaji = ROMAJI_MAP[lookupChar];
+        
+        if (romaji) {
+          let folder = "seion";
+          if (["が","ぎ","ぐ","げ","ご","ざ","じ","ず","ぜ","ぞ","だ","ぢ","づ","で","ど","ば","び","ぶ","べ","ぼ"].includes(lookupChar)) folder = "dakuon";
+          else if (["ぱ","ぴ","ぷ","ぺ","ぽ"].includes(lookupChar)) folder = "handakuon";
+          else if ([...lookupChar].length > 1) folder = "yoon";
+
+          const audioPath = `sounds/${folder}/${romaji}.mp3`;
+          const audio = new Audio(audioPath);
+          currentAudio = audio;
+
+          audio.onended = () => {
+            isSpeaking = false;
+            if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
+            if (onEnd) onEnd();
+          };
+
+          audio.onerror = () => {
+            console.warn(`MP3 missing for ${char} (${audioPath}), falling back to TTS`);
+            fallbackToTTS(char, onEnd);
+          };
+
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              fallbackToTTS(char, onEnd);
+            });
+          }
+        } else {
+          fallbackToTTS(char, onEnd);
+        }
+      }
+
+      function fallbackToTTS(char, onEnd) {
+        if (!window.speechSynthesis) {
+          if (onEnd) onEnd();
+          return;
+        }
+        
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
-        utter.rate = 0.75; // Slower for clearer pronunciation
+        utter.rate = 0.75;
         utter.pitch = 1;
         const voices = window.speechSynthesis.getVoices();
         const jp = voices.find(v => v.lang.startsWith("ja"));
@@ -542,7 +616,7 @@
       autoPlayBtn.addEventListener("click", toggleAutoPlay);
 
       document.getElementById("backBtn").addEventListener("click", () => {
-        window.location.href = "home.html";
+        window.location.href = "K12-Kana-Hub.html";
       });
 
       document.getElementById("resetBtn").addEventListener("click", () => {
@@ -563,10 +637,6 @@
         updateGroupTabs();
         nextCard();
       });
-
-      document.body.addEventListener("touchstart", primeAudio, { once: true, passive: true });
-      document.body.addEventListener("click", primeAudio, { once: true });
-      primeAudio();
 
       // ============================================================
       // INIT
