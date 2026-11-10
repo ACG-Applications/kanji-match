@@ -48,7 +48,7 @@
 
       .top-bar-left {
         display: flex;
-        gap: 8px;
+        gap: 4px;
         align-items: center;
       }
 
@@ -56,14 +56,15 @@
         background: transparent;
         border: none;
         color: #ffffff;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         cursor: pointer;
-        padding: 8px;
+        padding: 8px 12px;
         line-height: 1;
-        opacity: 0.7;
+        opacity: 0.6;
         transition: opacity 0.15s;
+        border-radius: 12px;
       }
-      .nav-btn:hover { opacity: 1; }
+      .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
 
       .score-container {
         display: flex;
@@ -215,22 +216,24 @@
         100% { transform: scale(1); opacity: 1; }
       }
 
-      /* SIGNATURE */
+      /* SIGNATURE PILL (Elongated) */
       .antonio-signature {
         position: absolute;
         top: 16px;
         left: 50%;
         transform: translateX(-50%);
-        width: 40px;
         height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
+        width: auto;
+        min-width: 100px;
+        border-radius: 20px;
+        object-fit: contain;
         cursor: pointer;
         border: 2px solid #333;
-        opacity: 0.4;
+        opacity: 0.6;
         transition: opacity 0.2s;
         z-index: 20;
-        background: #fff7ec;
+        background: #ffffff;
+        padding: 2px 12px;
       }
       .antonio-signature:hover { opacity: 1; }
 
@@ -333,7 +336,7 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="nav-btn" id="backBtn" title="Back to Word Flashcards">←</button>
+        <button class="nav-btn" id="backBtn" title="Back to Word Flashcards">← Back</button>
         <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
       </div>
       <div class="score-container">
@@ -350,7 +353,7 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <!-- SIGNATURE -->
+    <!-- SIGNATURE PILL -->
     <img src="icons/Antonio.png" alt="ACG" class="antonio-signature" id="antonioSignature" />
 
     <!-- GAME AREA -->
@@ -490,6 +493,7 @@
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
 
+        // Silent primer to wake up TTS engine
         const primer = new SpeechSynthesisUtterance(" ");
         primer.volume = 0;
         window.speechSynthesis.speak(primer);
@@ -513,7 +517,6 @@
       // PERSISTENCE
       // ============================================================
       function loadStreaks() {
-        // Try v2 first
         try {
           const savedV2 = localStorage.getItem(STORAGE_KEY_V2);
           if (savedV2) {
@@ -527,7 +530,6 @@
           console.warn("Failed to load v2 streaks", e);
         }
 
-        // Migrate from v1 (binary set) if present
         try {
           const savedV1 = localStorage.getItem(STORAGE_KEY_V1_LEGACY);
           if (savedV1) {
@@ -556,12 +558,7 @@
       // ============================================================
       // GAME LOGIC
       // ============================================================
-      function getMasteredCount() {
-        return KANA_DATA.filter(item => (streaks[item.k] || 0) >= REQUIRED_STREAK).length;
-      }
-
       function updateProgressBar() {
-        // Option (b): weighted — every streak point counts toward the total
         const totalStreakPoints = KANA_DATA.reduce(
           (sum, item) => sum + Math.min(streaks[item.k] || 0, REQUIRED_STREAK),
           0
@@ -592,29 +589,24 @@
         isAnswered = false;
         targetKanaEl.classList.remove("speaking");
 
-        // Available pool = Katakana whose streak < REQUIRED_STREAK
         const available = KANA_DATA.filter(
           item => (streaks[item.k] || 0) < REQUIRED_STREAK
         );
 
         if (available.length === 0) {
-          // All mastered — show celebration
           showMasteredCelebration();
           return;
         }
 
-        // Pick the target
         const randomIndex = Math.floor(Math.random() * available.length);
         currentQuestion = available[randomIndex];
         targetKanaEl.innerText = currentQuestion.k;
         updateStreakDots(currentQuestion.k);
 
-        // Generate 3 wrong Hiragana
         const wrongPool = KANA_DATA.filter(item => item.h !== currentQuestion.h);
         const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.h);
         options = shuffleArray([currentQuestion.h, ...wrongOptions]);
 
-        // Render
         optionsGrid.innerHTML = "";
         options.forEach(hira => {
           const btn = document.createElement("button");
@@ -633,7 +625,6 @@
         const kana = currentQuestion.k;
         const prevStreak = streaks[kana] || 0;
 
-        // Disable all buttons + highlight correct
         document.querySelectorAll(".option-btn").forEach(btn => {
           btn.classList.add("disabled");
           if (btn.innerText === currentQuestion.h) {
@@ -653,7 +644,6 @@
           updateProgressBar();
           updateStreakDots(kana);
 
-          // If just mastered this one, celebrate briefly
           if (streaks[kana] === REQUIRED_STREAK) {
             showToast(`✨ "${kana}" mastered!`);
           }
@@ -666,15 +656,24 @@
           playSound("wrong");
           speakKatakana(kana);
 
+          // TARGET: full reset
           streaks[kana] = 0;
+
+          // DISTRACTOR: partial demotion (Interpretation 3)
+          if (selectedHira !== kana && selectedHira !== currentQuestion.h) {
+            const distractorKana = KANA_DATA.find(item => item.h === selectedHira)?.k;
+            if (distractorKana && streaks[distractorKana] > 0) {
+              const prevDistractorStreak = streaks[distractorKana];
+              streaks[distractorKana] = prevDistractorStreak - 1;
+              if (prevDistractorStreak >= REQUIRED_STREAK) {
+                showToast(`"${distractorKana}" weakened — one wrong tap noticed.`);
+              }
+            }
+          }
+
           saveStreaks();
           updateProgressBar();
           updateStreakDots(kana);
-
-          // If it was previously mastered, notify demotion
-          if (prevStreak >= REQUIRED_STREAK) {
-            showToast(`"${kana}" demoted — needs ${REQUIRED_STREAK} correct in a row again.`);
-          }
 
           autoNextTimeout = setTimeout(startNewQuestion, 1500);
         }
