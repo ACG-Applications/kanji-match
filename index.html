@@ -1,4 +1,12 @@
 <!doctype html>
+    <script>
+      // If we landed on index.html without the ?play=true flag,
+      // it means the user opened the base URL (or index.html directly).
+      // Send them to the home screen instead.
+      if (!window.location.search.includes("play=true")) {
+        window.location.replace("home.html");
+      }
+    </script>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
