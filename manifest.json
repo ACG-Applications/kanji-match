@@ -38,10 +38,17 @@
       "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Katakana Study",
-      "short_name": "Katakana",
+      "name": "Katakana Words",
+      "short_name": "Words",
       "description": "Study katakana flashcards",
       "url": "K7-Katakana.html",
+      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kana Match",
+      "short_name": "Match",
+      "description": "Match Katakana to Hiragana",
+      "url": "K8-Katakana-Match.html",
       "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ]

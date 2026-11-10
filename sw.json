@@ -1,0 +1,55 @@
+{
+  "name": "Kanji Master - N5 Japanese Learning",
+  "short_name": "Kanji Master",
+  "description": "Learn N5 Kanji with persistent memory matching game + Katakana flashcards",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f2b2c",
+  "theme_color": "#1b4a36",
+  "categories": ["education", "language"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kanji Match",
+      "short_name": "Kanji",
+      "description": "Play the kanji matching game",
+      "url": "index.html",
+      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Katakana Words",
+      "short_name": "Words",
+      "description": "Study katakana flashcards",
+      "url": "K7-Katakana.html",
+      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kana Match",
+      "short_name": "Match",
+      "description": "Match Katakana to Hiragana",
+      "url": "K8-Katakana-Match.html",
+      "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

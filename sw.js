@@ -1,15 +1,16 @@
 // ============================================================
-// Kanji Master — Service Worker (v3)
+// Kanji Master — Service Worker (v5)
 // ============================================================
-// v3 changes:
-//   - Added ./katakanaWords.js to the cache (200-word pool)
-//   - Bumped cache version so browsers fetch the new files
+// v5 changes:
+//   - Restored file after accidental overwrite
+//   - Ensures K8-Katakana-Match.html is cached for offline use
 
-const CACHE_VERSION = "kanji-master-v3";
+const CACHE_VERSION = "kanji-master-v5";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./K7-Katakana.html",
+  "./K8-Katakana-Match.html",
   "./katakanaWords.js",
   "./n5-matching-data.js",
   "./manifest.json",

@@ -855,6 +855,11 @@
         box-shadow: 0 4px 0 #4a3a4a;
       }
 
+      .footer button.kana-match-btn {
+        background: #4a6a7a;
+        box-shadow: 0 4px 0 #2a4a5a;
+      }
+
       .footer button.quiz-btn {
         background: #4a6a5a;
         box-shadow: 0 4px 0 #2a4a3a;
@@ -1204,6 +1209,7 @@
           <button class="save-btn" id="saveBtn">💾 Save</button>
           <button class="stats-btn" id="showStatsBtn">📊 Stats</button>
           <button class="katakana-btn" id="katakanaBtn">📖 Katakana</button>
+          <button class="kana-match-btn" id="kanaMatchBtn">🧩 Kana Match</button>
           <button class="quiz-btn" id="quizBtn">📝 Quiz</button>
           <button class="danger-btn" id="resetBtn">🔄 New</button>
         </div>
@@ -2707,6 +2713,11 @@
         window.open("K7-Katakana.html", "_blank");
       }
 
+      function openKanaMatchApp() {
+        saveGameState();
+        window.open("K8-Katakana-Match.html", "_blank");
+      }
+
       function startAutoSaveTimer() {
         if (saveTimer) clearInterval(saveTimer);
         saveTimer = setInterval(() => {
@@ -2786,6 +2797,7 @@
       saveBtn.addEventListener("click", saveAndExit);
       showStatsBtn.addEventListener("click", showStats);
       document.getElementById("katakanaBtn").addEventListener("click", openKatakanaApp);
+      document.getElementById("kanaMatchBtn").addEventListener("click", openKanaMatchApp);
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" || e.key === "p") {
