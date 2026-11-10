@@ -74,18 +74,44 @@
         letter-spacing: 1px;
       }
 
-      .score-correct {
-        color: #00e676;
+      .score-correct { color: #00e676; display: flex; align-items: center; gap: 8px; }
+      .score-wrong   { color: #d500f9; display: flex; align-items: center; gap: 8px; }
+
+      /* MODE TABS */
+      .mode-tabs {
         display: flex;
-        align-items: center;
-        gap: 8px;
+        gap: 6px;
+        padding: 0 20px 12px;
+        justify-content: center;
+        z-index: 10;
       }
 
-      .score-wrong {
-        color: #d500f9;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      .mode-tab {
+        flex: 1;
+        max-width: 140px;
+        padding: 10px 6px;
+        border-radius: 24px;
+        background: #1e1e1e;
+        border: 2px solid #2a2a2a;
+        color: #888;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+
+      .mode-tab:hover:not(.active) {
+        border-color: #444;
+        color: #ccc;
+      }
+
+      .mode-tab.active {
+        background: #00e676;
+        border-color: #00e676;
+        color: #000;
       }
 
       .progress-bar-container {
@@ -120,20 +146,17 @@
         font-weight: 900;
         line-height: 1;
         cursor: pointer;
-        transition: transform 0.1s ease, opacity 0.2s ease;
+        transition: transform 0.1s ease, opacity 0.2s ease, font-size 0.2s ease;
         font-family: "Noto Sans JP", sans-serif;
         margin-bottom: 12px;
         text-align: center;
         animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
 
-      .target-kana:active {
-        transform: scale(0.92);
-      }
+      .target-kana.digraph { font-size: 8rem; }
 
-      .target-kana.speaking {
-        color: #ffd54f;
-      }
+      .target-kana:active { transform: scale(0.92); }
+      .target-kana.speaking { color: #ffd54f; }
 
       /* STREAK INDICATOR DOTS */
       .streak-indicator {
@@ -186,6 +209,8 @@
         box-shadow: 0 4px 0 #000000;
       }
 
+      .option-btn.digraph { font-size: 2.2rem; }
+
       .option-btn:active:not(:disabled) {
         transform: translateY(4px);
         box-shadow: 0 0 0 #000000;
@@ -216,7 +241,7 @@
         100% { transform: scale(1); opacity: 1; }
       }
 
-      /* SIGNATURE PILL (Elongated) */
+      /* SIGNATURE PILL */
       .antonio-signature {
         position: absolute;
         top: 16px;
@@ -340,13 +365,16 @@
         <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
       </div>
       <div class="score-container">
-        <div class="score-correct">
-          <span>✔</span> <span id="correctScore">0</span>
-        </div>
-        <div class="score-wrong">
-          <span>✖</span> <span id="wrongScore">0</span>
-        </div>
+        <div class="score-correct"><span>✔</span> <span id="correctScore">0</span></div>
+        <div class="score-wrong"><span>✖</span> <span id="wrongScore">0</span></div>
       </div>
+    </div>
+
+    <!-- MODE TABS -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="basic">Basic</button>
+      <button class="mode-tab" data-mode="voiced">Voiced</button>
+      <button class="mode-tab" data-mode="yoon">Yōon</button>
     </div>
 
     <div class="progress-bar-container">
@@ -360,31 +388,28 @@
     <div class="game-area" id="gameArea">
       <div class="target-kana" id="targetKana">ア</div>
 
-      <!-- STREAK DOTS -->
       <div class="streak-indicator" id="streakIndicator">
         <div class="streak-dot" id="dot1"></div>
         <div class="streak-dot" id="dot2"></div>
       </div>
 
-      <div class="options-grid" id="optionsGrid">
-        <!-- Dynamically populated -->
-      </div>
+      <div class="options-grid" id="optionsGrid"></div>
     </div>
 
     <!-- PAUSE SCREEN -->
     <div class="pause-overlay" id="pauseOverlay">
       <h2>Paused</h2>
       <button id="resumeBtn">▶ Resume</button>
-      <button class="secondary" id="replayBtn">🔁 Replay From Start</button>
-      <button class="secondary" id="resetBtn">⟳ Reset Progress</button>
+      <button class="secondary" id="replayBtn">🔁 Replay This Mode</button>
+      <button class="secondary" id="resetBtn">⟳ Reset This Mode</button>
       <button class="secondary" id="exitBtn">📖 Word Flashcards</button>
     </div>
 
     <!-- MASTERED CELEBRATION -->
     <div class="mastered-overlay" id="masteredOverlay">
       <div class="trophy">🏆</div>
-      <h2>All Katakana Mastered!</h2>
-      <p>You got every single one right twice in a row. That's real mastery.</p>
+      <h2 id="masteredTitle">All Katakana Mastered!</h2>
+      <p id="masteredText">You got every single one right twice in a row. That's real mastery.</p>
       <button id="masteredReplayBtn">🔁 Play Again</button>
       <button class="secondary" id="masteredResetBtn">⟳ Reset Progress</button>
     </div>
@@ -401,39 +426,36 @@
 
     <div class="toast-popup" id="toastPopup"></div>
 
-    <script>
-      // ============================================================
-      // DATA: FULL KATAKANA TO HIRAGANA MAPPING
-      // ============================================================
-      const KANA_DATA = [
-        { k: "ア", h: "あ" }, { k: "イ", h: "い" }, { k: "ウ", h: "う" }, { k: "エ", h: "え" }, { k: "オ", h: "お" },
-        { k: "カ", h: "か" }, { k: "キ", h: "き" }, { k: "ク", h: "く" }, { k: "ケ", h: "け" }, { k: "コ", h: "こ" },
-        { k: "サ", h: "さ" }, { k: "シ", h: "し" }, { k: "ス", h: "す" }, { k: "セ", h: "せ" }, { k: "ソ", h: "そ" },
-        { k: "タ", h: "た" }, { k: "チ", h: "ち" }, { k: "ツ", h: "つ" }, { k: "テ", h: "て" }, { k: "ト", h: "と" },
-        { k: "ナ", h: "な" }, { k: "ニ", h: "に" }, { k: "ヌ", h: "ぬ" }, { k: "ネ", h: "ね" }, { k: "ノ", h: "の" },
-        { k: "ハ", h: "は" }, { k: "ヒ", h: "ひ" }, { k: "フ", h: "ふ" }, { k: "ヘ", h: "へ" }, { k: "ホ", h: "ほ" },
-        { k: "マ", h: "ま" }, { k: "ミ", h: "み" }, { k: "ム", h: "む" }, { k: "メ", h: "め" }, { k: "モ", h: "も" },
-        { k: "ヤ", h: "や" }, { k: "ユ", h: "ゆ" }, { k: "ヨ", h: "よ" },
-        { k: "ラ", h: "ら" }, { k: "リ", h: "り" }, { k: "ル", h: "る" }, { k: "レ", h: "れ" }, { k: "ロ", h: "ろ" },
-        { k: "ワ", h: "わ" }, { k: "ヲ", h: "を" }, { k: "ン", h: "ん" },
-        // Dakuten
-        { k: "ガ", h: "が" }, { k: "ギ", h: "ぎ" }, { k: "グ", h: "ぐ" }, { k: "ゲ", h: "げ" }, { k: "ゴ", h: "ご" },
-        { k: "ザ", h: "ざ" }, { k: "ジ", h: "じ" }, { k: "ズ", h: "ず" }, { k: "ゼ", h: "ぜ" }, { k: "ゾ", h: "ぞ" },
-        { k: "ダ", h: "だ" }, { k: "ヂ", h: "ぢ" }, { k: "ヅ", h: "づ" }, { k: "デ", h: "で" }, { k: "ド", h: "ど" },
-        { k: "バ", h: "ば" }, { k: "ビ", h: "び" }, { k: "ブ", h: "ぶ" }, { k: "ベ", h: "べ" }, { k: "ボ", h: "ぼ" },
-        // Handakuten
-        { k: "パ", h: "ぱ" }, { k: "ピ", h: "ぴ" }, { k: "プ", h: "ぷ" }, { k: "ペ", h: "ぺ" }, { k: "ポ", h: "ぽ" },
-      ];
+    <!-- SHARED KANA DATA -->
+    <script src="kanaData.js"></script>
 
+    <script>
       const REQUIRED_STREAK = 2;
+
+      // ============================================================
+      // MODE CONFIGURATION
+      // ============================================================
+      const MODES = {
+        basic:  { pool: POOL_BASIC,  label: "Basic",  itemNoun: "basic Katakana" },
+        voiced: { pool: POOL_VOICED, label: "Voiced", itemNoun: "voiced Katakana" },
+        yoon:   { pool: POOL_YOON,   label: "Yōon",   itemNoun: "Yōon digraphs" },
+      };
+
+      const STORAGE_KEYS = {
+        basic:  "katakanaMatchStreaks_basic_v2",
+        voiced: "katakanaMatchStreaks_voiced_v2",
+        yoon:   "katakanaMatchStreaks_yoon_v2",
+      };
+
+      // Migration sources (both only apply to Basic mode)
+      const LEGACY_KEY_V1 = "katakanaMatchMastery_v1";        // oldest — binary set
+      const LEGACY_KEY_V2 = "katakanaMatchStreaks_v2";        // intermediate — single-pool streak map
 
       // ============================================================
       // STATE
       // ============================================================
-      const STORAGE_KEY_V2 = "katakanaMatchStreaks_v2";
-      const STORAGE_KEY_V1_LEGACY = "katakanaMatchMastery_v1";
-
-      let streaks = {}; // { "ア": 0, "イ": 1, "ウ": 2, ... }
+      let currentMode = "basic";
+      let streaks = {}; // Per-mode streaks, loaded from STORAGE_KEYS[currentMode]
       let currentQuestion = null;
       let options = [];
       let correctScore = 0;
@@ -453,6 +475,8 @@
       const toastPopup = document.getElementById("toastPopup");
       const dot1 = document.getElementById("dot1");
       const dot2 = document.getElementById("dot2");
+      const masteredTitle = document.getElementById("masteredTitle");
+      const masteredText = document.getElementById("masteredText");
 
       // ============================================================
       // AUDIO & TOAST
@@ -493,7 +517,6 @@
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
 
-        // Silent primer to wake up TTS engine
         const primer = new SpeechSynthesisUtterance(" ");
         primer.volume = 0;
         window.speechSynthesis.speak(primer);
@@ -514,57 +537,85 @@
       }
 
       // ============================================================
-      // PERSISTENCE
+      // PERSISTENCE — per mode
       // ============================================================
-      function loadStreaks() {
+      function loadStreaksForMode(mode) {
         try {
-          const savedV2 = localStorage.getItem(STORAGE_KEY_V2);
-          if (savedV2) {
-            const parsed = JSON.parse(savedV2);
-            if (parsed && typeof parsed === "object") {
-              streaks = parsed;
-              return;
-            }
-          }
+          const raw = localStorage.getItem(STORAGE_KEYS[mode]);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") return parsed;
         } catch (e) {
-          console.warn("Failed to load v2 streaks", e);
+          console.warn(`Failed to load streaks for ${mode}`, e);
         }
+        return {};
+      }
 
+      function saveStreaksForMode(mode, data) {
         try {
-          const savedV1 = localStorage.getItem(STORAGE_KEY_V1_LEGACY);
-          if (savedV1) {
-            const arr = JSON.parse(savedV1);
-            if (Array.isArray(arr)) {
-              arr.forEach(kana => { streaks[kana] = REQUIRED_STREAK; });
-              saveStreaks();
-              localStorage.removeItem(STORAGE_KEY_V1_LEGACY);
-              showToast(`Migrated ${arr.length} mastered Katakana to new streak format.`);
-              console.log(`[streaks] Migrated ${arr.length} from v1`);
-            }
-          }
+          localStorage.setItem(STORAGE_KEYS[mode], JSON.stringify(data));
         } catch (e) {
-          console.warn("Failed to migrate v1", e);
+          console.warn(`Failed to save streaks for ${mode}`, e);
         }
       }
 
-      function saveStreaks() {
+      function saveCurrentStreaks() {
+        saveStreaksForMode(currentMode, streaks);
+      }
+
+      // ============================================================
+      // ONE-TIME MIGRATION (Basic mode only)
+      // ============================================================
+      function runMigrations() {
+        const basicKey = STORAGE_KEYS.basic;
+        const existingBasic = localStorage.getItem(basicKey);
+        if (existingBasic) return; // already migrated or fresh v3 data present
+
+        // Prefer migrating v2 (streak map) over v1 (binary set)
         try {
-          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(streaks));
-        } catch (e) {
-          console.warn("Failed to save streaks", e);
-        }
+          const v2 = localStorage.getItem(LEGACY_KEY_V2);
+          if (v2) {
+            const parsed = JSON.parse(v2);
+            if (parsed && typeof parsed === "object") {
+              localStorage.setItem(basicKey, JSON.stringify(parsed));
+              localStorage.removeItem(LEGACY_KEY_V2);
+              console.log("[migration] Moved v2 streaks → basic_v2");
+              return;
+            }
+          }
+        } catch (e) { console.warn("[migration] v2 failed", e); }
+
+        try {
+          const v1 = localStorage.getItem(LEGACY_KEY_V1);
+          if (v1) {
+            const arr = JSON.parse(v1);
+            if (Array.isArray(arr)) {
+              const migrated = {};
+              arr.forEach(kana => { migrated[kana] = REQUIRED_STREAK; });
+              localStorage.setItem(basicKey, JSON.stringify(migrated));
+              localStorage.removeItem(LEGACY_KEY_V1);
+              console.log(`[migration] Migrated ${arr.length} from v1 → basic_v2`);
+              showToast(`Migrated ${arr.length} mastered Katakana to new format.`);
+            }
+          }
+        } catch (e) { console.warn("[migration] v1 failed", e); }
       }
 
       // ============================================================
       // GAME LOGIC
       // ============================================================
+      function currentPool() {
+        return MODES[currentMode].pool;
+      }
+
       function updateProgressBar() {
-        const totalStreakPoints = KANA_DATA.reduce(
-          (sum, item) => sum + Math.min(streaks[item.k] || 0, REQUIRED_STREAK),
+        const pool = currentPool();
+        const totalStreakPoints = pool.reduce(
+          (sum, item) => sum + Math.min(streaks[item.kata] || 0, REQUIRED_STREAK),
           0
         );
-        const maxPoints = KANA_DATA.length * REQUIRED_STREAK;
-        const percentage = (totalStreakPoints / maxPoints) * 100;
+        const maxPoints = pool.length * REQUIRED_STREAK;
+        const percentage = maxPoints > 0 ? (totalStreakPoints / maxPoints) * 100 : 0;
         progressBar.style.width = percentage + "%";
       }
 
@@ -589,8 +640,9 @@
         isAnswered = false;
         targetKanaEl.classList.remove("speaking");
 
-        const available = KANA_DATA.filter(
-          item => (streaks[item.k] || 0) < REQUIRED_STREAK
+        const pool = currentPool();
+        const available = pool.filter(
+          item => (streaks[item.kata] || 0) < REQUIRED_STREAK
         );
 
         if (available.length === 0) {
@@ -600,17 +652,20 @@
 
         const randomIndex = Math.floor(Math.random() * available.length);
         currentQuestion = available[randomIndex];
-        targetKanaEl.innerText = currentQuestion.k;
-        updateStreakDots(currentQuestion.k);
+        targetKanaEl.innerText = currentQuestion.kata;
+        targetKanaEl.classList.toggle("digraph", currentMode === "yoon");
+        updateStreakDots(currentQuestion.kata);
 
-        const wrongPool = KANA_DATA.filter(item => item.h !== currentQuestion.h);
-        const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.h);
-        options = shuffleArray([currentQuestion.h, ...wrongOptions]);
+        // Generate 3 wrong Hiragana
+        const wrongPool = pool.filter(item => item.hira !== currentQuestion.hira);
+        const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.hira);
+        options = shuffleArray([currentQuestion.hira, ...wrongOptions]);
 
         optionsGrid.innerHTML = "";
         options.forEach(hira => {
           const btn = document.createElement("button");
           btn.className = "option-btn";
+          if (currentMode === "yoon") btn.classList.add("digraph");
           btn.innerText = hira;
           btn.onclick = () => handleAnswer(hira, btn);
           optionsGrid.appendChild(btn);
@@ -621,13 +676,13 @@
         if (isAnswered) return;
         isAnswered = true;
 
-        const isCorrect = selectedHira === currentQuestion.h;
-        const kana = currentQuestion.k;
+        const isCorrect = selectedHira === currentQuestion.hira;
+        const kana = currentQuestion.kata;
         const prevStreak = streaks[kana] || 0;
 
         document.querySelectorAll(".option-btn").forEach(btn => {
           btn.classList.add("disabled");
-          if (btn.innerText === currentQuestion.h) {
+          if (btn.innerText === currentQuestion.hira) {
             btn.classList.add("correct");
           }
         });
@@ -640,7 +695,7 @@
           speakKatakana(kana);
 
           streaks[kana] = prevStreak + 1;
-          saveStreaks();
+          saveCurrentStreaks();
           updateProgressBar();
           updateStreakDots(kana);
 
@@ -660,18 +715,18 @@
           streaks[kana] = 0;
 
           // DISTRACTOR: partial demotion (Interpretation 3)
-          if (selectedHira !== kana && selectedHira !== currentQuestion.h) {
-            const distractorKana = KANA_DATA.find(item => item.h === selectedHira)?.k;
-            if (distractorKana && streaks[distractorKana] > 0) {
-              const prevDistractorStreak = streaks[distractorKana];
-              streaks[distractorKana] = prevDistractorStreak - 1;
-              if (prevDistractorStreak >= REQUIRED_STREAK) {
-                showToast(`"${distractorKana}" weakened — one wrong tap noticed.`);
+          if (selectedHira !== currentQuestion.hira) {
+            const distractor = currentPool().find(item => item.hira === selectedHira);
+            if (distractor && streaks[distractor.kata] > 0) {
+              const prev = streaks[distractor.kata];
+              streaks[distractor.kata] = prev - 1;
+              if (prev >= REQUIRED_STREAK) {
+                showToast(`"${distractor.kata}" weakened — one wrong tap noticed.`);
               }
             }
           }
 
-          saveStreaks();
+          saveCurrentStreaks();
           updateProgressBar();
           updateStreakDots(kana);
 
@@ -680,10 +735,47 @@
       }
 
       // ============================================================
+      // MODE SWITCHING
+      // ============================================================
+      function switchMode(newMode) {
+        if (newMode === currentMode) return;
+        if (!MODES[newMode]) return;
+
+        // Persist current mode's streaks before switching
+        saveCurrentStreaks();
+
+        // Load new mode's streaks
+        currentMode = newMode;
+        streaks = loadStreaksForMode(currentMode);
+
+        // Reset transient state
+        pauseOverlay.classList.remove("active");
+        masteredOverlay.classList.remove("active");
+        isPaused = false;
+        isAnswered = false;
+        correctScore = 0;
+        wrongScore = 0;
+        correctScoreEl.innerText = "0";
+        wrongScoreEl.innerText = "0";
+        clearTimeout(autoNextTimeout);
+
+        // Update tab visuals
+        document.querySelectorAll(".mode-tab").forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.mode === currentMode);
+        });
+
+        updateProgressBar();
+        startNewQuestion();
+      }
+
+      // ============================================================
       // MASTERED CELEBRATION
       // ============================================================
       function showMasteredCelebration() {
         isPaused = true;
+        const config = MODES[currentMode];
+        masteredTitle.innerText = `All ${config.label} Mastered!`;
+        masteredText.innerText = `You got every one of the ${config.pool.length} ${config.itemNoun} right twice in a row. That's real mastery.`;
         masteredOverlay.classList.add("active");
       }
 
@@ -692,14 +784,14 @@
         isPaused = false;
       }
 
-      function replayFromStart() {
+      function replayCurrentMode() {
         streaks = {};
-        saveStreaks();
+        saveCurrentStreaks();
         updateProgressBar();
         correctScore = 0;
         wrongScore = 0;
-        correctScoreEl.innerText = 0;
-        wrongScoreEl.innerText = 0;
+        correctScoreEl.innerText = "0";
+        wrongScoreEl.innerText = "0";
         hideMasteredCelebration();
         pauseOverlay.classList.remove("active");
         isPaused = false;
@@ -710,7 +802,7 @@
       // EVENTS
       // ============================================================
       targetKanaEl.addEventListener("click", () => {
-        if (currentQuestion) speakKatakana(currentQuestion.k);
+        if (currentQuestion) speakKatakana(currentQuestion.kata);
       });
 
       document.getElementById("backBtn").addEventListener("click", () => {
@@ -726,20 +818,18 @@
       document.getElementById("resumeBtn").addEventListener("click", () => {
         isPaused = false;
         pauseOverlay.classList.remove("active");
-        if (isAnswered) {
-          startNewQuestion();
-        }
+        if (isAnswered) startNewQuestion();
       });
 
       document.getElementById("replayBtn").addEventListener("click", () => {
-        if (confirm("🔁 Replay from start? This clears all your current streaks.")) {
-          replayFromStart();
+        if (confirm(`🔁 Replay "${MODES[currentMode].label}" from start? This clears streaks for this mode only.`)) {
+          replayCurrentMode();
         }
       });
 
       document.getElementById("resetBtn").addEventListener("click", () => {
-        if (confirm("Reset all katakana mastery progress?")) {
-          replayFromStart();
+        if (confirm(`Reset "${MODES[currentMode].label}" mastery progress?`)) {
+          replayCurrentMode();
         }
       });
 
@@ -747,14 +837,14 @@
         window.location.href = "K7-Katakana.html";
       });
 
-      document.getElementById("masteredReplayBtn").addEventListener("click", () => {
-        replayFromStart();
+      document.getElementById("masteredReplayBtn").addEventListener("click", replayCurrentMode);
+      document.getElementById("masteredResetBtn").addEventListener("click", () => {
+        if (confirm("Reset all progress in this mode?")) replayCurrentMode();
       });
 
-      document.getElementById("masteredResetBtn").addEventListener("click", () => {
-        if (confirm("Reset all progress?")) {
-          replayFromStart();
-        }
+      // Mode tabs
+      document.querySelectorAll(".mode-tab").forEach(tab => {
+        tab.addEventListener("click", () => switchMode(tab.dataset.mode));
       });
 
       // Signature modal
@@ -773,7 +863,8 @@
       // ============================================================
       // INIT
       // ============================================================
-      loadStreaks();
+      runMigrations();
+      streaks = loadStreaksForMode(currentMode);
       updateProgressBar();
       startNewQuestion();
     </script>

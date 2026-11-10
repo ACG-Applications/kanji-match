@@ -12,6 +12,7 @@ const ASSETS_TO_CACHE = [
   "./K7-Katakana.html",
   "./K8-Katakana-Match.html",
   "./katakanaWords.js",
+   "./kanaData.js",   
   "./n5-matching-data.js",
   "./manifest.json",
   "./icons/Antonio.png",
