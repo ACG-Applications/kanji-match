@@ -122,20 +122,20 @@
         min-height: 1.2em;
       }
 
-      /* 4x4 GRID OF SPEAKER TILES */
+      /* 3x3 GRID OF SPEAKER TILES */
       .grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
         width: 100%;
-        max-width: 420px;
+        max-width: 340px;
       }
 
       .tile {
         aspect-ratio: 1 / 1;
         background: #1e1e1e;
         border: 2px solid #333;
-        border-radius: 16px;
+        border-radius: 20px;
         color: #fff;
         font-size: 2rem;
         cursor: pointer;
@@ -163,7 +163,7 @@
       .tile.disabled { pointer-events: none; }
 
       .tile .speaker-glyph {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
         opacity: 0.85;
       }
 
@@ -193,9 +193,9 @@
 
       /* SMALL SCREENS */
       @media (max-width: 400px) {
-        .grid { gap: 6px; max-width: 320px; }
-        .tile { border-radius: 12px; font-size: 1.6rem; }
-        .tile .speaker-glyph { font-size: 1.3rem; }
+        .grid { gap: 8px; max-width: 300px; }
+        .tile { border-radius: 16px; font-size: 1.6rem; }
+        .tile .speaker-glyph { font-size: 1.4rem; }
         .target-kana { font-size: 5rem; }
         .target-kana.digraph { font-size: 3.5rem; }
         .game-area { gap: 12px; padding-top: 10px; }
@@ -247,7 +247,7 @@
       // CONFIG
       // ============================================================
       const SCRIPT = "hiragana";
-      const GRID_SIZE = 16;
+      const GRID_SIZE = 9; // 3x3 grid
       const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
       let AUTO_PLAY = true;
 

@@ -146,23 +146,23 @@
         min-height: 1.2em;
       }
 
-      /* 4x4 GRID */
+      /* 3x3 GRID (shared by both card types) */
       .grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
         width: 100%;
-        max-width: 420px;
+        max-width: 340px;
       }
 
-      /* Listening tile */
+      /* Listening tile: shows kana */
       .cell {
         aspect-ratio: 1 / 1;
         background: #1e1e1e;
         border: 2px solid #333;
-        border-radius: 16px;
+        border-radius: 20px;
         color: #fff;
-        font-size: 2.2rem;
+        font-size: 2.8rem;
         font-weight: 800;
         cursor: pointer;
         display: flex;
@@ -175,19 +175,19 @@
         min-height: 48px;
         min-width: 48px;
       }
-      .cell[data-length="2"] { font-size: 1.6rem; }
+      .cell[data-length="2"] { font-size: 2rem; }
       .cell:active:not(.disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #000; }
       .cell.correct { background: #00e676; border-color: #00e676; color: #000; box-shadow: 0 4px 0 #009624; }
       .cell.wrong   { background: #d500f9; border-color: #d500f9; color: #fff; box-shadow: 0 4px 0 #9c00b3; }
       .cell.reveal  { background: #00e676; border-color: #00e676; color: #000; opacity: 0.6; }
       .cell.disabled { pointer-events: none; }
 
-      /* Reading tile */
+      /* Reading tile: shows speaker glyph */
       .tile {
         aspect-ratio: 1 / 1;
         background: #1e1e1e;
         border: 2px solid #333;
-        border-radius: 16px;
+        border-radius: 20px;
         color: #fff;
         font-size: 2rem;
         cursor: pointer;
@@ -211,7 +211,7 @@
       .tile.wrong   { background: #d500f9; border-color: #d500f9; color: #fff; box-shadow: 0 4px 0 #9c00b3; }
       .tile.reveal  { background: #00e676; border-color: #00e676; color: #000; opacity: 0.6; }
       .tile.disabled { pointer-events: none; }
-      .tile .speaker-glyph { font-size: 1.6rem; opacity: 0.85; }
+      .tile .speaker-glyph { font-size: 1.8rem; opacity: 0.85; }
 
       /* PER-CARD PROGRESS */
       .card-progress {
@@ -239,11 +239,11 @@
 
       /* SMALL SCREENS */
       @media (max-width: 400px) {
-        .grid { gap: 6px; max-width: 320px; }
-        .cell { font-size: 1.8rem; border-radius: 12px; }
-        .cell[data-length="2"] { font-size: 1.3rem; }
-        .tile { border-radius: 12px; font-size: 1.6rem; }
-        .tile .speaker-glyph { font-size: 1.3rem; }
+        .grid { gap: 8px; max-width: 300px; }
+        .cell { font-size: 2.2rem; border-radius: 16px; }
+        .cell[data-length="2"] { font-size: 1.6rem; }
+        .tile { border-radius: 16px; font-size: 1.6rem; }
+        .tile .speaker-glyph { font-size: 1.4rem; }
         .speaker-btn { width: 90px; height: 90px; font-size: 2rem; }
         .target-kana { font-size: 5rem; }
         .target-kana.digraph { font-size: 3.5rem; }
@@ -290,7 +290,7 @@
       // CONFIG
       // ============================================================
       const SCRIPT = "katakana";
-      const GRID_SIZE = 16;
+      const GRID_SIZE = 9; // 3x3 grid
       const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
       let AUTO_PLAY = true;
 
