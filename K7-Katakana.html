@@ -1343,28 +1343,25 @@
           return;
         }
         
-        window.speechSynthesis.cancel();
+        // No cancel() here! This allows rapid taps to queue naturally
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "ja-JP";
+        utterance.rate = 0.85;
+        const voices = window.speechSynthesis.getVoices();
+        const jp = voices.find((v) => v.lang.startsWith("ja"));
+        if (jp) utterance.voice = jp;
+
+        element.classList.add("speaking");
         
-        setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "ja-JP";
-          utterance.rate = 0.85;
-          const voices = window.speechSynthesis.getVoices();
-          const jp = voices.find((v) => v.lang.startsWith("ja"));
-          if (jp) utterance.voice = jp;
+        utterance.onend = () => element.classList.remove("speaking");
+        
+        utterance.onerror = () => {
+          element.classList.remove("speaking");
+          console.log("Silent TTS chunk error handled.");
+        };
 
-          element.classList.add("speaking");
-          
-          utterance.onend = () => element.classList.remove("speaking");
-          
-          utterance.onerror = () => {
-            element.classList.remove("speaking");
-            console.log("Silent TTS chunk error handled.");
-          };
-
-          window.speechSynthesis.speak(utterance);
-          tapHint.style.display = "none"; 
-        }, 50);
+        window.speechSynthesis.speak(utterance);
+        tapHint.style.display = "none"; 
       }
 
       function revealMeaning() {
@@ -1388,21 +1385,25 @@
         
         window.speechSynthesis.cancel();
         
-        setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(w.katakana);
-          utterance.lang = "ja-JP";
-          utterance.rate = 0.85;
+        // Wake up the TTS engine with a silent primer to prevent the first character from being cut off
+        const primer = new SpeechSynthesisUtterance(" ");
+        primer.volume = 0;
+        window.speechSynthesis.speak(primer);
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(w.katakana);
+        utterance.lang = "ja-JP";
+        utterance.rate = 0.85;
+        
+        utterance.onend = () =>
+          updateStatusMessage(`🔊 Pronunciation: "${w.katakana}"`);
           
-          utterance.onend = () =>
-            updateStatusMessage(`🔊 Pronunciation: "${w.katakana}"`);
-            
-          utterance.onerror = () => {
-            updateStatusMessage(`📌 Card ${currentPosition + 1}/${sessionWords.length}`);
-          };
-          
-          window.speechSynthesis.speak(utterance);
-          updateStatusMessage(`🎤 Speaking: ${w.katakana}...`);
-        }, 50);
+        utterance.onerror = () => {
+          updateStatusMessage(`📌 Card ${currentPosition + 1}/${sessionWords.length}`);
+        };
+        
+        window.speechSynthesis.speak(utterance);
+        updateStatusMessage(`🎤 Speaking: ${w.katakana}...`);
       }
 
       function toggleMastered() {
