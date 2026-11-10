@@ -329,7 +329,7 @@
       }
 
       // ============================================================
-      // TTS - FIXED PRIMING
+      // TTS - DOUBLE PLAY WITH PAUSE
       // ============================================================
       function primeAudio() {
         if (audioPrimed || !window.speechSynthesis) return;
@@ -346,31 +346,44 @@
           return;
         }
 
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
+        window.speechSynthesis.cancel();
+        isSpeaking = true;
+        speakerBtn.classList.add("speaking");
 
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
-        utter.rate = 0.85;
+        utter.rate = 0.75; // Slower for clearer pronunciation
         utter.pitch = 1;
         const voices = window.speechSynthesis.getVoices();
         const jp = voices.find(v => v.lang.startsWith("ja"));
         if (jp) utter.voice = jp;
 
-        isSpeaking = true;
-        speakerBtn.classList.add("speaking");
-        utter.onend = () => {
-          isSpeaking = false;
-          speakerBtn.classList.remove("speaking");
-          if (onEnd) onEnd();
+        let playCount = 0;
+        const playAudio = () => {
+          playCount++;
+          window.speechSynthesis.speak(utter);
         };
+
+        // When the first play finishes, wait 400ms, then play again.
+        utter.onend = () => {
+          if (playCount === 1) {
+            setTimeout(playAudio, 400); // 400ms pause
+          } else {
+            // Finished both plays
+            isSpeaking = false;
+            speakerBtn.classList.remove("speaking");
+            if (onEnd) onEnd();
+          }
+        };
+
         utter.onerror = () => {
           isSpeaking = false;
           speakerBtn.classList.remove("speaking");
           if (onEnd) onEnd();
         };
-        window.speechSynthesis.speak(utter);
+
+        // Start the first play
+        playAudio();
       }
 
       // ============================================================
