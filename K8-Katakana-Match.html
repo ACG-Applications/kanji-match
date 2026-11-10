@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>Katakana Match · Kana to Kana</title>
-    
+
     <!-- PWA META TAGS -->
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#111111" />
@@ -33,7 +33,7 @@
         display: flex;
         flex-direction: column;
         font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
-        overflow: hidden; /* Prevent scrolling during game */
+        overflow: hidden;
       }
 
       /* TOP BAR */
@@ -46,7 +46,13 @@
         z-index: 10;
       }
 
-      .pause-btn {
+      .top-bar-left {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .nav-btn {
         background: transparent;
         border: none;
         color: #ffffff;
@@ -54,7 +60,10 @@
         cursor: pointer;
         padding: 8px;
         line-height: 1;
+        opacity: 0.7;
+        transition: opacity 0.15s;
       }
+      .nav-btn:hover { opacity: 1; }
 
       .score-container {
         display: flex;
@@ -112,7 +121,7 @@
         cursor: pointer;
         transition: transform 0.1s ease, opacity 0.2s ease;
         font-family: "Noto Sans JP", sans-serif;
-        margin-bottom: 40px;
+        margin-bottom: 12px;
         text-align: center;
         animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
@@ -123,6 +132,31 @@
 
       .target-kana.speaking {
         color: #ffd54f;
+      }
+
+      /* STREAK INDICATOR DOTS */
+      .streak-indicator {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 32px;
+        height: 16px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .streak-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid #444;
+        background: transparent;
+        transition: all 0.25s ease;
+      }
+
+      .streak-dot.filled {
+        background: #00e676;
+        border-color: #00e676;
+        box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
       }
 
       /* 2x2 GRID FOR HIRAGANA OPTIONS */
@@ -181,7 +215,7 @@
         100% { transform: scale(1); opacity: 1; }
       }
 
-      /* SIGNATURE MODAL & TOAST (Reused) */
+      /* SIGNATURE */
       .antonio-signature {
         position: absolute;
         top: 16px;
@@ -193,12 +227,14 @@
         object-fit: cover;
         cursor: pointer;
         border: 2px solid #333;
-        opacity: 0.3;
+        opacity: 0.4;
         transition: opacity 0.2s;
         z-index: 20;
+        background: #fff7ec;
       }
       .antonio-signature:hover { opacity: 1; }
 
+      /* SIGNATURE MODAL */
       .signature-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);
@@ -222,7 +258,7 @@
       .signature-modal button {
         margin-top: 20px; background: #4a6a7a; color: white; border: none;
         padding: 8px 24px; border-radius: 50px; font-weight: bold; cursor: pointer;
-        box-shadow: 0 4px 0 #2a4a5a;
+        box-shadow: 0 4px 0 #2a4a5a; font-family: inherit;
       }
 
       .toast-popup {
@@ -230,6 +266,7 @@
         background: #333; color: #fff; padding: 10px 20px; border-radius: 40px;
         font-size: 0.85rem; font-weight: 600; z-index: 9000; opacity: 0;
         pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+        max-width: 90vw; text-align: center;
       }
       .toast-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -244,10 +281,50 @@
       .pause-overlay h2 { font-size: 2rem; margin-bottom: 20px; }
       .pause-overlay button {
         background: #00e676; color: #000; border: none; padding: 16px 40px;
-        border-radius: 50px; font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;
-        cursor: pointer; width: 250px;
+        border-radius: 50px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;
+        cursor: pointer; width: 260px; font-family: inherit;
       }
       .pause-overlay button.secondary {
+        background: #333; color: #fff;
+      }
+
+      /* MASTERED CELEBRATION MODAL */
+      .mastered-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(17, 17, 17, 0.95); z-index: 60;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        padding: 20px;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+        text-align: center;
+      }
+      .mastered-overlay.active { opacity: 1; visibility: visible; }
+      .mastered-overlay .trophy {
+        font-size: 5rem;
+        margin-bottom: 16px;
+        animation: bounce 1.5s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+      }
+      .mastered-overlay h2 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        color: #00e676;
+      }
+      .mastered-overlay p {
+        font-size: 1rem;
+        color: #aaa;
+        margin-bottom: 32px;
+        max-width: 300px;
+        line-height: 1.5;
+      }
+      .mastered-overlay button {
+        background: #00e676; color: #000; border: none; padding: 16px 40px;
+        border-radius: 50px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;
+        cursor: pointer; width: 260px; font-family: inherit;
+      }
+      .mastered-overlay button.secondary {
         background: #333; color: #fff;
       }
     </style>
@@ -255,7 +332,10 @@
   <body>
     <!-- TOP BAR -->
     <div class="top-bar">
-      <button class="pause-btn" id="pauseBtn">⏸</button>
+      <div class="top-bar-left">
+        <button class="nav-btn" id="backBtn" title="Back to Word Flashcards">←</button>
+        <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
+      </div>
       <div class="score-container">
         <div class="score-correct">
           <span>✔</span> <span id="correctScore">0</span>
@@ -265,7 +345,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="progress-bar-container">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -276,7 +356,13 @@
     <!-- GAME AREA -->
     <div class="game-area" id="gameArea">
       <div class="target-kana" id="targetKana">ア</div>
-      
+
+      <!-- STREAK DOTS -->
+      <div class="streak-indicator" id="streakIndicator">
+        <div class="streak-dot" id="dot1"></div>
+        <div class="streak-dot" id="dot2"></div>
+      </div>
+
       <div class="options-grid" id="optionsGrid">
         <!-- Dynamically populated -->
       </div>
@@ -286,8 +372,18 @@
     <div class="pause-overlay" id="pauseOverlay">
       <h2>Paused</h2>
       <button id="resumeBtn">▶ Resume</button>
+      <button class="secondary" id="replayBtn">🔁 Replay From Start</button>
       <button class="secondary" id="resetBtn">⟳ Reset Progress</button>
       <button class="secondary" id="exitBtn">📖 Word Flashcards</button>
+    </div>
+
+    <!-- MASTERED CELEBRATION -->
+    <div class="mastered-overlay" id="masteredOverlay">
+      <div class="trophy">🏆</div>
+      <h2>All Katakana Mastered!</h2>
+      <p>You got every single one right twice in a row. That's real mastery.</p>
+      <button id="masteredReplayBtn">🔁 Play Again</button>
+      <button class="secondary" id="masteredResetBtn">⟳ Reset Progress</button>
     </div>
 
     <!-- SIGNATURE MODAL -->
@@ -326,12 +422,15 @@
         { k: "パ", h: "ぱ" }, { k: "ピ", h: "ぴ" }, { k: "プ", h: "ぷ" }, { k: "ペ", h: "ぺ" }, { k: "ポ", h: "ぽ" },
       ];
 
+      const REQUIRED_STREAK = 2;
+
       // ============================================================
       // STATE
       // ============================================================
-      const STORAGE_KEY = "katakanaMatchMastery_v1";
-      
-      let masteredSet = new Set();
+      const STORAGE_KEY_V2 = "katakanaMatchStreaks_v2";
+      const STORAGE_KEY_V1_LEGACY = "katakanaMatchMastery_v1";
+
+      let streaks = {}; // { "ア": 0, "イ": 1, "ウ": 2, ... }
       let currentQuestion = null;
       let options = [];
       let correctScore = 0;
@@ -347,20 +446,23 @@
       const wrongScoreEl = document.getElementById("wrongScore");
       const progressBar = document.getElementById("progressBar");
       const pauseOverlay = document.getElementById("pauseOverlay");
+      const masteredOverlay = document.getElementById("masteredOverlay");
       const toastPopup = document.getElementById("toastPopup");
-      
+      const dot1 = document.getElementById("dot1");
+      const dot2 = document.getElementById("dot2");
+
       // ============================================================
       // AUDIO & TOAST
       // ============================================================
       let audioCtx = null;
-      
+
       function playSound(type) {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        
+
         if (type === "correct") {
           osc.type = "sine";
           osc.frequency.setValueAtTime(880, audioCtx.currentTime);
@@ -381,14 +483,13 @@
       function showToast(msg) {
         toastPopup.innerText = msg;
         toastPopup.classList.add("show");
-        setTimeout(() => toastPopup.classList.remove("show"), 2000);
+        setTimeout(() => toastPopup.classList.remove("show"), 2200);
       }
 
       function speakKatakana(text) {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
-        
-        // Silent primer to avoid clipping
+
         const primer = new SpeechSynthesisUtterance(" ");
         primer.volume = 0;
         window.speechSynthesis.speak(primer);
@@ -400,40 +501,80 @@
         const voices = window.speechSynthesis.getVoices();
         const jp = voices.find(v => v.lang.startsWith("ja"));
         if (jp) utterance.voice = jp;
-        
+
         utterance.onstart = () => targetKanaEl.classList.add("speaking");
         utterance.onend = () => targetKanaEl.classList.remove("speaking");
         utterance.onerror = () => targetKanaEl.classList.remove("speaking");
-        
+
         window.speechSynthesis.speak(utterance);
+      }
+
+      // ============================================================
+      // PERSISTENCE
+      // ============================================================
+      function loadStreaks() {
+        // Try v2 first
+        try {
+          const savedV2 = localStorage.getItem(STORAGE_KEY_V2);
+          if (savedV2) {
+            const parsed = JSON.parse(savedV2);
+            if (parsed && typeof parsed === "object") {
+              streaks = parsed;
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to load v2 streaks", e);
+        }
+
+        // Migrate from v1 (binary set) if present
+        try {
+          const savedV1 = localStorage.getItem(STORAGE_KEY_V1_LEGACY);
+          if (savedV1) {
+            const arr = JSON.parse(savedV1);
+            if (Array.isArray(arr)) {
+              arr.forEach(kana => { streaks[kana] = REQUIRED_STREAK; });
+              saveStreaks();
+              localStorage.removeItem(STORAGE_KEY_V1_LEGACY);
+              showToast(`Migrated ${arr.length} mastered Katakana to new streak format.`);
+              console.log(`[streaks] Migrated ${arr.length} from v1`);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to migrate v1", e);
+        }
+      }
+
+      function saveStreaks() {
+        try {
+          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(streaks));
+        } catch (e) {
+          console.warn("Failed to save streaks", e);
+        }
       }
 
       // ============================================================
       // GAME LOGIC
       // ============================================================
-      function loadMastery() {
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            const arr = JSON.parse(saved);
-            if (Array.isArray(arr)) {
-              masteredSet = new Set(arr);
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to load mastery", e);
-        }
-      }
-
-      function saveMastery() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(masteredSet)));
-        } catch (e) {}
+      function getMasteredCount() {
+        return KANA_DATA.filter(item => (streaks[item.k] || 0) >= REQUIRED_STREAK).length;
       }
 
       function updateProgressBar() {
-        const percentage = (masteredSet.size / KANA_DATA.length) * 100;
+        // Option (b): weighted — every streak point counts toward the total
+        const totalStreakPoints = KANA_DATA.reduce(
+          (sum, item) => sum + Math.min(streaks[item.k] || 0, REQUIRED_STREAK),
+          0
+        );
+        const maxPoints = KANA_DATA.length * REQUIRED_STREAK;
+        const percentage = (totalStreakPoints / maxPoints) * 100;
         progressBar.style.width = percentage + "%";
+      }
+
+      function updateStreakDots(kana) {
+        const s = streaks[kana] || 0;
+        dot1.classList.toggle("filled", s >= 1);
+        dot2.classList.toggle("filled", s >= 2);
       }
 
       function shuffleArray(arr) {
@@ -451,29 +592,29 @@
         isAnswered = false;
         targetKanaEl.classList.remove("speaking");
 
-        // 1. Get all unmastered kana. If all mastered, reset to the full pool.
-        let available = KANA_DATA.filter(item => !masteredSet.has(item.k));
+        // Available pool = Katakana whose streak < REQUIRED_STREAK
+        const available = KANA_DATA.filter(
+          item => (streaks[item.k] || 0) < REQUIRED_STREAK
+        );
+
         if (available.length === 0) {
-          showToast("🏆 You've mastered them all! Restarting pool.");
-          masteredSet.clear();
-          saveMastery();
-          updateProgressBar();
-          available = [...KANA_DATA];
+          // All mastered — show celebration
+          showMasteredCelebration();
+          return;
         }
 
-        // 2. Pick the target
+        // Pick the target
         const randomIndex = Math.floor(Math.random() * available.length);
         currentQuestion = available[randomIndex];
         targetKanaEl.innerText = currentQuestion.k;
+        updateStreakDots(currentQuestion.k);
 
-        // 3. Generate 3 wrong options (distractors)
+        // Generate 3 wrong Hiragana
         const wrongPool = KANA_DATA.filter(item => item.h !== currentQuestion.h);
         const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.h);
-
-        // 4. Combine and shuffle
         options = shuffleArray([currentQuestion.h, ...wrongOptions]);
 
-        // 5. Render options
+        // Render
         optionsGrid.innerHTML = "";
         options.forEach(hira => {
           const btn = document.createElement("button");
@@ -489,8 +630,10 @@
         isAnswered = true;
 
         const isCorrect = selectedHira === currentQuestion.h;
-        
-        // Disable all buttons
+        const kana = currentQuestion.k;
+        const prevStreak = streaks[kana] || 0;
+
+        // Disable all buttons + highlight correct
         document.querySelectorAll(".option-btn").forEach(btn => {
           btn.classList.add("disabled");
           if (btn.innerText === currentQuestion.h) {
@@ -503,12 +646,17 @@
           correctScoreEl.innerText = correctScore;
           btnEl.classList.add("correct");
           playSound("correct");
-          speakKatakana(currentQuestion.k);
+          speakKatakana(kana);
 
-          // Mark as mastered
-          masteredSet.add(currentQuestion.k);
-          saveMastery();
+          streaks[kana] = prevStreak + 1;
+          saveStreaks();
           updateProgressBar();
+          updateStreakDots(kana);
+
+          // If just mastered this one, celebrate briefly
+          if (streaks[kana] === REQUIRED_STREAK) {
+            showToast(`✨ "${kana}" mastered!`);
+          }
 
           autoNextTimeout = setTimeout(startNewQuestion, 800);
         } else {
@@ -516,27 +664,60 @@
           wrongScoreEl.innerText = wrongScore;
           btnEl.classList.add("wrong");
           playSound("wrong");
-          speakKatakana(currentQuestion.k);
+          speakKatakana(kana);
 
-          // Remove from mastered to force review later
-          masteredSet.delete(currentQuestion.k);
-          saveMastery();
+          streaks[kana] = 0;
+          saveStreaks();
           updateProgressBar();
+          updateStreakDots(kana);
+
+          // If it was previously mastered, notify demotion
+          if (prevStreak >= REQUIRED_STREAK) {
+            showToast(`"${kana}" demoted — needs ${REQUIRED_STREAK} correct in a row again.`);
+          }
 
           autoNextTimeout = setTimeout(startNewQuestion, 1500);
         }
       }
 
       // ============================================================
+      // MASTERED CELEBRATION
+      // ============================================================
+      function showMasteredCelebration() {
+        isPaused = true;
+        masteredOverlay.classList.add("active");
+      }
+
+      function hideMasteredCelebration() {
+        masteredOverlay.classList.remove("active");
+        isPaused = false;
+      }
+
+      function replayFromStart() {
+        streaks = {};
+        saveStreaks();
+        updateProgressBar();
+        correctScore = 0;
+        wrongScore = 0;
+        correctScoreEl.innerText = 0;
+        wrongScoreEl.innerText = 0;
+        hideMasteredCelebration();
+        pauseOverlay.classList.remove("active");
+        isPaused = false;
+        startNewQuestion();
+      }
+
+      // ============================================================
       // EVENTS
       // ============================================================
-      
-      // Tap the big Katakana to hear it
       targetKanaEl.addEventListener("click", () => {
         if (currentQuestion) speakKatakana(currentQuestion.k);
       });
 
-      // Pause / Resume
+      document.getElementById("backBtn").addEventListener("click", () => {
+        window.location.href = "K7-Katakana.html";
+      });
+
       document.getElementById("pauseBtn").addEventListener("click", () => {
         isPaused = true;
         pauseOverlay.classList.add("active");
@@ -551,28 +732,33 @@
         }
       });
 
-      // Reset Progress
-      document.getElementById("resetBtn").addEventListener("click", () => {
-        if (confirm("Reset all katakana mastery?")) {
-          masteredSet.clear();
-          saveMastery();
-          updateProgressBar();
-          correctScore = 0;
-          wrongScore = 0;
-          correctScoreEl.innerText = 0;
-          wrongScoreEl.innerText = 0;
-          isPaused = false;
-          pauseOverlay.classList.remove("active");
-          startNewQuestion();
+      document.getElementById("replayBtn").addEventListener("click", () => {
+        if (confirm("🔁 Replay from start? This clears all your current streaks.")) {
+          replayFromStart();
         }
       });
 
-      // Exit to Word Flashcards
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (confirm("Reset all katakana mastery progress?")) {
+          replayFromStart();
+        }
+      });
+
       document.getElementById("exitBtn").addEventListener("click", () => {
         window.location.href = "K7-Katakana.html";
       });
 
-      // Signature Modal
+      document.getElementById("masteredReplayBtn").addEventListener("click", () => {
+        replayFromStart();
+      });
+
+      document.getElementById("masteredResetBtn").addEventListener("click", () => {
+        if (confirm("Reset all progress?")) {
+          replayFromStart();
+        }
+      });
+
+      // Signature modal
       document.getElementById("antonioSignature").addEventListener("click", () => {
         document.getElementById("signatureModal").classList.add("active");
       });
@@ -585,8 +771,10 @@
         }
       });
 
-      // Init
-      loadMastery();
+      // ============================================================
+      // INIT
+      // ============================================================
+      loadStreaks();
       updateProgressBar();
       startNewQuestion();
     </script>
