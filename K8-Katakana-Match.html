@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Katakana Match · Kana to Kana</title>
+    
+    <!-- PWA META TAGS -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Katakana Match" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+      }
+
+      body {
+        background: #111111;
+        color: #ffffff;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
+        overflow: hidden; /* Prevent scrolling during game */
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        padding-top: max(20px, env(safe-area-inset-top));
+        z-index: 10;
+      }
+
+      .pause-btn {
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 8px;
+        line-height: 1;
+      }
+
+      .score-container {
+        display: flex;
+        gap: 20px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+      }
+
+      .score-correct {
+        color: #00e676;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .score-wrong {
+        color: #d500f9;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 4px;
+        background: #333333;
+        margin-top: -4px;
+        z-index: 10;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: #ffd54f;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      /* MAIN GAME AREA */
+      .game-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        position: relative;
+      }
+
+      /* THE BIG KATAKANA */
+      .target-kana {
+        font-size: 12rem;
+        font-weight: 900;
+        line-height: 1;
+        cursor: pointer;
+        transition: transform 0.1s ease, opacity 0.2s ease;
+        font-family: "Noto Sans JP", sans-serif;
+        margin-bottom: 40px;
+        text-align: center;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .target-kana:active {
+        transform: scale(0.92);
+      }
+
+      .target-kana.speaking {
+        color: #ffd54f;
+      }
+
+      /* 2x2 GRID FOR HIRAGANA OPTIONS */
+      .options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .option-btn {
+        background: #1e1e1e;
+        border: 3px solid #333333;
+        color: #ffffff;
+        font-size: 3rem;
+        font-weight: 800;
+        padding: 30px 0;
+        border-radius: 24px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: "Noto Sans JP", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 0 #000000;
+      }
+
+      .option-btn:active:not(:disabled) {
+        transform: translateY(4px);
+        box-shadow: 0 0 0 #000000;
+      }
+
+      .option-btn.correct {
+        background: #00e676;
+        border-color: #00e676;
+        color: #000000;
+        box-shadow: 0 4px 0 #009624;
+      }
+
+      .option-btn.wrong {
+        background: #d500f9;
+        border-color: #d500f9;
+        color: #ffffff;
+        box-shadow: 0 4px 0 #9c00b3;
+      }
+
+      .option-btn.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      /* ANIMATIONS */
+      @keyframes popIn {
+        0% { transform: scale(0.8); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* SIGNATURE MODAL & TOAST (Reused) */
+      .antonio-signature {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid #333;
+        opacity: 0.3;
+        transition: opacity 0.2s;
+        z-index: 20;
+      }
+      .antonio-signature:hover { opacity: 1; }
+
+      .signature-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+      }
+      .signature-modal-overlay.active { opacity: 1; visibility: visible; }
+      .signature-modal {
+        background: #fff7ec; border-radius: 30px; padding: 2rem 1.8rem;
+        text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        border: 3px solid #d4a94a; max-width: 90vw; width: 320px;
+        color: #2d3e2a; transform: scale(0.9); transition: transform 0.3s;
+      }
+      .signature-modal-overlay.active .signature-modal { transform: scale(1); }
+      .signature-modal img {
+        width: 100%; height: auto; max-height: 160px; border-radius: 16px;
+        border: 2px solid #eedfc2; background: white; padding: 6px; margin-bottom: 1.5rem;
+      }
+      .signature-modal h2 { margin: 0 0 8px 0; font-size: 1.5rem; }
+      .signature-modal p { margin: 0; font-size: 0.95rem; line-height: 1.5; }
+      .signature-modal button {
+        margin-top: 20px; background: #4a6a7a; color: white; border: none;
+        padding: 8px 24px; border-radius: 50px; font-weight: bold; cursor: pointer;
+        box-shadow: 0 4px 0 #2a4a5a;
+      }
+
+      .toast-popup {
+        position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
+        background: #333; color: #fff; padding: 10px 20px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 600; z-index: 9000; opacity: 0;
+        pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+      .toast-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+      /* PAUSE SCREEN */
+      .pause-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(17, 17, 17, 0.95); z-index: 50;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        opacity: 0; visibility: hidden; transition: opacity 0.2s ease;
+      }
+      .pause-overlay.active { opacity: 1; visibility: visible; }
+      .pause-overlay h2 { font-size: 2rem; margin-bottom: 20px; }
+      .pause-overlay button {
+        background: #00e676; color: #000; border: none; padding: 16px 40px;
+        border-radius: 50px; font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;
+        cursor: pointer; width: 250px;
+      }
+      .pause-overlay button.secondary {
+        background: #333; color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <button class="pause-btn" id="pauseBtn">⏸</button>
+      <div class="score-container">
+        <div class="score-correct">
+          <span>✔</span> <span id="correctScore">0</span>
+        </div>
+        <div class="score-wrong">
+          <span>✖</span> <span id="wrongScore">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- SIGNATURE -->
+    <img src="icons/Antonio.png" alt="ACG" class="antonio-signature" id="antonioSignature" />
+
+    <!-- GAME AREA -->
+    <div class="game-area" id="gameArea">
+      <div class="target-kana" id="targetKana">ア</div>
+      
+      <div class="options-grid" id="optionsGrid">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- PAUSE SCREEN -->
+    <div class="pause-overlay" id="pauseOverlay">
+      <h2>Paused</h2>
+      <button id="resumeBtn">▶ Resume</button>
+      <button class="secondary" id="resetBtn">⟳ Reset Progress</button>
+      <button class="secondary" id="exitBtn">📖 Word Flashcards</button>
+    </div>
+
+    <!-- SIGNATURE MODAL -->
+    <div class="signature-modal-overlay" id="signatureModal">
+      <div class="signature-modal">
+        <img src="icons/Antonio.png" alt="ACG Applications Signature" />
+        <h2>ACG Applications</h2>
+        <p>Kanji Master &amp; Katakana Study<br>Built with care. 漢字 &amp; カタカナ.<br><br><span style="font-size:0.8rem; opacity:0.8;">Built with DeepSeek</span></p>
+        <button id="closeSigBtn">Close</button>
+      </div>
+    </div>
+
+    <div class="toast-popup" id="toastPopup"></div>
+
+    <script>
+      // ============================================================
+      // DATA: FULL KATAKANA TO HIRAGANA MAPPING
+      // ============================================================
+      const KANA_DATA = [
+        { k: "ア", h: "あ" }, { k: "イ", h: "い" }, { k: "ウ", h: "う" }, { k: "エ", h: "え" }, { k: "オ", h: "お" },
+        { k: "カ", h: "か" }, { k: "キ", h: "き" }, { k: "ク", h: "く" }, { k: "ケ", h: "け" }, { k: "コ", h: "こ" },
+        { k: "サ", h: "さ" }, { k: "シ", h: "し" }, { k: "ス", h: "す" }, { k: "セ", h: "せ" }, { k: "ソ", h: "そ" },
+        { k: "タ", h: "た" }, { k: "チ", h: "ち" }, { k: "ツ", h: "つ" }, { k: "テ", h: "て" }, { k: "ト", h: "と" },
+        { k: "ナ", h: "な" }, { k: "ニ", h: "に" }, { k: "ヌ", h: "ぬ" }, { k: "ネ", h: "ね" }, { k: "ノ", h: "の" },
+        { k: "ハ", h: "は" }, { k: "ヒ", h: "ひ" }, { k: "フ", h: "ふ" }, { k: "ヘ", h: "へ" }, { k: "ホ", h: "ほ" },
+        { k: "マ", h: "ま" }, { k: "ミ", h: "み" }, { k: "ム", h: "む" }, { k: "メ", h: "め" }, { k: "モ", h: "も" },
+        { k: "ヤ", h: "や" }, { k: "ユ", h: "ゆ" }, { k: "ヨ", h: "よ" },
+        { k: "ラ", h: "ら" }, { k: "リ", h: "り" }, { k: "ル", h: "る" }, { k: "レ", h: "れ" }, { k: "ロ", h: "ろ" },
+        { k: "ワ", h: "わ" }, { k: "ヲ", h: "を" }, { k: "ン", h: "ん" },
+        // Dakuten
+        { k: "ガ", h: "が" }, { k: "ギ", h: "ぎ" }, { k: "グ", h: "ぐ" }, { k: "ゲ", h: "げ" }, { k: "ゴ", h: "ご" },
+        { k: "ザ", h: "ざ" }, { k: "ジ", h: "じ" }, { k: "ズ", h: "ず" }, { k: "ゼ", h: "ぜ" }, { k: "ゾ", h: "ぞ" },
+        { k: "ダ", h: "だ" }, { k: "ヂ", h: "ぢ" }, { k: "ヅ", h: "づ" }, { k: "デ", h: "で" }, { k: "ド", h: "ど" },
+        { k: "バ", h: "ば" }, { k: "ビ", h: "び" }, { k: "ブ", h: "ぶ" }, { k: "ベ", h: "べ" }, { k: "ボ", h: "ぼ" },
+        // Handakuten
+        { k: "パ", h: "ぱ" }, { k: "ピ", h: "ぴ" }, { k: "プ", h: "ぷ" }, { k: "ペ", h: "ぺ" }, { k: "ポ", h: "ぽ" },
+      ];
+
+      // ============================================================
+      // STATE
+      // ============================================================
+      const STORAGE_KEY = "katakanaMatchMastery_v1";
+      
+      let masteredSet = new Set();
+      let currentQuestion = null;
+      let options = [];
+      let correctScore = 0;
+      let wrongScore = 0;
+      let isAnswered = false;
+      let isPaused = false;
+      let autoNextTimeout = null;
+
+      // DOM Elements
+      const targetKanaEl = document.getElementById("targetKana");
+      const optionsGrid = document.getElementById("optionsGrid");
+      const correctScoreEl = document.getElementById("correctScore");
+      const wrongScoreEl = document.getElementById("wrongScore");
+      const progressBar = document.getElementById("progressBar");
+      const pauseOverlay = document.getElementById("pauseOverlay");
+      const toastPopup = document.getElementById("toastPopup");
+      
+      // ============================================================
+      // AUDIO & TOAST
+      // ============================================================
+      let audioCtx = null;
+      
+      function playSound(type) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        if (type === "correct") {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+      }
+
+      function showToast(msg) {
+        toastPopup.innerText = msg;
+        toastPopup.classList.add("show");
+        setTimeout(() => toastPopup.classList.remove("show"), 2000);
+      }
+
+      function speakKatakana(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        
+        // Silent primer to avoid clipping
+        const primer = new SpeechSynthesisUtterance(" ");
+        primer.volume = 0;
+        window.speechSynthesis.speak(primer);
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "ja-JP";
+        utterance.rate = 0.85;
+        const voices = window.speechSynthesis.getVoices();
+        const jp = voices.find(v => v.lang.startsWith("ja"));
+        if (jp) utterance.voice = jp;
+        
+        utterance.onstart = () => targetKanaEl.classList.add("speaking");
+        utterance.onend = () => targetKanaEl.classList.remove("speaking");
+        utterance.onerror = () => targetKanaEl.classList.remove("speaking");
+        
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // ============================================================
+      // GAME LOGIC
+      // ============================================================
+      function loadMastery() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const arr = JSON.parse(saved);
+            if (Array.isArray(arr)) {
+              masteredSet = new Set(arr);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to load mastery", e);
+        }
+      }
+
+      function saveMastery() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(masteredSet)));
+        } catch (e) {}
+      }
+
+      function updateProgressBar() {
+        const percentage = (masteredSet.size / KANA_DATA.length) * 100;
+        progressBar.style.width = percentage + "%";
+      }
+
+      function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function startNewQuestion() {
+        if (isPaused) return;
+        clearTimeout(autoNextTimeout);
+        isAnswered = false;
+        targetKanaEl.classList.remove("speaking");
+
+        // 1. Get all unmastered kana. If all mastered, reset to the full pool.
+        let available = KANA_DATA.filter(item => !masteredSet.has(item.k));
+        if (available.length === 0) {
+          showToast("🏆 You've mastered them all! Restarting pool.");
+          masteredSet.clear();
+          saveMastery();
+          updateProgressBar();
+          available = [...KANA_DATA];
+        }
+
+        // 2. Pick the target
+        const randomIndex = Math.floor(Math.random() * available.length);
+        currentQuestion = available[randomIndex];
+        targetKanaEl.innerText = currentQuestion.k;
+
+        // 3. Generate 3 wrong options (distractors)
+        const wrongPool = KANA_DATA.filter(item => item.h !== currentQuestion.h);
+        const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.h);
+
+        // 4. Combine and shuffle
+        options = shuffleArray([currentQuestion.h, ...wrongOptions]);
+
+        // 5. Render options
+        optionsGrid.innerHTML = "";
+        options.forEach(hira => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.innerText = hira;
+          btn.onclick = () => handleAnswer(hira, btn);
+          optionsGrid.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedHira, btnEl) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const isCorrect = selectedHira === currentQuestion.h;
+        
+        // Disable all buttons
+        document.querySelectorAll(".option-btn").forEach(btn => {
+          btn.classList.add("disabled");
+          if (btn.innerText === currentQuestion.h) {
+            btn.classList.add("correct");
+          }
+        });
+
+        if (isCorrect) {
+          correctScore++;
+          correctScoreEl.innerText = correctScore;
+          btnEl.classList.add("correct");
+          playSound("correct");
+          speakKatakana(currentQuestion.k);
+
+          // Mark as mastered
+          masteredSet.add(currentQuestion.k);
+          saveMastery();
+          updateProgressBar();
+
+          autoNextTimeout = setTimeout(startNewQuestion, 800);
+        } else {
+          wrongScore++;
+          wrongScoreEl.innerText = wrongScore;
+          btnEl.classList.add("wrong");
+          playSound("wrong");
+          speakKatakana(currentQuestion.k);
+
+          // Remove from mastered to force review later
+          masteredSet.delete(currentQuestion.k);
+          saveMastery();
+          updateProgressBar();
+
+          autoNextTimeout = setTimeout(startNewQuestion, 1500);
+        }
+      }
+
+      // ============================================================
+      // EVENTS
+      // ============================================================
+      
+      // Tap the big Katakana to hear it
+      targetKanaEl.addEventListener("click", () => {
+        if (currentQuestion) speakKatakana(currentQuestion.k);
+      });
+
+      // Pause / Resume
+      document.getElementById("pauseBtn").addEventListener("click", () => {
+        isPaused = true;
+        pauseOverlay.classList.add("active");
+        clearTimeout(autoNextTimeout);
+      });
+
+      document.getElementById("resumeBtn").addEventListener("click", () => {
+        isPaused = false;
+        pauseOverlay.classList.remove("active");
+        if (isAnswered) {
+          startNewQuestion();
+        }
+      });
+
+      // Reset Progress
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (confirm("Reset all katakana mastery?")) {
+          masteredSet.clear();
+          saveMastery();
+          updateProgressBar();
+          correctScore = 0;
+          wrongScore = 0;
+          correctScoreEl.innerText = 0;
+          wrongScoreEl.innerText = 0;
+          isPaused = false;
+          pauseOverlay.classList.remove("active");
+          startNewQuestion();
+        }
+      });
+
+      // Exit to Word Flashcards
+      document.getElementById("exitBtn").addEventListener("click", () => {
+        window.location.href = "K7-Katakana.html";
+      });
+
+      // Signature Modal
+      document.getElementById("antonioSignature").addEventListener("click", () => {
+        document.getElementById("signatureModal").classList.add("active");
+      });
+      document.getElementById("closeSigBtn").addEventListener("click", () => {
+        document.getElementById("signatureModal").classList.remove("active");
+      });
+      document.getElementById("signatureModal").addEventListener("click", (e) => {
+        if (e.target.id === "signatureModal") {
+          document.getElementById("signatureModal").classList.remove("active");
+        }
+      });
+
+      // Init
+      loadMastery();
+      updateProgressBar();
+      startNewQuestion();
+    </script>
+  </body>
+</html>

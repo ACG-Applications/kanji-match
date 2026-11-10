@@ -176,7 +176,22 @@
         transform: translateY(2px);
         box-shadow: 0 2px 0 #2a4a5a;
       }
-
+.match-kana-btn {
+  background: #4a6a7a;
+  box-shadow: 0 4px 0 #2a4a5a;
+  flex: 1;
+  padding: 10px;
+  border-radius: 60px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  color: #ffefd0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
       /* TOAST */
       .toast-popup {
         position: fixed;
@@ -975,11 +990,12 @@
           <button class="shuffle-btn" id="newSessionBtn">🎲 New Random Set</button>
           <button class="nav-btn" id="nextBtn">Next ▶</button>
         </div>
-        <div class="footer-actions">
-          <button class="cheat-btn" id="cheatSheetBtn">📖 Katakana Chart</button>
-          <button class="reset-btn" id="resetBtn">⟳ Reset Mastery</button>
-          <button class="kanji-btn" id="kanjiBtn">🎌 Kanji Match</button>
-        </div>
+<div class="footer-actions">
+  <button class="cheat-btn" id="cheatSheetBtn">📖 Chart</button>
+  <button class="match-kana-btn" id="matchKanaBtn">🧩 Kana Match</button>
+  <button class="reset-btn" id="resetBtn">⟳ Reset</button>
+  <button class="kanji-btn" id="kanjiBtn">🎌 Kanji</button>
+</div>
         <div class="status-msg" id="statusMsg">
           💡 Reveal → Listen → Mastered (auto-saved). New Random Set samples fresh words.
         </div>
@@ -1797,7 +1813,9 @@
       document.getElementById("kanjiBtn").addEventListener("click", function () {
         window.open("index.html", "_blank");
       });
-
+document.getElementById("matchKanaBtn").addEventListener("click", function () {
+  window.location.href = "K8-Katakana-Match.html";
+});
       // ============================================================
       // INIT
       // ============================================================
