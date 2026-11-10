@@ -33,10 +33,11 @@
       }
     </script>
     <style>
-      /* ... (CSS remains exactly the same as your file) ... */
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
       body { background: linear-gradient(145deg, #0c241f 0%, #051410 100%); min-height: 100dvh; display: flex; justify-content: center; align-items: center; font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif; padding: 8px; margin: 0; }
-      .flashcard-app { max-width: 540px; width: 100%; background: #fffaf0; border-radius: 48px; box-shadow: 0 20px 35px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,215,130,0.4); overflow: hidden; display: flex; flex-direction: column; max-height: 95dvh; position: relative; }
+      
+      .flashcard-app { max-width: 540px; width: 100%; background: #fffaf0; border-radius: 48px; box-shadow: 0 20px 35px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,215,130,0.4); overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; max-height: 95dvh; position: relative; }
+      
       .antonio-signature { position: absolute; top: 12px; left: 12px; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; cursor: pointer; z-index: 20; border: 2px solid #d4a94a; box-shadow: 0 3px 10px rgba(0,0,0,0.45); transition: transform 0.12s ease; background: #fff7ec; }
       .antonio-signature:hover { transform: scale(1.05); }
       .signature-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
@@ -46,17 +47,21 @@
       .signature-modal h2 { margin: 0 0 8px 0; color: #2d3e2a; font-size: 1.5rem; }
       .signature-modal p { margin: 0; color: #5a4a2c; font-size: 0.95rem; }
       .signature-modal .close-sig-btn { margin-top: 20px; background: #4a6a7a; color: white; border: none; padding: 8px 24px; border-radius: 50px; font-weight: bold; cursor: pointer; }
-      .match-kana-btn { background: #4a6a7a; box-shadow: 0 4px 0 #2a4a5a; flex: 1; padding: 10px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; border: none; color: #ffefd0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+      
       .toast-popup { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-10px); background: #1b4a36; color: #fff5e6; padding: 10px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 600; z-index: 9000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; text-align: center; }
       .toast-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      
       .app-header { background: linear-gradient(135deg, #216b45, #123d2a); padding: 10px 12px 10px 66px; text-align: center; flex-shrink: 0; }
       .app-header h1 { margin: 0; font-size: 1.45rem; font-weight: 800; color: #fff5e6; }
       .app-header p { margin: 2px 0 0; font-size: 0.6rem; opacity: 0.9; color: #ffe5b4; }
+      
       .progress-area { background: #e0d4be; padding: 8px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccb788; font-weight: 600; flex-shrink: 0; }
       .counter { background: #1b4a36; padding: 5px 16px; border-radius: 50px; color: #fff5e6; font-size: 0.8rem; white-space: nowrap; }
       .mastered-badge { background: #cfaa6e; color: #1f3a29; padding: 5px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
       .filter-toggle { background: #c0a16b; padding: 5px 14px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; color: #2c2b1f; cursor: pointer; border: none; }
-      .card-face { background: #fffef8; margin: 14px 16px; border-radius: 44px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.2rem 0.8rem; flex: 1; min-height: 0; }
+      
+      .card-face { background: #fffef8; margin: 12px 16px; border-radius: 44px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.2rem 0.8rem; flex: 1; min-height: 0; }
+      
       .katakana-word { font-weight: 800; letter-spacing: 0.04em; font-family: "Noto Sans JP", sans-serif; background: #fcf4e4; padding: 0.2rem 0.9rem; border-radius: 70px; display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 0.2rem; color: #1c412e; line-height: 1.2; max-width: 100%; font-size: 4rem; }
       .tappable-kana { cursor: pointer; padding: 0; border-radius: 8px; transition: background 0.15s ease; user-select: none; display: inline-block; white-space: nowrap; }
       .tappable-kana.speaking { background: #f5c842; color: #2b2a1e; }
@@ -65,23 +70,54 @@
       .english-meaning { font-size: 1.7rem; font-weight: 700; background: #efe2ce; padding: 10px 18px; border-radius: 70px; color: #2c553b; display: inline-block; max-width: 95%; word-break: break-word; }
       .hidden-word { filter: blur(6px); background: #dbcbaa; color: transparent; cursor: pointer; }
       .reveal-btn-sm { background: #f5bc70; border: none; font-size: 0.9rem; margin-top: 6px; padding: 8px 24px; border-radius: 60px; font-weight: 800; cursor: pointer; color: #2b2a1e; }
-      .action-buttons { display: flex; justify-content: center; gap: 12px; margin: 4px 16px 12px 16px; }
+      
+      .action-buttons { display: flex; justify-content: center; gap: 12px; margin: 0 16px 10px 16px; flex-shrink: 0; }
       .action-btn { background: #2d583f; border: none; color: white; font-weight: bold; padding: 12px 12px; font-size: 0.9rem; border-radius: 60px; cursor: pointer; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
       .action-btn.master { background: #4f7a4b; }
-      .nav-buttons { display: flex; justify-content: space-between; gap: 10px; margin: 0 16px 12px 16px; }
+      
+      .nav-buttons { display: flex; justify-content: space-between; gap: 10px; margin: 0 16px 10px 16px; flex-shrink: 0; }
       .nav-btn, .shuffle-btn, .reset-btn { background: #9c8360; flex: 1; text-align: center; padding: 12px 4px; border-radius: 60px; font-weight: 800; font-size: 0.9rem; border: none; color: white; cursor: pointer; }
-      .shuffle-btn { background: #6b8c5c; }
+      .shuffle-btn { background: #6b8c5c; white-space: nowrap; }
       .reset-btn { background: #9b5e3a; flex: 0.7; }
-      .footer-actions { display: flex; gap: 12px; margin: 0 16px 16px 16px; }
-      .footer-actions button.kanji-btn { background: #4a6a7a; flex: 1; padding: 10px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; border: none; color: #ffefd0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-      .cheat-btn { background: #3e6b53; flex: 1; padding: 10px; border-radius: 60px; font-weight: 700; font-size: 0.8rem; border: none; color: #ffefd0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-      .status-msg { text-align: center; padding: 10px; font-size: 0.7rem; background: #efe5d2; border-top: 1px solid #dac99f; color: #2b5439; font-weight: 600; flex-shrink: 0; }
+      
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 0 16px 10px 16px;
+        flex-shrink: 0;
+      }
+      .bottom-grid button {
+        padding: 10px 4px;
+        border-radius: 60px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        border: none;
+        color: #ffefd0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+      .bottom-grid .kana-listening-btn { background: #2e8b57; }
+      .bottom-grid .kana-reading-btn { background: #2a7a9a; }
+      .bottom-grid .kana-mixed-btn { background: #b8860b; }
+      .bottom-grid .cheat-btn { background: #3e6b53; }
+      .bottom-grid .match-kana-btn { background: #4a6a7a; }
+      .bottom-grid .home-btn { background: #4a6a7a; }
+      .bottom-grid .reset-btn-inline { background: #9b5e3a; }
+
+      .status-msg { text-align: center; padding: 8px; font-size: 0.7rem; background: #efe5d2; border-top: 1px solid #dac99f; color: #2b5439; font-weight: 600; flex-shrink: 0; }
       footer { font-size: 0.55rem; text-align: center; padding: 8px; background: #ddd0b4; color: #4a3f2c; flex-shrink: 0; }
+      
       .mastered-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: center; }
       .mastered-screen .trophy { font-size: 5rem; margin-bottom: 1rem; }
       .mastered-screen h2 { color: #1c412e; font-size: 1.6rem; margin-bottom: 8px; }
       .mastered-screen p { color: #5a4a2c; font-size: 0.95rem; margin-bottom: 20px; }
       .mastered-screen button { background: #4a7a4a; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+      
       .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.2s ease; padding: 16px; }
       .modal-overlay.active { opacity: 1; visibility: visible; }
       .modal-container { background: #fffef5; max-width: 700px; width: 100%; max-height: 85vh; border-radius: 48px; overflow: hidden; display: flex; flex-direction: column; }
@@ -99,7 +135,7 @@
       .hira-small { font-size: 0.95rem; color: #8b6b3c; font-weight: 500; }
       .kana-section-label { grid-column: 1 / -1; font-size: 0.8rem; font-weight: 800; color: #5a4a2c; padding: 8px 4px 2px; border-bottom: 2px solid #d8c8a0; margin-top: 6px; display: flex; gap: 8px; }
       .special-card { grid-column: 1 / -1; flex-direction: row; gap: 10px; padding: 8px 12px; text-align: left; align-items: center; justify-content: flex-start; }
-      .special-card .special-desc { font-size: 0.68rem; color: #5a4a2c; line-height: 1.35; }
+      .special-card .special-desc { font-size: 0.68px; color: #5a4a2c; line-height: 1.35; }
       .note-ref { font-size: 0.7rem; text-align: center; margin-top: 16px; color: #7a643f; border-top: 1px solid #e2cfaa; padding-top: 12px; }
     </style>
   </head>
@@ -134,17 +170,25 @@
         </div>
         <div class="nav-buttons">
           <button class="nav-btn" id="prevBtn">◀ Prev</button>
-          <button class="shuffle-btn" id="newSessionBtn">🎲 New Random Set</button>
+          <button class="shuffle-btn" id="newSessionBtn">🎲 New Set</button>
           <button class="nav-btn" id="nextBtn">Next ▶</button>
         </div>
-        <div class="footer-actions">
+
+        <!-- Combined Grid: 7 Buttons in 3 columns -->
+        <div class="bottom-grid">
+          <button class="kana-listening-btn" id="kanaListeningBtn">🎧 Listening</button>
+          <button class="kana-reading-btn" id="kanaReadingBtn">📖 Reading</button>
+          <button class="kana-mixed-btn" id="kanaMixedBtn">🔀 Mixed</button>
+          
           <button class="cheat-btn" id="cheatSheetBtn">📖 Chart</button>
           <button class="match-kana-btn" id="matchKanaBtn">🧩 Kana Match</button>
-          <button class="reset-btn" id="resetBtn">⟳ Reset</button>
-          <button class="kanji-btn" id="kanjiBtn">🎌 Kanji</button>
+          <button class="home-btn" id="homeBtn">🏠 Home</button>
+          
+          <button class="reset-btn-inline" id="resetBtn" style="grid-column: span 3;">⟳ Reset Progress</button>
         </div>
+        
         <div class="status-msg" id="statusMsg">
-          💡 Reveal → Listen → Mastered (auto-saved). New Random Set samples fresh words.
+          💡 Reveal → Listen → Mastered (auto-saved).
         </div>
       </div>
 
@@ -662,6 +706,11 @@
         document.body.removeEventListener("click", primeSpeech);
       }
 
+      // Kana drill openers
+      function openKanaListening() { window.location.href = "K9-Kana-Listening.html"; }
+      function openKanaReading() { window.location.href = "K10-Kana-Reading.html"; }
+      function openKanaMixed() { window.location.href = "K11-Kana-Mixed.html"; }
+
       function init() {
         loadMastery();
         totalPoolCountSpan.innerText = TOTAL_POOL_SIZE;
@@ -678,8 +727,12 @@
         closeModalBtn.addEventListener("click", closeModal);
         modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
 
-        document.getElementById("kanjiBtn").addEventListener("click", () => window.open("index.html", "_blank"));
+        document.getElementById("homeBtn").addEventListener("click", () => window.location.href = "home.html");
         document.getElementById("matchKanaBtn").addEventListener("click", () => window.location.href = "K8-Katakana-Match.html");
+
+        document.getElementById("kanaListeningBtn").addEventListener("click", openKanaListening);
+        document.getElementById("kanaReadingBtn").addEventListener("click", openKanaReading);
+        document.getElementById("kanaMixedBtn").addEventListener("click", openKanaMixed);
 
         window.addEventListener("keydown", (e) => {
           if (modalOverlay.classList.contains("active")) {

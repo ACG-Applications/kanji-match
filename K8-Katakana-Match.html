@@ -66,6 +66,23 @@
       }
       .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
 
+      /* NEW: Drills button */
+      .drills-btn {
+        background: rgba(0, 230, 118, 0.15);
+        border: 1.5px solid #00e676;
+        color: #00e676;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-left: 4px;
+        transition: all 0.15s ease;
+      }
+      .drills-btn:hover { background: rgba(0, 230, 118, 0.25); }
+      .drills-btn:active { transform: scale(0.95); }
+
       .score-container {
         display: flex;
         gap: 20px;
@@ -307,6 +324,7 @@
       }
       .pause-overlay.active { opacity: 1; visibility: visible; }
       .pause-overlay h2 { font-size: 2rem; margin-bottom: 20px; }
+      
       .pause-overlay button {
         background: #00e676; color: #000; border: none; padding: 16px 40px;
         border-radius: 50px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;
@@ -315,6 +333,47 @@
       .pause-overlay button.secondary {
         background: #333; color: #fff;
       }
+
+      /* NEW: Drills section inside pause overlay */
+      .pause-drills {
+        margin-top: 10px;
+        padding-top: 20px;
+        border-top: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 260px;
+      }
+      .pause-drills h3 {
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 10px;
+      }
+      .drill-row {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+      .drill-row button {
+        flex: 1;
+        padding: 12px 0;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        margin-bottom: 0;
+      }
+      .drill-row .btn-listen { background: #2e8b57; }
+      .drill-row .btn-read { background: #2a7a9a; }
+      .drill-row .btn-mix { background: #b8860b; }
 
       /* MASTERED CELEBRATION MODAL */
       .mastered-overlay {
@@ -361,8 +420,10 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="nav-btn" id="backBtn" title="Back to Word Flashcards">← Back</button>
+        <button class="nav-btn" id="backBtn" title="Back to Home">← Home</button>
         <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
+        <!-- NEW: Single entry point to the Kana Hub -->
+        <button class="drills-btn" id="hubBtn" title="Open Kana Drills">🎧 Drills</button>
       </div>
       <div class="score-container">
         <div class="score-correct"><span>✔</span> <span id="correctScore">0</span></div>
@@ -402,7 +463,17 @@
       <button id="resumeBtn">▶ Resume</button>
       <button class="secondary" id="replayBtn">🔁 Replay This Mode</button>
       <button class="secondary" id="resetBtn">⟳ Reset This Mode</button>
-      <button class="secondary" id="exitBtn">📖 Word Flashcards</button>
+      <button class="secondary" id="exitBtn">🏠 Home</button>
+      
+      <!-- NEW: Drills section -->
+      <div class="pause-drills">
+        <h3>Kana Drills</h3>
+        <div class="drill-row">
+          <button class="btn-listen" id="pauseListenBtn">🎧 Listen</button>
+          <button class="btn-read" id="pauseReadBtn">📖 Read</button>
+          <button class="btn-mix" id="pauseMixBtn">🔀 Mix</button>
+        </div>
+      </div>
     </div>
 
     <!-- MASTERED CELEBRATION -->
@@ -806,7 +877,7 @@
       });
 
       document.getElementById("backBtn").addEventListener("click", () => {
-        window.location.href = "K7-Katakana.html";
+        window.location.href = "home.html";
       });
 
       document.getElementById("pauseBtn").addEventListener("click", () => {
@@ -834,7 +905,7 @@
       });
 
       document.getElementById("exitBtn").addEventListener("click", () => {
-        window.location.href = "K7-Katakana.html";
+        window.location.href = "home.html";
       });
 
       document.getElementById("masteredReplayBtn").addEventListener("click", replayCurrentMode);
@@ -859,6 +930,17 @@
           document.getElementById("signatureModal").classList.remove("active");
         }
       });
+
+      // NEW: Hub and Drills openers
+      function openHub() { window.location.href = "K12-Kana-Hub.html"; }
+      function openListening() { window.location.href = "K9-Kana-Listening.html"; }
+      function openReading() { window.location.href = "K10-Kana-Reading.html"; }
+      function openMixed() { window.location.href = "K11-Kana-Mixed.html"; }
+
+      document.getElementById("hubBtn").addEventListener("click", openHub);
+      document.getElementById("pauseListenBtn").addEventListener("click", openListening);
+      document.getElementById("pauseReadBtn").addEventListener("click", openReading);
+      document.getElementById("pauseMixBtn").addEventListener("click", openMixed);
 
       // ============================================================
       // INIT

@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Kana Reading · Shape → Sound</title>
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Kana Reading" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
+    <style>
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+
+      body {
+        background: #111;
+        color: #fff;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
+        overflow-y: auto;
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 16px 20px; padding-top: max(16px, env(safe-area-inset-top)); z-index: 10;
+        flex-shrink: 0;
+      }
+      .top-bar-left, .top-bar-right {
+        display: flex; align-items: center; gap: 6px;
+      }
+      .nav-btn {
+        background: transparent; border: none; color: #fff; font-size: 1.3rem;
+        cursor: pointer; padding: 8px 12px; line-height: 1; opacity: 0.6;
+        border-radius: 12px; transition: opacity 0.15s, background 0.15s;
+      }
+      .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+
+      .autoplay-btn {
+        background: rgba(255, 213, 79, 0.15);
+        border: 1.5px solid #ffd54f;
+        color: #ffd54f;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 20px;
+        transition: all 0.15s ease;
+        font-family: inherit;
+      }
+      .autoplay-btn:hover { background: rgba(255, 213, 79, 0.25); }
+      .autoplay-btn:active { transform: scale(0.95); }
+      .autoplay-btn.off {
+        background: rgba(136, 136, 136, 0.15);
+        border-color: #555;
+        color: #888;
+      }
+
+      .progress-label {
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; color: #00b0ff; opacity: 0.9;
+      }
+
+      /* GROUP TABS */
+      .mode-tabs {
+        display: flex; gap: 6px; padding: 0 20px 12px; justify-content: center; z-index: 10;
+        flex-shrink: 0;
+      }
+      .mode-tab {
+        flex: 1; max-width: 140px; padding: 10px 6px; border-radius: 24px;
+        background: #1e1e1e; border: 2px solid #2a2a2a; color: #888;
+        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; cursor: pointer; transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      .mode-tab:hover:not(.active):not(.locked) { border-color: #444; color: #ccc; }
+      .mode-tab.active { background: #00b0ff; border-color: #00b0ff; color: #000; }
+      .mode-tab.locked { opacity: 0.35; cursor: not-allowed; }
+      .mode-tab.locked::after { content: " 🔒"; }
+
+      /* PROGRESS BAR */
+      .progress-bar-container { width: 100%; height: 4px; background: #333; z-index: 10; flex-shrink: 0; }
+      .progress-bar { height: 100%; background: #ffd54f; width: 0%; transition: width 0.4s ease; }
+
+      /* GAME AREA */
+      .game-area {
+        flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
+        align-items: center; padding: 20px 20px 20px; position: relative; gap: 16px;
+        min-height: 0;
+      }
+
+      /* THE BIG KANA */
+      .target-kana {
+        font-size: 6rem; font-weight: 900; line-height: 1;
+        font-family: "Noto Sans JP", sans-serif;
+        cursor: pointer;
+        transition: color 0.2s ease, transform 0.1s ease;
+        text-align: center;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        user-select: none;
+        margin-top: 10px;
+      }
+      .target-kana.digraph { font-size: 4rem; }
+      .target-kana:active { transform: scale(0.95); }
+      .target-kana.speaking { color: #ffd54f; }
+
+      @keyframes popIn {
+        0% { transform: scale(0.8); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      .instruction {
+        font-size: 0.85rem; color: #888; font-weight: 600;
+        letter-spacing: 0.04em; text-align: center;
+        min-height: 1.2em;
+      }
+
+      /* 4x4 GRID OF SPEAKER TILES */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .tile {
+        aspect-ratio: 1 / 1;
+        background: #1e1e1e;
+        border: 2px solid #333;
+        border-radius: 16px;
+        color: #fff;
+        font-size: 2rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.12s ease;
+        box-shadow: 0 4px 0 #000;
+        position: relative;
+        min-height: 48px;
+        min-width: 48px;
+        font-family: inherit;
+      }
+      .tile:active:not(.disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #000; }
+
+      .tile.listened {
+        border-color: #ffd54f;
+        box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.35), 0 4px 0 #000;
+        background: #2a2416;
+      }
+
+      .tile.correct { background: #00e676; border-color: #00e676; color: #000; box-shadow: 0 4px 0 #009624; }
+      .tile.wrong   { background: #d500f9; border-color: #d500f9; color: #fff; box-shadow: 0 4px 0 #9c00b3; }
+      .tile.reveal  { background: #00e676; border-color: #00e676; color: #000; opacity: 0.6; }
+      .tile.disabled { pointer-events: none; }
+
+      .tile .speaker-glyph {
+        font-size: 1.6rem;
+        opacity: 0.85;
+      }
+
+      /* PER-CARD PROGRESS */
+      .card-progress {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 0.75rem; color: #666; font-weight: 600;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .card-progress-bar {
+        width: 80px; height: 4px; background: #333; border-radius: 4px; overflow: hidden;
+      }
+      .card-progress-fill {
+        height: 100%; background: #00b0ff; width: 0%; transition: width 0.3s ease;
+      }
+
+      /* TOAST */
+      .toast-popup {
+        position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
+        background: #333; color: #fff; padding: 10px 20px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 600; z-index: 9000; opacity: 0;
+        pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+        max-width: 90vw; text-align: center;
+      }
+      .toast-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+      /* SMALL SCREENS */
+      @media (max-width: 400px) {
+        .grid { gap: 6px; max-width: 320px; }
+        .tile { border-radius: 12px; font-size: 1.6rem; }
+        .tile .speaker-glyph { font-size: 1.3rem; }
+        .target-kana { font-size: 5rem; }
+        .target-kana.digraph { font-size: 3.5rem; }
+        .game-area { gap: 12px; padding-top: 10px; }
+        .autoplay-btn { font-size: 0.65rem; padding: 5px 10px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="nav-btn" id="backBtn" title="Back">← Back</button>
+      </div>
+      <span class="progress-label" id="progressLabel">Basic</span>
+      <div class="top-bar-right">
+        <button class="autoplay-btn" id="autoPlayBtn" title="Toggle auto-play sound">🔊 Auto</button>
+        <button class="nav-btn" id="resetBtn" title="Reset this script">⟳</button>
+      </div>
+    </div>
+
+    <div class="mode-tabs" id="modeTabs">
+      <button class="mode-tab active" data-group="basic">Basic</button>
+      <button class="mode-tab" data-group="voiced">Voiced</button>
+      <button class="mode-tab" data-group="yoon">Yōon</button>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="game-area">
+      <div class="target-kana" id="targetKana">あ</div>
+      <div class="instruction" id="instruction">Tap a speaker to hear a sound · tap again to answer</div>
+      <div class="grid" id="grid"></div>
+      <div class="card-progress">
+        <span id="cardProgressLabel">New</span>
+        <div class="card-progress-bar"><div class="card-progress-fill" id="cardProgressFill"></div></div>
+      </div>
+    </div>
+
+    <div class="toast-popup" id="toastPopup"></div>
+
+    <!-- DATA + STATE -->
+    <script src="kanaMasterData.js"></script>
+    <script src="kanaState.js"></script>
+
+    <script>
+      // ============================================================
+      // CONFIG
+      // ============================================================
+      const SCRIPT = "hiragana";
+      const GRID_SIZE = 16;
+      const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
+      let AUTO_PLAY = true;
+
+      const HOMOPHONE_PAIRS = [
+        ["じ", "ぢ"], ["ず", "づ"],
+        ["ジ", "ヂ"], ["ズ", "ヅ"],
+      ];
+
+      // ============================================================
+      // STATE
+      // ============================================================
+      let currentGroup = "basic";
+      let currentChar = null;
+      let currentGrid = [];
+      let listenedChar = null;
+      let isAnswered = false;
+      let isSpeaking = false;
+      let autoSpeakTimeout = null;
+      let audioPrimed = false;
+
+      // DOM
+      const targetKanaEl    = document.getElementById("targetKana");
+      const instructionEl   = document.getElementById("instruction");
+      const gridEl          = document.getElementById("grid");
+      const progressBar     = document.getElementById("progressBar");
+      const progressLabel   = document.getElementById("progressLabel");
+      const cardProgressLabel = document.getElementById("cardProgressLabel");
+      const cardProgressFill  = document.getElementById("cardProgressFill");
+      const toastPopup      = document.getElementById("toastPopup");
+      const modeTabs        = document.getElementById("modeTabs");
+      const autoPlayBtn     = document.getElementById("autoPlayBtn");
+
+      // ============================================================
+      // AUTOPLAY PERSISTENCE
+      // ============================================================
+      function loadAutoPlayPref() {
+        try {
+          const stored = localStorage.getItem(AUTOPLAY_STORAGE_KEY);
+          if (stored !== null) AUTO_PLAY = stored === "true";
+        } catch (e) {
+          console.warn("[autoplay] load failed:", e);
+        }
+      }
+
+      function saveAutoPlayPref() {
+        try {
+          localStorage.setItem(AUTOPLAY_STORAGE_KEY, AUTO_PLAY ? "true" : "false");
+        } catch (e) {
+          console.warn("[autoplay] save failed:", e);
+        }
+      }
+
+      function updateAutoPlayButton() {
+        if (AUTO_PLAY) {
+          autoPlayBtn.textContent = "🔊 Auto";
+          autoPlayBtn.classList.remove("off");
+        } else {
+          autoPlayBtn.textContent = "🔇 Off";
+          autoPlayBtn.classList.add("off");
+        }
+      }
+
+      function toggleAutoPlay() {
+        AUTO_PLAY = !AUTO_PLAY;
+        saveAutoPlayPref();
+        updateAutoPlayButton();
+        if (AUTO_PLAY && currentChar) {
+          clearTimeout(autoSpeakTimeout);
+          speakKana(currentChar);
+        }
+      }
+
+      // ============================================================
+      // HOMOPHONE HELPER
+      // ============================================================
+      function isHomophoneMatch(tappedChar, answerChar) {
+        if (tappedChar === answerChar) return true;
+        return HOMOPHONE_PAIRS.some(pair =>
+          pair.includes(tappedChar) && pair.includes(answerChar)
+        );
+      }
+
+      // ============================================================
+      // TOAST
+      // ============================================================
+      let toastTimer = null;
+      function showToast(msg) {
+        toastPopup.innerText = msg;
+        toastPopup.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastPopup.classList.remove("show"), 1800);
+      }
+
+      // ============================================================
+      // TTS - FIXED PRIMING
+      // ============================================================
+      function primeAudio() {
+        if (audioPrimed || !window.speechSynthesis) return;
+        audioPrimed = true;
+        // Do not cancel immediately, let it resolve naturally
+        const primer = new SpeechSynthesisUtterance(" ");
+        primer.volume = 0;
+        window.speechSynthesis.speak(primer);
+      }
+
+      function speakKana(char, onEnd) {
+        if (!window.speechSynthesis) {
+          showToast("⚠️ Speech not supported.");
+          if (onEnd) onEnd();
+          return;
+        }
+        
+        // If the user taps super fast, give the browser a moment to resolve
+        // any pending primed audio.
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+        }
+        
+        const utter = new SpeechSynthesisUtterance(char);
+        utter.lang = "ja-JP";
+        utter.rate = 0.85;
+        utter.pitch = 1;
+        const voices = window.speechSynthesis.getVoices();
+        const jp = voices.find(v => v.lang.startsWith("ja"));
+        if (jp) utter.voice = jp;
+
+        utter.onstart = () => { isSpeaking = true; };
+        utter.onend = () => {
+          isSpeaking = false;
+          if (onEnd) onEnd();
+        };
+        utter.onerror = (e) => {
+          console.warn("TTS Error:", e);
+          isSpeaking = false;
+          if (onEnd) onEnd();
+        };
+        window.speechSynthesis.speak(utter);
+      }
+
+      // ============================================================
+      // PROGRESS UI
+      // ============================================================
+      function updateGroupProgressBar() {
+        const groups = unlockedGroups(SCRIPT);
+        let sum = 0, count = 0;
+        groups.forEach(g => {
+          getGroupPool(SCRIPT, g).forEach(k => {
+            sum += getProgressValue(SCRIPT, k.char);
+            count++;
+          });
+        });
+        const pct = count > 0 ? (sum / count) * 100 : 0;
+        progressBar.style.width = pct + "%";
+      }
+
+      function updateCardProgress() {
+        if (!currentChar) return;
+        const label = getProgressLabel(SCRIPT, currentChar);
+        const value = getProgressValue(SCRIPT, currentChar);
+        cardProgressLabel.innerText = label;
+        cardProgressFill.style.width = (value * 100) + "%";
+      }
+
+      function updateGroupTabs() {
+        modeTabs.querySelectorAll(".mode-tab").forEach(tab => {
+          const g = tab.dataset.group;
+          const unlocked = groupUnlocked(SCRIPT, g);
+          const isActive = g === currentGroup;
+          tab.classList.toggle("active", isActive);
+          tab.classList.toggle("locked", !unlocked);
+          tab.disabled = !unlocked;
+        });
+        progressLabel.innerText = currentGroup.charAt(0).toUpperCase() + currentGroup.slice(1);
+      }
+
+      // ============================================================
+      // GRID RENDER
+      // ============================================================
+      function renderGrid(chars) {
+        gridEl.innerHTML = "";
+        chars.forEach(char => {
+          const btn = document.createElement("button");
+          btn.className = "tile";
+          btn.dataset.char = char;
+          btn.innerHTML = `<span class="speaker-glyph">🔊</span>`;
+          btn.title = "Tap to hear, tap again to answer";
+          btn.addEventListener("click", () => handleTileTap(char, btn));
+          gridEl.appendChild(btn);
+        });
+      }
+
+      // ============================================================
+      // CARD FLOW
+      // ============================================================
+      function nextCard() {
+        if (!groupUnlocked(SCRIPT, currentGroup)) {
+          const unlocked = unlockedGroups(SCRIPT);
+          currentGroup = unlocked[unlocked.length - 1] || "basic";
+        }
+
+        const char = pickNextKana(SCRIPT, currentGroup);
+        if (!char) { showToast("No kana available in this group."); return; }
+
+        currentChar = char;
+        listenedChar = null;
+        isAnswered = false;
+
+        targetKanaEl.innerText = char;
+        targetKanaEl.classList.toggle("digraph", [...char].length > 1);
+        targetKanaEl.classList.remove("speaking");
+        targetKanaEl.style.animation = "none";
+        void targetKanaEl.offsetWidth;
+        targetKanaEl.style.animation = "";
+
+        currentGrid = buildGridPool(SCRIPT, currentGroup, char, GRID_SIZE);
+        renderGrid(currentGrid);
+
+        instructionEl.innerText = "Tap a speaker to hear a sound · tap again to answer";
+        updateCardProgress();
+
+        if (AUTO_PLAY) {
+          clearTimeout(autoSpeakTimeout);
+          autoSpeakTimeout = setTimeout(() => {
+            targetKanaEl.classList.add("speaking");
+            speakKana(char, () => targetKanaEl.classList.remove("speaking"));
+          }, 250);
+        }
+      }
+
+      function handleTileTap(char, btn) {
+        if (isAnswered) return;
+
+        if (listenedChar !== char) {
+          // Just highlighting the newly tapped tile
+          gridEl.querySelectorAll(".tile").forEach(t => t.classList.remove("listened"));
+          listenedChar = char;
+          btn.classList.add("listened");
+          instructionEl.innerText = "Tap again to confirm this sound";
+          
+          // Only speak if we aren't currently speaking the auto-play audio
+          if (!isSpeaking) {
+            speakKana(char);
+          }
+          return;
+        }
+
+        commitAnswer(char, btn);
+      }
+
+      function commitAnswer(char, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const correct = isHomophoneMatch(char, currentChar);
+        const exact = char === currentChar;
+
+        gridEl.querySelectorAll(".tile").forEach(t => {
+          t.classList.add("disabled");
+          t.classList.remove("listened");
+          if (t.dataset.char === currentChar) t.classList.add(correct ? "correct" : "reveal");
+        });
+        if (!exact) {
+          if (correct) btn.classList.add("correct");
+          else btn.classList.add("wrong");
+        }
+
+        speakKana(currentChar);
+
+        recordReadingAnswer(SCRIPT, currentChar, correct);
+        updateCardProgress();
+        updateGroupProgressBar();
+
+        setTimeout(() => nextCard(), correct ? 700 : 1300);
+      }
+
+      // ============================================================
+      // EVENTS
+      // ============================================================
+      targetKanaEl.addEventListener("click", () => {
+        if (currentChar) {
+          targetKanaEl.classList.add("speaking");
+          speakKana(currentChar, () => targetKanaEl.classList.remove("speaking"));
+        }
+      });
+
+      autoPlayBtn.addEventListener("click", toggleAutoPlay);
+
+      document.getElementById("backBtn").addEventListener("click", () => {
+        window.location.href = "K12-Kana-Hub.html";
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (!confirm(`Reset all ${SCRIPT} reading progress? This cannot be undone.`)) return;
+        resetAllState();
+        updateGroupProgressBar();
+        updateGroupTabs();
+        nextCard();
+        showToast("Progress reset.");
+      });
+
+      modeTabs.addEventListener("click", (e) => {
+        const tab = e.target.closest(".mode-tab");
+        if (!tab || tab.disabled) return;
+        const g = tab.dataset.group;
+        if (g === currentGroup) return;
+        currentGroup = g;
+        updateGroupTabs();
+        nextCard();
+      });
+
+      // Prime audio ONLY on the first real user gesture
+      document.body.addEventListener("touchstart", primeAudio, { once: true, passive: true });
+      document.body.addEventListener("click", primeAudio, { once: true });
+      // Also prime right away if browser allows (desktop)
+      primeAudio();
+
+      // ============================================================
+      // INIT
+      // ============================================================
+      loadAutoPlayPref();
+      updateAutoPlayButton();
+      initState();
+      updateGroupTabs();
+      updateGroupProgressBar();
+      nextCard();
+
+      if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+      }
+    </script>
+  </body>
+</html>

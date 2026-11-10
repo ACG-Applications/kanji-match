@@ -880,6 +880,18 @@
         box-shadow: 0 2px 0 #4a3a4a;
       }
 
+      /* NEW: Kana Hub button */
+      .footer button.kana-hub-btn {
+        background: #2e8b57;
+        box-shadow: 0 4px 0 #1d5e39;
+      }
+      
+      /* NEW: Home button */
+      .footer button.home-btn {
+        background: #4a6a7a;
+        box-shadow: 0 4px 0 #2a4a5a;
+      }
+
       /* ============================================================
          GAME COMPLETE SCREEN
          ============================================================ */
@@ -1210,6 +1222,8 @@
           <button class="stats-btn" id="showStatsBtn">📊 Stats</button>
           <button class="katakana-btn" id="katakanaBtn">📖 Katakana</button>
           <button class="kana-match-btn" id="kanaMatchBtn">🧩 Kana Match</button>
+          <button class="kana-hub-btn" id="kanaHubBtn">🎧 Kana Drills</button>
+          <button class="home-btn" id="homeBtn">🏠 Home</button>
           <button class="quiz-btn" id="quizBtn">📝 Quiz</button>
           <button class="danger-btn" id="resetBtn">🔄 New</button>
         </div>
@@ -2718,6 +2732,12 @@
         window.open("K8-Katakana-Match.html", "_blank");
       }
 
+      // Kana Hub openers
+      function openKanaHub() {
+        saveGameState();
+        window.open("K12-Kana-Hub.html", "_blank");
+      }
+
       function startAutoSaveTimer() {
         if (saveTimer) clearInterval(saveTimer);
         saveTimer = setInterval(() => {
@@ -2756,6 +2776,13 @@
         quizBtn.addEventListener("click", toggleQuizMode);
         shuffleBtn.addEventListener("click", shuffleCurrentDeck);
         resetBtn.addEventListener("click", startRandomNewGame);
+
+        // Bind buttons
+        document.getElementById("kanaHubBtn").addEventListener("click", openKanaHub);
+        document.getElementById("homeBtn").addEventListener("click", () => {
+          saveGameState();
+          window.location.href = "home.html";
+        });
 
         rebuildMasterSets();
         document.addEventListener('click', () => {

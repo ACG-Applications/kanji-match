@@ -2,7 +2,7 @@
   "name": "Kanji Master - N5 Japanese Learning",
   "short_name": "Kanji Master",
   "description": "Learn N5 Kanji with persistent memory matching game + Katakana flashcards",
-  "start_url": "index.html",
+  "start_url": "home.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f2b2c",

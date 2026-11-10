@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Kana Hub · Drill Selection</title>
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Kana Hub" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
+    <style>
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+
+      body {
+        background: #111;
+        color: #fff;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
+        padding: 0 20px 40px;
+        overflow-y: auto;
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        width: 100%;
+        max-width: 900px; /* WIDER: allows top bar to stretch on desktop */
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 24px 0 16px; z-index: 10;
+      }
+      .nav-btn {
+        background: transparent; border: none; color: #fff; font-size: 1.3rem;
+        cursor: pointer; padding: 8px 12px; line-height: 1; opacity: 0.6;
+        border-radius: 12px; transition: opacity 0.15s, background 0.15s;
+        font-family: inherit;
+      }
+      .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+      
+      .help-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid #333;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: inherit;
+      }
+      .help-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+      /* SCRIPT TABS */
+      .script-tabs {
+        display: flex; gap: 8px; margin-bottom: 24px; width: 100%; max-width: 400px;
+        background: #1e1e1e; padding: 6px; border-radius: 30px;
+        flex-shrink: 0;
+      }
+      .script-tab {
+        flex: 1; padding: 12px; border-radius: 24px; border: none;
+        background: transparent; color: #888;
+        font-size: 1rem; font-weight: 700; cursor: pointer;
+        transition: all 0.2s ease; font-family: inherit;
+      }
+      .script-tab.active { background: #333; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+      /* MODE CARDS GRID */
+      .mode-cards {
+        display: grid;
+        /* Creates a responsive grid: side-by-side on desktop, stacked on mobile */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        width: 100%; 
+        max-width: 900px; /* WIDER max-width */
+      }
+
+      .mode-card {
+        background: #1e1e1e; border: 2px solid #2a2a2a; border-radius: 24px;
+        padding: 24px; cursor: pointer; transition: all 0.2s ease;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column;
+      }
+      .mode-card:hover { border-color: #444; transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
+      
+      .card-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 12px;
+      }
+      .card-title { display: flex; align-items: center; gap: 12px; font-size: 1.4rem; font-weight: 800; }
+      .card-desc { font-size: 0.9rem; color: #888; line-height: 1.5; margin-bottom: 24px; flex-grow: 1; }
+
+      /* Card Brand Colors */
+      .mode-card.listening .card-title { color: #00e676; }
+      .mode-card.listening:hover { border-color: #00e676; }
+      
+      .mode-card.reading .card-title { color: #00b0ff; }
+      .mode-card.reading:hover { border-color: #00b0ff; }
+      
+      .mode-card.mixed .card-title { color: #ffd54f; }
+      .mode-card.mixed:hover { border-color: #ffd54f; }
+
+      /* Progress Bar inside card */
+      .card-progress-track {
+        height: 6px; background: #000; border-radius: 6px; overflow: hidden; margin-bottom: 16px;
+      }
+      .card-progress-fill {
+        height: 100%; width: 0%; border-radius: 6px; transition: width 0.4s ease;
+      }
+      .mode-card.listening .card-progress-fill { background: #00e676; }
+      .mode-card.reading .card-progress-fill { background: #00b0ff; }
+      .mode-card.mixed .card-progress-fill { background: #ffd54f; }
+
+      /* Group Badges */
+      .group-badges { display: flex; gap: 8px; }
+      .badge {
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+        padding: 4px 10px; border-radius: 12px; background: #2a2a2a; color: #555;
+        text-transform: uppercase;
+      }
+      .badge.unlocked { background: rgba(255,255,255,0.1); color: #ccc; }
+      .badge.locked::after { content: " 🔒"; }
+
+      /* RESET ROW */
+      .reset-row {
+        width: 100%; max-width: 900px; margin-top: 40px; display: flex; justify-content: center;
+      }
+      .reset-script-btn {
+        background: transparent; border: 1px solid #4a4a4a; color: #888;
+        padding: 10px 24px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+      }
+      .reset-script-btn:hover { background: rgba(255,255,255,0.05); color: #ff5252; border-color: #ff5252; }
+
+      /* MODAL OVERLAY (Guide & Reset Confirm) */
+      .overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s;
+        padding: 20px;
+      }
+      .overlay.active { opacity: 1; visibility: visible; }
+      
+      .modal-content {
+        background: #1e1e1e; border-radius: 32px; width: 100%; max-width: 600px;
+        max-height: 85vh; display: flex; flex-direction: column;
+        border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        transform: translateY(20px); transition: transform 0.3s;
+      }
+      .overlay.active .modal-content { transform: translateY(0); }
+
+      .modal-header {
+        padding: 24px 24px 16px; border-bottom: 1px solid #333;
+        display: flex; justify-content: space-between; align-items: center;
+        flex-shrink: 0;
+      }
+      .modal-header h2 { font-size: 1.4rem; margin: 0; color: #fff; }
+      .close-btn {
+        background: #2a2a2a; border: none; color: #fff; width: 36px; height: 36px;
+        border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex;
+        justify-content: center; align-items: center; transition: background 0.15s;
+      }
+      .close-btn:hover { background: #444; }
+
+      .modal-body {
+        padding: 24px; overflow-y: auto; line-height: 1.6; font-size: 0.95rem; color: #aaa;
+      }
+      .modal-body h3 { color: #fff; font-size: 1.1rem; margin: 24px 0 8px; }
+      .modal-body h3:first-child { margin-top: 0; }
+      .modal-body p { margin-bottom: 12px; }
+      .modal-body ul { margin-left: 20px; margin-bottom: 16px; }
+      .modal-body li { margin-bottom: 8px; }
+      .modal-body strong { color: #ddd; }
+      
+      /* Highlighted words for modes */
+      .txt-listen { color: #00e676; font-weight: 700; }
+      .txt-read { color: #00b0ff; font-weight: 700; }
+      .txt-mix { color: #ffd54f; font-weight: 700; }
+
+      /* Mobile Adjustments */
+      @media (max-width: 600px) {
+        .mode-cards { grid-template-columns: 1fr; gap: 12px; }
+        .mode-card { padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <button class="nav-btn" id="backBtn" title="Back to Index">← Back</button>
+      <button class="help-btn" id="helpBtn">❓ How it works</button>
+    </div>
+
+    <div class="script-tabs" id="scriptTabs">
+      <button class="script-tab active" data-script="hiragana">ひらがな Hiragana</button>
+      <button class="script-tab" data-script="katakana">カタカナ Katakana</button>
+    </div>
+
+    <div class="mode-cards" id="modeCards">
+      <!-- Listening -->
+      <div class="mode-card listening" data-mode="listening">
+        <div class="card-header">
+          <div class="card-title">🎧 Listening</div>
+        </div>
+        <div class="card-desc">You <strong>hear</strong> a kana and tap its shape.</div>
+        <div class="card-progress-track"><div class="card-progress-fill" id="progListening"></div></div>
+        <div class="group-badges" id="badgesListening">
+          <span class="badge unlocked" data-group="basic">Basic</span>
+          <span class="badge locked" data-group="voiced">Voiced</span>
+          <span class="badge locked" data-group="yoon">Yōon</span>
+        </div>
+      </div>
+
+      <!-- Reading -->
+      <div class="mode-card reading" data-mode="reading">
+        <div class="card-header">
+          <div class="card-title">📖 Reading</div>
+        </div>
+        <div class="card-desc">You <strong>see</strong> a kana, tap a speaker to hear candidates, tap again to confirm.</div>
+        <div class="card-progress-track"><div class="card-progress-fill" id="progReading"></div></div>
+        <div class="group-badges" id="badgesReading">
+          <span class="badge unlocked" data-group="basic">Basic</span>
+          <span class="badge locked" data-group="voiced">Voiced</span>
+          <span class="badge locked" data-group="yoon">Yōon</span>
+        </div>
+      </div>
+
+      <!-- Mixed -->
+      <div class="mode-card mixed" data-mode="mixed">
+        <div class="card-header">
+          <div class="card-title">🔀 Mixed</div>
+        </div>
+        <div class="card-desc">The app picks per kana based on which skill is weaker for you.</div>
+        <div class="card-progress-track"><div class="card-progress-fill" id="progMixed"></div></div>
+        <div class="group-badges" id="badgesMixed">
+          <span class="badge unlocked" data-group="basic">Basic</span>
+          <span class="badge locked" data-group="voiced">Voiced</span>
+          <span class="badge locked" data-group="yoon">Yōon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-script-btn" id="resetScriptBtn">Reset <span id="resetScriptLabel">Hiragana</span> Progress</button>
+    </div>
+
+    <!-- USER GUIDE OVERLAY -->
+    <div class="overlay" id="guideOverlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📖 How It Works</h2>
+          <button class="close-btn" id="closeGuideBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>The Three Modes</h3>
+          <ul>
+            <li><span class="txt-listen">🎧 Listening:</span> You hear a kana, tap its shape. Trains sound → shape.</li>
+            <li><span class="txt-read">📖 Reading:</span> You see a kana, tap a speaker tile to hear candidates, tap again to confirm. Trains shape → sound.</li>
+            <li><span class="txt-mix">🔀 Mixed:</span> The app picks per kana based on which skill is weaker for you. Best once you've done some of both.</li>
+          </ul>
+
+          <h3>The Four Groups</h3>
+          <p>Basic → Voiced → Yōon, unlocked in order. Voiced opens when most of Basic is solid; Yōon after Voiced.</p>
+
+          <h3>Progress Labels</h3>
+          <p>Under every card, you'll see a label like "New", "Just started", "Getting there", "Getting stronger", or "Solid". These are per-kana averages of your Reading and Listening mastery. No scores, no wrong counts — just where you are.</p>
+
+          <h3>Why Some Kana Feel Harder</h3>
+          <p>The grid is built from shape-confusable kana (シ/ツ/ソ/ン, き/さ/ち, etc.) on purpose. Tapping the wrong one is the app working as intended. Homophones (じ≡ぢ, ず≡づ) are always accepted either way.</p>
+
+          <h3>Mixed Mode Tips</h3>
+          <p>Direction is picked by mastery, capped at 3 in a row so it doesn't feel like a grind. If one skill lags, it'll show up more.</p>
+
+          <h3>Audio</h3>
+          <p>Uses your device's Japanese TTS voice. If it sounds off, install a Japanese voice in your OS settings. Auto-play can be turned off per-mode in the top bar.</p>
+
+          <h3>Offline & Data</h3>
+          <p>Everything works offline once loaded. Progress is saved on the device (localStorage), not synced.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESET CONFIRM OVERLAY -->
+    <div class="overlay" id="resetOverlay">
+      <div class="modal-content" style="max-width: 350px; text-align: center; padding: 32px 24px;">
+        <h2 style="font-size: 2rem; margin-bottom: 16px;">⚠️</h2>
+        <h3 style="font-size: 1.2rem; margin-bottom: 8px; color: #fff;">Reset <span id="resetConfirmLabel">Hiragana</span>?</h3>
+        <p style="color: #888; font-size: 0.9rem; margin-bottom: 24px;">This will wipe all Reading and Listening progress for this script. The other script will not be affected.</p>
+        <div style="display: flex; gap: 12px;">
+          <button id="cancelResetBtn" style="flex: 1; padding: 12px; border-radius: 20px; border: none; background: #333; color: #fff; font-weight: bold; cursor: pointer; font-size: 1rem;">Cancel</button>
+          <button id="confirmResetBtn" style="flex: 1; padding: 12px; border-radius: 20px; border: none; background: #ff5252; color: #fff; font-weight: bold; cursor: pointer; font-size: 1rem;">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA + STATE -->
+    <script src="kanaMasterData.js"></script>
+    <script src="kanaState.js"></script>
+
+    <script>
+      // ============================================================
+      // CONFIG
+      // ============================================================
+      let currentScript = "hiragana";
+
+      const FILES = {
+        hiragana: {
+          listening: "K9-Kana-Listening.html",
+          reading: "K10-Kana-Reading.html",
+          mixed: "K11-Kana-Mixed.html"
+        },
+        katakana: {
+          listening: "K9K-Kana-Listening-Katakana.html",
+          reading: "K10K-Kana-Reading-Katakana.html",
+          mixed: "K11K-Kana-Mixed-Katakana.html"
+        }
+      };
+
+      // DOM
+      const scriptTabs = document.querySelectorAll(".script-tab");
+      const modeCards = document.querySelectorAll(".mode-card");
+      const guideOverlay = document.getElementById("guideOverlay");
+      const resetOverlay = document.getElementById("resetOverlay");
+      const resetScriptLabel = document.getElementById("resetScriptLabel");
+      const resetConfirmLabel = document.getElementById("resetConfirmLabel");
+
+      // ============================================================
+      // PROGRESS CALCULATION
+      // ============================================================
+      function getScriptProgress(script) {
+        const groups = unlockedGroups(script);
+        let sum = 0, count = 0;
+        groups.forEach(g => {
+          getGroupPool(script, g).forEach(k => {
+            sum += getProgressValue(script, k.char);
+            count++;
+          });
+        });
+        return count > 0 ? (sum / count) * 100 : 0;
+      }
+
+      function updateUI() {
+        // Update tab visuals
+        scriptTabs.forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.script === currentScript);
+        });
+
+        // Update labels
+        const scriptName = currentScript.charAt(0).toUpperCase() + currentScript.slice(1);
+        resetScriptLabel.innerText = scriptName;
+        resetConfirmLabel.innerText = scriptName;
+
+        // Calculate overall progress
+        const pct = getScriptProgress(currentScript);
+
+        // Update all progress bars (they share the same underlying mastery in Mixed)
+        document.getElementById("progListening").style.width = pct + "%";
+        document.getElementById("progReading").style.width = pct + "%";
+        document.getElementById("progMixed").style.width = pct + "%";
+
+        // Update Badges
+        const groups = ["basic", "voiced", "yoon"];
+        groups.forEach(g => {
+          const isUnlocked = groupUnlocked(currentScript, g);
+          
+          document.querySelectorAll(`.group-badges .badge[data-group="${g}"]`).forEach(badge => {
+            badge.classList.toggle("unlocked", isUnlocked);
+            badge.classList.toggle("locked", !isUnlocked);
+          });
+        });
+      }
+
+      // ============================================================
+      // RESET LOGIC
+      // ============================================================
+      function resetScriptState(script) {
+        ALL_KANA.forEach(k => {
+          if (k.script === script) {
+            const key = k.script + ":" + k.char;
+            if (stateStore[key]) {
+              stateStore[key] = {
+                readingMastery: 0,
+                listeningMastery: 0,
+                errorWeight: 0,
+                seenReading: false,
+                seenListening: false
+              };
+            }
+          }
+        });
+        saveState();
+        resetMixedRun();
+      }
+
+      // ============================================================
+      // EVENT LISTENERS
+      // ============================================================
+      
+      // Script tabs
+      scriptTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          if (tab.dataset.script === currentScript) return;
+          currentScript = tab.dataset.script;
+          updateUI();
+        });
+      });
+
+      // Mode cards (routing)
+      modeCards.forEach(card => {
+        card.addEventListener("click", () => {
+          const mode = card.dataset.mode;
+          const url = FILES[currentScript][mode];
+          if (url) window.location.href = url;
+        });
+      });
+
+      // Help Overlay
+      document.getElementById("helpBtn").addEventListener("click", () => {
+        guideOverlay.classList.add("active");
+      });
+      document.getElementById("closeGuideBtn").addEventListener("click", () => {
+        guideOverlay.classList.remove("active");
+      });
+      guideOverlay.addEventListener("click", (e) => {
+        if (e.target === guideOverlay) guideOverlay.classList.remove("active");
+      });
+
+      // Reset Overlay
+      document.getElementById("resetScriptBtn").addEventListener("click", () => {
+        resetOverlay.classList.add("active");
+      });
+      document.getElementById("cancelResetBtn").addEventListener("click", () => {
+        resetOverlay.classList.remove("active");
+      });
+      resetOverlay.addEventListener("click", (e) => {
+        if (e.target === resetOverlay) resetOverlay.classList.remove("active");
+      });
+
+      document.getElementById("confirmResetBtn").addEventListener("click", () => {
+        resetScriptState(currentScript);
+        resetOverlay.classList.remove("active");
+        updateUI();
+      });
+
+      // Back button
+      document.getElementById("backBtn").addEventListener("click", () => {
+        window.location.href = "home.html";
+      });
+
+      // ============================================================
+      // INIT
+      // ============================================================
+      initState();
+      updateUI();
+    </script>
+  </body>
+</html>

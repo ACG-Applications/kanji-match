@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Kanji &amp; Kana · Home</title>
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Kanji & Kana" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
+    <style>
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+
+      body {
+        background: #111;
+        color: #fff;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
+        padding: 0 20px 40px;
+        overflow-y: auto;
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 0 16px;
+        z-index: 10;
+      }
+      .app-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .app-brand img {
+        width: 40px; height: 40px; border-radius: 50%;
+        border: 2px solid #d4a94a; background: #fff7ec; object-fit: cover;
+      }
+      .app-brand-text { display: flex; flex-direction: column; }
+      .app-brand-text h1 { font-size: 1.1rem; font-weight: 800; margin: 0; color: #fff; }
+      .app-brand-text p { font-size: 0.75rem; color: #888; margin: 2px 0 0; }
+
+      .help-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid #333;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: inherit;
+      }
+      .help-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+      /* HERO TEXT */
+      .hero {
+        width: 100%; max-width: 900px; margin: 16px 0 32px;
+      }
+      .hero h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
+      .hero p { font-size: 1rem; color: #888; line-height: 1.5; max-width: 600px; }
+
+      /* MODE CARDS GRID */
+      .mode-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        width: 100%;
+        max-width: 900px;
+      }
+
+      .mode-card {
+        background: #1e1e1e; border: 2px solid #2a2a2a; border-radius: 24px;
+        padding: 24px; cursor: pointer; transition: all 0.2s ease;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column;
+        text-decoration: none; color: inherit;
+      }
+      .mode-card:hover { border-color: #444; transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
+      
+      .card-header {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      .card-title { display: flex; align-items: center; gap: 12px; font-size: 1.4rem; font-weight: 800; }
+      .card-desc { font-size: 0.9rem; color: #888; line-height: 1.5; margin-bottom: 24px; flex-grow: 1; }
+
+      /* Card Brand Colors */
+      .mode-card.kanji .card-title { color: #ff9800; } /* Orange for Kanji */
+      .mode-card.kanji:hover { border-color: #ff9800; }
+      
+      .mode-card.kana-hub .card-title { color: #00e676; } /* Green for Kana Hub */
+      .mode-card.kana-hub:hover { border-color: #00e676; }
+      
+      .mode-card.katakana-words .card-title { color: #b07cf8; } /* Purple for Katakana Words */
+      .mode-card.katakana-words:hover { border-color: #b07cf8; }
+      
+      .mode-card.katakana-match .card-title { color: #00b0ff; } /* Blue for Match */
+      .mode-card.katakana-match:hover { border-color: #00b0ff; }
+
+      /* Progress Bar inside card */
+      .card-progress-track {
+        height: 6px; background: #000; border-radius: 6px; overflow: hidden; margin-bottom: 16px;
+      }
+      .card-progress-fill {
+        height: 100%; width: 0%; border-radius: 6px; transition: width 0.4s ease;
+      }
+      .mode-card.kanji .card-progress-fill { background: #ff9800; }
+      .mode-card.kana-hub .card-progress-fill { background: #00e676; }
+      .mode-card.katakana-words .card-progress-fill { background: #b07cf8; }
+      .mode-card.katakana-match .card-progress-fill { background: #00b0ff; }
+
+      /* Card Footer */
+      .card-footer {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 0.8rem; font-weight: 600; color: #888;
+      }
+      .card-arrow { font-size: 1.2rem; opacity: 0.5; transition: transform 0.2s ease; }
+      .mode-card:hover .card-arrow { transform: translateX(4px); opacity: 1; }
+
+      /* Footer / Credits */
+      .bottom-credits {
+        margin-top: 60px; font-size: 0.75rem; color: #555; text-align: center;
+      }
+
+      /* Mobile Adjustments */
+      @media (max-width: 600px) {
+        .hero h2 { font-size: 1.6rem; }
+        .mode-cards { grid-template-columns: 1fr; gap: 12px; }
+        .mode-card { padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="app-brand">
+        <img src="icons/Antonio.png" alt="ACG Applications" />
+        <div class="app-brand-text">
+          <h1>Kanji & Kana</h1>
+          <p>ACG Applications</p>
+        </div>
+      </div>
+      <button class="help-btn" id="helpBtn">❓ Guide</button>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <h2>Welcome back.</h2>
+      <p>Choose a module to practice. Your progress is saved automatically.</p>
+    </div>
+
+    <!-- CARDS -->
+    <div class="mode-cards">
+      
+      <!-- Kanji Match -->
+      <a class="mode-card kanji" href="index.html">
+        <div class="card-header">
+          <div class="card-title">🎌 Kanji Match</div>
+        </div>
+        <div class="card-desc">Match N5 Kanji to their Hiragana readings. Build vocabulary and reading memory.</div>
+        <div class="card-progress-track">
+          <div class="card-progress-fill" id="progKanji"></div>
+        </div>
+        <div class="card-footer">
+          <span id="statKanji">0 / 103 Matched</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Kana Hub -->
+      <a class="mode-card kana-hub" href="K12-Kana-Hub.html">
+        <div class="card-header">
+          <div class="card-title">🎧 Kana Mastery</div>
+        </div>
+        <div class="card-desc">Train Hiragana and Katakana with Listening, Reading, and Mixed drills.</div>
+        <div class="card-progress-track">
+          <div class="card-progress-fill" id="progKana"></div>
+        </div>
+        <div class="card-footer">
+          <span id="statKana">0 / 208 Mastered</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Katakana Words -->
+      <a class="mode-card katakana-words" href="K7-Katakana.html">
+        <div class="card-header">
+          <div class="card-title">📖 Katakana Words</div>
+        </div>
+        <div class="card-desc">Learn 200 common loanwords written in Katakana. Flashcards and pronunciation.</div>
+        <div class="card-progress-track">
+          <div class="card-progress-fill" id="progWords"></div>
+        </div>
+        <div class="card-footer">
+          <span id="statWords">0 / 200 Mastered</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Kana Match (K8) -->
+      <a class="mode-card katakana-match" href="K8-Katakana-Match.html">
+        <div class="card-header">
+          <div class="card-title">🧩 Kana Match</div>
+        </div>
+        <div class="card-desc">Quick-fire matching game: connect Katakana characters to their Hiragana equivalents.</div>
+        <div class="card-progress-track">
+          <div class="card-progress-fill" id="progMatch"></div>
+        </div>
+        <div class="card-footer">
+          <span id="statMatch">0 / 104 Mastered</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="bottom-credits">
+      Built with DeepSeek · ACG Applications
+    </div>
+
+    <!-- LOAD DATA FOR STATS -->
+    <script src="n5-matching-data.js"></script>
+    <script src="kanaMasterData.js"></script>
+    <script src="kanaState.js"></script>
+    <script src="katakanaWords.js"></script>
+    <script src="kanaData.js"></script>
+
+    <script>
+      // ============================================================
+      // POPULATE DASHBOARD STATS
+      // ============================================================
+      
+      function updateDashboard() {
+        
+        // 1. Kanji Match Progress
+        try {
+          const kanjiSave = JSON.parse(localStorage.getItem("kanjiMasterSave_v2"));
+          const kanjiMatched = kanjiSave ? (kanjiSave.totalScore || 0) : 0;
+          const kanjiTotal = N5_MATCHING_DATA.length;
+          const kanjiPct = (kanjiMatched / kanjiTotal) * 100;
+          
+          document.getElementById("progKanji").style.width = kanjiPct + "%";
+          document.getElementById("statKanji").innerText = `${kanjiMatched} / ${kanjiTotal} Matched`;
+        } catch (e) { console.warn("Kanji stats fail", e); }
+
+        // 2. Kana Mastery Progress
+        try {
+          if (typeof initState === 'function') initState();
+          
+          let kanaMastered = 0;
+          const kanaTotal = 208; // 104 Hiragana + 104 Katakana
+          
+          if (typeof ALL_KANA !== 'undefined' && typeof isMastered === 'function') {
+             ALL_KANA.forEach(k => {
+               if (isMastered(k.script, k.char)) kanaMastered++;
+             });
+          }
+          
+          const kanaPct = (kanaMastered / kanaTotal) * 100;
+          document.getElementById("progKana").style.width = kanaPct + "%";
+          document.getElementById("statKana").innerText = `${kanaMastered} / ${kanaTotal} Mastered`;
+        } catch (e) { console.warn("Kana stats fail", e); }
+
+        // 3. Katakana Words Progress
+        try {
+          const wordsMasteredStr = localStorage.getItem("katakanaMastery_v4");
+          let wordsMastered = 0;
+          if (wordsMasteredStr) {
+            const arr = JSON.parse(wordsMasteredStr);
+            if (Array.isArray(arr)) wordsMastered = arr.length;
+          }
+          const wordsTotal = 200;
+          const wordsPct = (wordsMastered / wordsTotal) * 100;
+          
+          document.getElementById("progWords").style.width = wordsPct + "%";
+          document.getElementById("statWords").innerText = `${wordsMastered} / ${wordsTotal} Mastered`;
+        } catch (e) { console.warn("Words stats fail", e); }
+
+        // 4. Kana Match (K8) Progress
+        // K8 saves streaks per mode, so we aggregate across basic, voiced, yoon
+        try {
+          let matchMastered = 0;
+          const keys = ["katakanaMatchStreaks_basic_v2", "katakanaMatchStreaks_voiced_v2", "katakanaMatchStreaks_yoon_v2"];
+          
+          keys.forEach(key => {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && typeof parsed === 'object') {
+                // In K8, a streak >= 2 means it's mastered
+                Object.values(parsed).forEach(streak => {
+                  if (streak >= 2) matchMastered++;
+                });
+              }
+            }
+          });
+
+          const matchTotal = 104; // 46 basic + 25 voiced + 33 yoon
+          const matchPct = (matchMastered / matchTotal) * 100;
+          
+          document.getElementById("progMatch").style.width = matchPct + "%";
+          document.getElementById("statMatch").innerText = `${matchMastered} / ${matchTotal} Mastered`;
+        } catch (e) { console.warn("Match stats fail", e); }
+
+      }
+
+      // Help button
+      document.getElementById("helpBtn").addEventListener("click", () => {
+        alert("Welcome to Kanji & Kana!\n\nThis app contains four separate learning modules:\n\n🎌 Kanji Match: N5 vocabulary matching.\n🎧 Kana Mastery: Listening and reading drills.\n📖 Katakana Words: 200 common loanwords.\n🧩 Kana Match: Katakana to Hiragana matching.\n\nYour progress is saved automatically on this device.");
+      });
+
+      // Run dashboard
+      updateDashboard();
+    </script>
+  </body>
+</html>
