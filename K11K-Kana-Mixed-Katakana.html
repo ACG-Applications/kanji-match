@@ -310,6 +310,7 @@
       let isAnswered = false;
       let isSpeaking = false;
       let autoSpeakTimeout = null;
+      let ttsWatchdog = null;
       let audioPrimed = false;
 
       // DOM
@@ -384,7 +385,7 @@
       // ============================================================
       // AUDIO - MP3 WITH TTS FALLBACK
       // ============================================================
-      
+
       const ROMAJI_MAP = {
         "あ": "a", "い": "i", "う": "u", "え": "e", "お": "o",
         "か": "ka", "き": "ki", "く": "ku", "け": "ke", "こ": "ko",
@@ -396,14 +397,14 @@
         "や": "ya", "ゆ": "yu", "よ": "yo",
         "ら": "ra", "り": "ri", "る": "ru", "れ": "re", "ろ": "ro",
         "わ": "wa", "を": "wo", "ん": "n",
-        
+
         "が": "ga", "ぎ": "gi", "ぐ": "gu", "げ": "ge", "ご": "go",
         "ざ": "za", "じ": "ji", "ず": "zu", "ぜ": "ze", "ぞ": "zo",
         "だ": "da", "ぢ": "di", "づ": "du", "で": "de", "ど": "do",
         "ば": "ba", "び": "bi", "ぶ": "bu", "べ": "be", "ぼ": "bo",
-        
+
         "ぱ": "pa", "ぴ": "pi", "ぷ": "pu", "ぺ": "pe", "ぽ": "po",
-        
+
         "きゃ": "kya", "きゅ": "kyu", "きょ": "kyo",
         "しゃ": "sya", "しゅ": "syu", "しょ": "syo",
         "ちゃ": "cya", "ちゅ": "cyu", "ちょ": "cyo",
@@ -417,17 +418,42 @@
         "ぴゃ": "pya", "ぴゅ": "pyu", "ぴょ": "pyo"
       };
 
+      const DAKUON_CHARS = ["が","ぎ","ぐ","げ","ご","ざ","じ","ず","ぜ","ぞ","だ","ぢ","づ","で","ど","ば","び","ぶ","べ","ぼ"];
+      const HANDAKUON_CHARS = ["ぱ","ぴ","ぷ","ぺ","ぽ"];
+
       let currentAudio = null;
 
-      function speakKana(char, onEnd) {
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
+      function clearTtsWatchdog() {
+        if (ttsWatchdog) {
+          clearTimeout(ttsWatchdog);
+          ttsWatchdog = null;
         }
-        window.speechSynthesis.cancel();
+      }
 
-        isSpeaking = true;
-        if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.add("speaking");
+      function releaseSpeakingState(onEnd) {
+        isSpeaking = false;
+        const sb = document.getElementById("speakerBtn");
+        if (sb) sb.classList.remove("speaking");
+        const tk = document.getElementById("targetKana");
+        if (tk) tk.classList.remove("speaking");
+        if (onEnd) onEnd();
+      }
+
+      function speakKana(char, onEnd) {
+        clearTtsWatchdog();
+        if (currentAudio) {
+          currentAudio.onended = null;
+          currentAudio.onerror = null;
+          try {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          } catch (e) { /* ignore */ }
+          currentAudio = null;
+        }
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        isSpeaking = false;
 
         let lookupChar = char;
         if (SCRIPT === "katakana") {
@@ -435,47 +461,63 @@
           const match = allKana.find(item => item.kata === char);
           if (match) lookupChar = match.hira;
         }
-
         const romaji = ROMAJI_MAP[lookupChar];
-        
-        if (romaji) {
-          let folder = "seion";
-          if (["が","ぎ","ぐ","げ","ご","ざ","じ","ず","ぜ","ぞ","だ","ぢ","づ","で","ど","ば","び","ぶ","べ","ぼ"].includes(lookupChar)) folder = "dakuon";
-          else if (["ぱ","ぴ","ぷ","ぺ","ぽ"].includes(lookupChar)) folder = "handakuon";
-          else if ([...lookupChar].length > 1) folder = "yoon";
-
-          const audioPath = `sounds/${folder}/${romaji}.mp3`;
-          const audio = new Audio(audioPath);
-          currentAudio = audio;
-
-          audio.onended = () => {
-            isSpeaking = false;
-            if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
-            if (onEnd) onEnd();
-          };
-
-          audio.onerror = () => {
-            console.warn(`MP3 missing for ${char} (${audioPath}), falling back to TTS`);
-            fallbackToTTS(char, onEnd);
-          };
-
-          const playPromise = audio.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              fallbackToTTS(char, onEnd);
-            });
-          }
-        } else {
+        if (!romaji) {
           fallbackToTTS(char, onEnd);
+          return;
+        }
+
+        let folder = "seion";
+        if (DAKUON_CHARS.includes(lookupChar)) folder = "dakuon";
+        else if (HANDAKUON_CHARS.includes(lookupChar)) folder = "handakuon";
+        else if ([...lookupChar].length > 1) folder = "yoon";
+
+        isSpeaking = true;
+        const sb = document.getElementById("speakerBtn");
+        const tk = document.getElementById("targetKana");
+        if (sb) sb.classList.add("speaking");
+        if (tk) tk.classList.add("speaking");
+
+        const audioPath = `sounds/${folder}/${romaji}.mp3`;
+        const audio = new Audio(audioPath);
+        currentAudio = audio;
+
+        audio.onended = () => {
+          if (currentAudio !== audio) return;
+          currentAudio = null;
+          releaseSpeakingState(onEnd);
+        };
+
+        audio.onerror = () => {
+          if (currentAudio !== audio) return;
+          currentAudio = null;
+          console.warn(`[audio] MP3 missing for ${char} (${audioPath}) → TTS fallback`);
+          fallbackToTTS(char, onEnd);
+        };
+
+        const playPromise = audio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch((err) => {
+            if (currentAudio !== audio) return;
+            currentAudio = null;
+            console.warn(`[audio] play() rejected for ${char} (${audioPath}):`, err?.name || err);
+            fallbackToTTS(char, onEnd);
+          });
         }
       }
 
       function fallbackToTTS(char, onEnd) {
         if (!window.speechSynthesis) {
-          if (onEnd) onEnd();
+          releaseSpeakingState(onEnd);
           return;
         }
-        
+
+        isSpeaking = true;
+        const sb = document.getElementById("speakerBtn");
+        const tk = document.getElementById("targetKana");
+        if (sb) sb.classList.add("speaking");
+        if (tk) tk.classList.add("speaking");
+
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
         utter.rate = 0.75;
@@ -484,29 +526,37 @@
         const jp = voices.find(v => v.lang.startsWith("ja"));
         if (jp) utter.voice = jp;
 
-        let playCount = 0;
-        const playAudio = () => {
-          playCount++;
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearTtsWatchdog();
+          utter.onend = null;
+          utter.onerror = null;
+          releaseSpeakingState(onEnd);
+        };
+
+        utter.onend = finish;
+        utter.onerror = (e) => {
+          if (e && e.error === "interrupted") return;
+          console.warn(`[tts] error for ${char}:`, e?.error);
+          finish();
+        };
+
+        const estimate = Math.max(1500, char.length * 400 + 1500);
+        clearTtsWatchdog();
+        ttsWatchdog = setTimeout(() => {
+          console.warn(`[tts] watchdog fired for ${char} — forcing completion`);
+          try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+          finish();
+        }, estimate);
+
+        try {
           window.speechSynthesis.speak(utter);
-        };
-
-        utter.onend = () => {
-          if (playCount === 1) {
-            setTimeout(playAudio, 400);
-          } else {
-            isSpeaking = false;
-            if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
-            if (onEnd) onEnd();
-          }
-        };
-
-        utter.onerror = () => {
-          isSpeaking = false;
-          if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
-          if (onEnd) onEnd();
-        };
-
-        playAudio();
+        } catch (e) {
+          console.warn("[tts] speak() threw:", e);
+          finish();
+        }
       }
 
       // ============================================================
@@ -587,24 +637,21 @@
         });
 
         speakerBtn.addEventListener("click", () => {
-          if (!window.speechSynthesis) return;
-          speakerBtn.classList.add("speaking");
-          speakKana(char, () => speakerBtn.classList.remove("speaking"));
+          clearTimeout(autoSpeakTimeout);
+          speakKana(char);
         });
 
         updateCardProgress(gameArea);
 
         if (AUTO_PLAY) {
           clearTimeout(autoSpeakTimeout);
-          autoSpeakTimeout = setTimeout(() => {
-            speakerBtn.classList.add("speaking");
-            speakKana(char, () => speakerBtn.classList.remove("speaking"));
-          }, 250);
+          autoSpeakTimeout = setTimeout(() => speakKana(char), 250);
         }
       }
 
       function handleListeningTap(char, btn) {
         if (isAnswered) return;
+        clearTimeout(autoSpeakTimeout);
         isAnswered = true;
 
         const correct = isHomophoneMatch(char, currentChar);
@@ -657,33 +704,30 @@
         });
 
         targetEl.addEventListener("click", () => {
-          targetEl.classList.add("speaking");
-          speakKana(char, () => targetEl.classList.remove("speaking"));
+          clearTimeout(autoSpeakTimeout);
+          speakKana(char);
         });
 
         updateCardProgress(gameArea);
 
         if (AUTO_PLAY) {
           clearTimeout(autoSpeakTimeout);
-          autoSpeakTimeout = setTimeout(() => {
-            targetEl.classList.add("speaking");
-            speakKana(char, () => targetEl.classList.remove("speaking"));
-          }, 250);
+          autoSpeakTimeout = setTimeout(() => speakKana(char), 250);
         }
       }
 
       function handleReadingTap(char, btn, instructionEl) {
         if (isAnswered) return;
+        clearTimeout(autoSpeakTimeout);
 
         if (listenedChar !== char) {
           document.querySelectorAll("#grid .tile").forEach(t => t.classList.remove("listened"));
           listenedChar = char;
           btn.classList.add("listened");
           if (instructionEl) instructionEl.innerText = "Tap again to confirm this sound";
-          
-          if (!isSpeaking) {
-            speakKana(char);
-          }
+
+          // Always preview — speakKana cancels any in-flight audio safely.
+          speakKana(char);
           return;
         }
 
