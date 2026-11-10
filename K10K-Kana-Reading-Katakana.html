@@ -351,36 +351,48 @@
         window.speechSynthesis.speak(primer);
       }
 
-      function speakKana(char, onEnd) {
+            function speakKana(char, onEnd) {
         if (!window.speechSynthesis) {
           showToast("⚠️ Speech not supported.");
           if (onEnd) onEnd();
           return;
         }
-        
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
-        
+
+        window.speechSynthesis.cancel();
+        isSpeaking = true;
+        if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.add("speaking");
+
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
-        utter.rate = 0.85;
+        utter.rate = 0.75; // Slower for clearer pronunciation
         utter.pitch = 1;
         const voices = window.speechSynthesis.getVoices();
         const jp = voices.find(v => v.lang.startsWith("ja"));
         if (jp) utter.voice = jp;
 
-        utter.onstart = () => { isSpeaking = true; };
+        let playCount = 0;
+        const playAudio = () => {
+          playCount++;
+          window.speechSynthesis.speak(utter);
+        };
+
         utter.onend = () => {
+          if (playCount === 1) {
+            setTimeout(playAudio, 400);
+          } else {
+            isSpeaking = false;
+            if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
+            if (onEnd) onEnd();
+          }
+        };
+
+        utter.onerror = () => {
           isSpeaking = false;
+          if (typeof speakerBtn !== 'undefined' && speakerBtn) speakerBtn.classList.remove("speaking");
           if (onEnd) onEnd();
         };
-        utter.onerror = (e) => {
-          console.warn("TTS Error:", e);
-          isSpeaking = false;
-          if (onEnd) onEnd();
-        };
-        window.speechSynthesis.speak(utter);
+
+        playAudio();
       }
 
       // ============================================================
