@@ -7,7 +7,7 @@
 //   - Added K9K, K10K, K11K (Katakana drill variants)
 //   - Bumped version so all clients pick up the new routing
 
-const CACHE_VERSION = "kanji-master-v25";
+const CACHE_VERSION = "kanji-master-v30";
 const ASSETS_TO_CACHE = [
   "./",
   "./home.html",
