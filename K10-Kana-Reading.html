@@ -68,6 +68,34 @@
         text-transform: uppercase; color: #00b0ff; opacity: 0.9;
       }
 
+      /* SESSION PICKER */
+      .session-bar {
+        display: flex; gap: 6px; padding: 0 20px 8px; justify-content: center;
+        align-items: center; z-index: 10; flex-shrink: 0;
+        flex-wrap: wrap;
+      }
+      .session-bar-label {
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; color: #666; margin-right: 4px;
+      }
+      .session-btn {
+        background: #1e1e1e; border: 1.5px solid #2a2a2a; color: #888;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+        cursor: pointer; padding: 6px 14px; border-radius: 20px;
+        transition: all 0.15s ease; font-family: inherit;
+      }
+      .session-btn:hover:not(.active) { border-color: #444; color: #ccc; }
+      .session-btn.active {
+        background: #ffd54f; border-color: #ffd54f; color: #000;
+      }
+      .session-counter {
+        font-size: 0.72rem; font-weight: 700; color: #ffd54f;
+        padding: 4px 12px; border-radius: 20px;
+        background: rgba(255, 213, 79, 0.12);
+        border: 1px solid rgba(255, 213, 79, 0.3);
+        letter-spacing: 0.04em;
+      }
+
       /* GROUP TABS */
       .mode-tabs {
         display: flex; gap: 6px; padding: 0 20px 12px; justify-content: center; z-index: 10;
@@ -181,6 +209,37 @@
         height: 100%; background: #00b0ff; width: 0%; transition: width 0.3s ease;
       }
 
+      /* SESSION COMPLETE PANEL */
+      .session-complete {
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center; padding: 2rem 1rem; max-width: 340px;
+        animation: fadeInUp 0.3s ease;
+      }
+      .session-complete .trophy { font-size: 4rem; margin-bottom: 12px; }
+      .session-complete h2 { font-size: 1.4rem; color: #fff; margin-bottom: 8px; }
+      .session-complete p {
+        font-size: 0.9rem; color: #888; margin-bottom: 24px; line-height: 1.5;
+      }
+      .session-complete .buttons {
+        display: flex; flex-direction: column; gap: 10px; width: 100%;
+      }
+      .session-complete button {
+        padding: 14px 24px; border-radius: 50px; border: none;
+        font-family: inherit; font-size: 0.95rem; font-weight: 800;
+        cursor: pointer; transition: transform 0.1s ease; letter-spacing: 0.03em;
+      }
+      .session-complete button:active { transform: scale(0.97); }
+      .session-complete .continue-btn {
+        background: #00b0ff; color: #000; box-shadow: 0 4px 0 #0080c0;
+      }
+      .session-complete .home-btn {
+        background: #333; color: #fff;
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
       /* TOAST */
       .toast-popup {
         position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
@@ -200,6 +259,8 @@
         .target-kana.digraph { font-size: 3.5rem; }
         .game-area { gap: 12px; padding-top: 10px; }
         .autoplay-btn { font-size: 0.65rem; padding: 5px 10px; }
+        .session-btn { font-size: 0.65rem; padding: 5px 10px; }
+        .session-counter { font-size: 0.65rem; padding: 3px 10px; }
       }
     </style>
   </head>
@@ -215,6 +276,15 @@
       </div>
     </div>
 
+    <!-- SESSION PICKER -->
+    <div class="session-bar">
+      <span class="session-bar-label">Session</span>
+      <button class="session-btn" data-size="10">10</button>
+      <button class="session-btn active" data-size="20">20</button>
+      <button class="session-btn" data-size="all">All</button>
+      <span class="session-counter" id="sessionCounter">0 / 20</span>
+    </div>
+
     <div class="mode-tabs" id="modeTabs">
       <button class="mode-tab active" data-group="basic">Basic</button>
       <button class="mode-tab" data-group="voiced">Voiced</button>
@@ -225,7 +295,7 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <div class="game-area">
+    <div class="game-area" id="gameArea">
       <div class="target-kana" id="targetKana">あ</div>
       <div class="instruction" id="instruction">Tap a speaker to hear a sound · tap again to answer</div>
       <div class="grid" id="grid"></div>
@@ -249,7 +319,13 @@
       const SCRIPT = "hiragana";
       const GRID_SIZE = 9; // 3x3 grid
       const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
+      const SESSION_STORAGE_KEY = "kanaSessionSize";
       let AUTO_PLAY = true;
+
+      let sessionSizeMode = 20;
+      let sessionCap = 20;
+      let sessionAnswered = 0;
+      let sessionComplete = false;
 
       const HOMOPHONE_PAIRS = [
         ["じ", "ぢ"], ["ず", "づ"],
@@ -270,16 +346,21 @@
       let audioPrimed = false;
 
       // DOM
-      const targetKanaEl    = document.getElementById("targetKana");
-      const instructionEl   = document.getElementById("instruction");
-      const gridEl          = document.getElementById("grid");
       const progressBar     = document.getElementById("progressBar");
       const progressLabel   = document.getElementById("progressLabel");
-      const cardProgressLabel = document.getElementById("cardProgressLabel");
-      const cardProgressFill  = document.getElementById("cardProgressFill");
       const toastPopup      = document.getElementById("toastPopup");
       const modeTabs        = document.getElementById("modeTabs");
       const autoPlayBtn     = document.getElementById("autoPlayBtn");
+      const gameArea        = document.getElementById("gameArea");
+      const sessionCounter  = document.getElementById("sessionCounter");
+      const sessionBtns     = document.querySelectorAll(".session-btn");
+
+      // Helper accessors — game area can be re-rendered
+      function getTargetKana() { return document.getElementById("targetKana"); }
+      function getInstruction() { return document.getElementById("instruction"); }
+      function getGridEl() { return document.getElementById("grid"); }
+      function getCardProgressLabel() { return document.getElementById("cardProgressLabel"); }
+      function getCardProgressFill() { return document.getElementById("cardProgressFill"); }
 
       // ============================================================
       // AUTOPLAY PERSISTENCE
@@ -288,17 +369,13 @@
         try {
           const stored = localStorage.getItem(AUTOPLAY_STORAGE_KEY);
           if (stored !== null) AUTO_PLAY = stored === "true";
-        } catch (e) {
-          console.warn("[autoplay] load failed:", e);
-        }
+        } catch (e) { console.warn("[autoplay] load failed:", e); }
       }
 
       function saveAutoPlayPref() {
         try {
           localStorage.setItem(AUTOPLAY_STORAGE_KEY, AUTO_PLAY ? "true" : "false");
-        } catch (e) {
-          console.warn("[autoplay] save failed:", e);
-        }
+        } catch (e) { console.warn("[autoplay] save failed:", e); }
       }
 
       function updateAutoPlayButton() {
@@ -315,10 +392,63 @@
         AUTO_PLAY = !AUTO_PLAY;
         saveAutoPlayPref();
         updateAutoPlayButton();
-        if (AUTO_PLAY && currentChar) {
+        if (AUTO_PLAY && currentChar && !sessionComplete) {
           clearTimeout(autoSpeakTimeout);
           speakKana(currentChar);
         }
+      }
+
+      // ============================================================
+      // SESSION SIZE
+      // ============================================================
+      function loadSessionPref() {
+        try {
+          const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+          if (stored === "all") sessionSizeMode = "all";
+          else if (stored === "10") sessionSizeMode = 10;
+          else if (stored === "20") sessionSizeMode = 20;
+        } catch (e) { console.warn("[session] load failed:", e); }
+      }
+
+      function saveSessionPref() {
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, String(sessionSizeMode));
+        } catch (e) { console.warn("[session] save failed:", e); }
+      }
+
+      function resolveSessionCap() {
+        const poolLength = getGroupPool(SCRIPT, currentGroup).length;
+        if (sessionSizeMode === "all") return poolLength;
+        return Math.min(sessionSizeMode, poolLength);
+      }
+
+      function updateSessionButtons() {
+        sessionBtns.forEach(btn => {
+          const size = btn.dataset.size;
+          let isActive = false;
+          if (size === "all") isActive = (sessionSizeMode === "all");
+          else isActive = (Number(size) === sessionSizeMode);
+          btn.classList.toggle("active", isActive);
+        });
+      }
+
+      function updateSessionCounter() {
+        sessionCounter.textContent = `${sessionAnswered} / ${sessionCap}`;
+      }
+
+      function setSessionSize(mode) {
+        sessionSizeMode = (mode === "all") ? "all" : Number(mode);
+        saveSessionPref();
+        updateSessionButtons();
+        sessionCap = resolveSessionCap();
+        sessionAnswered = 0;
+        sessionComplete = false;
+        restoreGameArea();
+        updateSessionCounter();
+        updateGroupProgressBar();
+        updateGroupTabs();
+        nextCard();
+        showToast(`Session size: ${sessionSizeMode === "all" ? "All" : sessionSizeMode}`);
       }
 
       // ============================================================
@@ -345,7 +475,6 @@
       // ============================================================
       // AUDIO - MP3 WITH TTS FALLBACK
       // ============================================================
-
       const ROMAJI_MAP = {
         "あ": "a", "い": "i", "う": "u", "え": "e", "お": "o",
         "か": "ka", "き": "ki", "く": "ku", "け": "ke", "こ": "ko",
@@ -357,14 +486,11 @@
         "や": "ya", "ゆ": "yu", "よ": "yo",
         "ら": "ra", "り": "ri", "る": "ru", "れ": "re", "ろ": "ro",
         "わ": "wa", "を": "wo", "ん": "n",
-
         "が": "ga", "ぎ": "gi", "ぐ": "gu", "げ": "ge", "ご": "go",
         "ざ": "za", "じ": "ji", "ず": "zu", "ぜ": "ze", "ぞ": "zo",
         "だ": "da", "ぢ": "di", "づ": "du", "で": "de", "ど": "do",
         "ば": "ba", "び": "bi", "ぶ": "bu", "べ": "be", "ぼ": "bo",
-
         "ぱ": "pa", "ぴ": "pi", "ぷ": "pu", "ぺ": "pe", "ぽ": "po",
-
         "きゃ": "kya", "きゅ": "kyu", "きょ": "kyo",
         "しゃ": "sya", "しゅ": "syu", "しょ": "syo",
         "ちゃ": "cya", "ちゅ": "cyu", "ちょ": "cyo",
@@ -384,17 +510,13 @@
       let currentAudio = null;
 
       function clearTtsWatchdog() {
-        if (ttsWatchdog) {
-          clearTimeout(ttsWatchdog);
-          ttsWatchdog = null;
-        }
+        if (ttsWatchdog) { clearTimeout(ttsWatchdog); ttsWatchdog = null; }
       }
 
       function releaseSpeakingState(onEnd) {
         isSpeaking = false;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.remove("speaking");
-        }
+        const tk = getTargetKana();
+        if (tk) tk.classList.remove("speaking");
         if (onEnd) onEnd();
       }
 
@@ -403,15 +525,10 @@
         if (currentAudio) {
           currentAudio.onended = null;
           currentAudio.onerror = null;
-          try {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-          } catch (e) { /* ignore */ }
+          try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
           currentAudio = null;
         }
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
         isSpeaking = false;
 
         let lookupChar = char;
@@ -421,10 +538,7 @@
           if (match) lookupChar = match.hira;
         }
         const romaji = ROMAJI_MAP[lookupChar];
-        if (!romaji) {
-          fallbackToTTS(char, onEnd);
-          return;
-        }
+        if (!romaji) { fallbackToTTS(char, onEnd); return; }
 
         let folder = "seion";
         if (DAKUON_CHARS.includes(lookupChar)) folder = "dakuon";
@@ -432,9 +546,8 @@
         else if ([...lookupChar].length > 1) folder = "yoon";
 
         isSpeaking = true;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.add("speaking");
-        }
+        const tk = getTargetKana();
+        if (tk) tk.classList.add("speaking");
 
         const audioPath = `sounds/${folder}/${romaji}.mp3`;
         const audio = new Audio(audioPath);
@@ -465,15 +578,11 @@
       }
 
       function fallbackToTTS(char, onEnd) {
-        if (!window.speechSynthesis) {
-          releaseSpeakingState(onEnd);
-          return;
-        }
+        if (!window.speechSynthesis) { releaseSpeakingState(onEnd); return; }
 
         isSpeaking = true;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.add("speaking");
-        }
+        const tk = getTargetKana();
+        if (tk) tk.classList.add("speaking");
 
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
@@ -504,16 +613,12 @@
         clearTtsWatchdog();
         ttsWatchdog = setTimeout(() => {
           console.warn(`[tts] watchdog fired for ${char} — forcing completion`);
-          try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+          try { window.speechSynthesis.cancel(); } catch (e) {}
           finish();
         }, estimate);
 
-        try {
-          window.speechSynthesis.speak(utter);
-        } catch (e) {
-          console.warn("[tts] speak() threw:", e);
-          finish();
-        }
+        try { window.speechSynthesis.speak(utter); }
+        catch (e) { console.warn("[tts] speak() threw:", e); finish(); }
       }
 
       // ============================================================
@@ -534,10 +639,10 @@
 
       function updateCardProgress() {
         if (!currentChar) return;
-        const label = getProgressLabel(SCRIPT, currentChar);
-        const value = getProgressValue(SCRIPT, currentChar);
-        cardProgressLabel.innerText = label;
-        cardProgressFill.style.width = (value * 100) + "%";
+        const labelEl = getCardProgressLabel();
+        const fillEl  = getCardProgressFill();
+        if (labelEl) labelEl.innerText = getProgressLabel(SCRIPT, currentChar);
+        if (fillEl)  fillEl.style.width = (getProgressValue(SCRIPT, currentChar) * 100) + "%";
       }
 
       function updateGroupTabs() {
@@ -553,10 +658,76 @@
       }
 
       // ============================================================
+      // SESSION COMPLETE PANEL
+      // ============================================================
+      function showSessionComplete() {
+        sessionComplete = true;
+        isAnswered = true;
+        clearTimeout(autoSpeakTimeout);
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (currentAudio) {
+          try { currentAudio.pause(); } catch (e) {}
+          currentAudio = null;
+        }
+        isSpeaking = false;
+
+        const groupName = currentGroup.charAt(0).toUpperCase() + currentGroup.slice(1);
+        gameArea.innerHTML = `
+          <div class="session-complete">
+            <div class="trophy">🎉</div>
+            <h2>Session Complete</h2>
+            <p>You drilled <strong>${sessionAnswered}</strong> ${groupName} kana.<br>
+               Progress on the bar above reflects your overall mastery.</p>
+            <div class="buttons">
+              <button class="continue-btn" id="continueBtn">Continue · New Session</button>
+              <button class="home-btn" id="homeBtn">Back to Home</button>
+            </div>
+          </div>
+        `;
+        document.getElementById("continueBtn").addEventListener("click", () => {
+          sessionAnswered = 0;
+          sessionComplete = false;
+          sessionCap = resolveSessionCap();
+          restoreGameArea();
+          updateSessionCounter();
+          updateGroupProgressBar();
+          updateGroupTabs();
+          nextCard();
+        });
+        document.getElementById("homeBtn").addEventListener("click", () => {
+          window.location.href = "K12-Kana-Hub.html";
+        });
+      }
+
+      function restoreGameArea() {
+        gameArea.innerHTML = `
+          <div class="target-kana" id="targetKana">あ</div>
+          <div class="instruction" id="instruction">Tap a speaker to hear a sound · tap again to answer</div>
+          <div class="grid" id="grid"></div>
+          <div class="card-progress">
+            <span id="cardProgressLabel">New</span>
+            <div class="card-progress-bar"><div class="card-progress-fill" id="cardProgressFill"></div></div>
+          </div>
+        `;
+        // Bind target-kana click handler
+        const tk = getTargetKana();
+        if (tk) {
+          tk.addEventListener("click", () => {
+            if (currentChar) {
+              clearTimeout(autoSpeakTimeout);
+              speakKana(currentChar);
+            }
+          });
+        }
+      }
+
+      // ============================================================
       // GRID RENDER
       // ============================================================
       function renderGrid(chars) {
-        gridEl.innerHTML = "";
+        const grid = getGridEl();
+        if (!grid) return;
+        grid.innerHTML = "";
         chars.forEach(char => {
           const btn = document.createElement("button");
           btn.className = "tile";
@@ -564,7 +735,7 @@
           btn.innerHTML = `<span class="speaker-glyph">🔊</span>`;
           btn.title = "Tap to hear, tap again to answer";
           btn.addEventListener("click", () => handleTileTap(char, btn));
-          gridEl.appendChild(btn);
+          grid.appendChild(btn);
         });
       }
 
@@ -572,9 +743,13 @@
       // CARD FLOW
       // ============================================================
       function nextCard() {
+        if (sessionComplete) return;
+
         if (!groupUnlocked(SCRIPT, currentGroup)) {
           const unlocked = unlockedGroups(SCRIPT);
           currentGroup = unlocked[unlocked.length - 1] || "basic";
+          sessionCap = resolveSessionCap();
+          updateSessionCounter();
         }
 
         const char = pickNextKana(SCRIPT, currentGroup);
@@ -584,39 +759,41 @@
         listenedChar = null;
         isAnswered = false;
 
-        targetKanaEl.innerText = char;
-        targetKanaEl.classList.toggle("digraph", [...char].length > 1);
-        targetKanaEl.classList.remove("speaking");
-        targetKanaEl.style.animation = "none";
-        void targetKanaEl.offsetWidth;
-        targetKanaEl.style.animation = "";
+        const tk = getTargetKana();
+        if (tk) {
+          tk.innerText = char;
+          tk.classList.toggle("digraph", [...char].length > 1);
+          tk.classList.remove("speaking");
+          tk.style.animation = "none";
+          void tk.offsetWidth;
+          tk.style.animation = "";
+        }
 
         currentGrid = buildGridPool(SCRIPT, currentGroup, char, GRID_SIZE);
         renderGrid(currentGrid);
 
-        instructionEl.innerText = "Tap a speaker to hear a sound · tap again to answer";
+        const inst = getInstruction();
+        if (inst) inst.innerText = "Tap a speaker to hear a sound · tap again to answer";
         updateCardProgress();
 
         if (AUTO_PLAY) {
           clearTimeout(autoSpeakTimeout);
-          autoSpeakTimeout = setTimeout(() => {
-            targetKanaEl.classList.add("speaking");
-            speakKana(char, () => targetKanaEl.classList.remove("speaking"));
-          }, 250);
+          autoSpeakTimeout = setTimeout(() => speakKana(char), 250);
         }
       }
 
       function handleTileTap(char, btn) {
-        if (isAnswered) return;
+        if (isAnswered || sessionComplete) return;
         clearTimeout(autoSpeakTimeout);
 
         if (listenedChar !== char) {
-          gridEl.querySelectorAll(".tile").forEach(t => t.classList.remove("listened"));
+          const grid = getGridEl();
+          if (grid) grid.querySelectorAll(".tile").forEach(t => t.classList.remove("listened"));
           listenedChar = char;
           btn.classList.add("listened");
-          instructionEl.innerText = "Tap again to confirm this sound";
-
-          // Always preview on first tap — speakKana safely cancels anything in-flight.
+          const inst = getInstruction();
+          if (inst) inst.innerText = "Tap again to confirm this sound";
+          // Always preview — speakKana safely cancels anything in-flight.
           speakKana(char);
           return;
         }
@@ -631,11 +808,14 @@
         const correct = isHomophoneMatch(char, currentChar);
         const exact = char === currentChar;
 
-        gridEl.querySelectorAll(".tile").forEach(t => {
-          t.classList.add("disabled");
-          t.classList.remove("listened");
-          if (t.dataset.char === currentChar) t.classList.add(correct ? "correct" : "reveal");
-        });
+        const grid = getGridEl();
+        if (grid) {
+          grid.querySelectorAll(".tile").forEach(t => {
+            t.classList.add("disabled");
+            t.classList.remove("listened");
+            if (t.dataset.char === currentChar) t.classList.add(correct ? "correct" : "reveal");
+          });
+        }
         if (!exact) {
           if (correct) btn.classList.add("correct");
           else btn.classList.add("wrong");
@@ -644,25 +824,21 @@
         speakKana(currentChar);
 
         recordReadingAnswer(SCRIPT, currentChar, correct);
+        sessionAnswered++;
+        updateSessionCounter();
         updateCardProgress();
         updateGroupProgressBar();
 
-        setTimeout(() => nextCard(), correct ? 700 : 1300);
+        const capReached = (sessionAnswered >= sessionCap);
+        setTimeout(() => {
+          if (capReached) showSessionComplete();
+          else nextCard();
+        }, correct ? 700 : 1300);
       }
 
       // ============================================================
       // EVENTS
       // ============================================================
-      targetKanaEl.addEventListener("click", () => {
-        if (currentChar) {
-          clearTimeout(autoSpeakTimeout);
-          targetKanaEl.classList.add("speaking");
-          speakKana(currentChar, () => targetKanaEl.classList.remove("speaking"));
-        }
-      });
-
-      autoPlayBtn.addEventListener("click", toggleAutoPlay);
-
       document.getElementById("backBtn").addEventListener("click", () => {
         window.location.href = "K12-Kana-Hub.html";
       });
@@ -670,10 +846,21 @@
       document.getElementById("resetBtn").addEventListener("click", () => {
         if (!confirm(`Reset all ${SCRIPT} reading progress? This cannot be undone.`)) return;
         resetAllState();
+        sessionAnswered = 0;
+        sessionComplete = false;
+        sessionCap = resolveSessionCap();
+        restoreGameArea();
         updateGroupProgressBar();
         updateGroupTabs();
+        updateSessionCounter();
         nextCard();
         showToast("Progress reset.");
+      });
+
+      autoPlayBtn.addEventListener("click", toggleAutoPlay);
+
+      sessionBtns.forEach(btn => {
+        btn.addEventListener("click", () => setSessionSize(btn.dataset.size));
       });
 
       modeTabs.addEventListener("click", (e) => {
@@ -682,16 +869,44 @@
         const g = tab.dataset.group;
         if (g === currentGroup) return;
         currentGroup = g;
+        sessionCap = resolveSessionCap();
+        if (sessionAnswered >= sessionCap && sessionAnswered > 0) {
+          updateGroupTabs();
+          updateGroupProgressBar();
+          updateSessionCounter();
+          showSessionComplete();
+          return;
+        }
+        updateSessionCounter();
         updateGroupTabs();
-        nextCard();
+        updateGroupProgressBar();
+        if (!sessionComplete) {
+          restoreGameArea();
+          nextCard();
+        }
       });
 
       // ============================================================
       // INIT
       // ============================================================
+      // Initial binding for the target-kana in the ORIGINAL game area
+      const initialTk = getTargetKana();
+      if (initialTk) {
+        initialTk.addEventListener("click", () => {
+          if (currentChar) {
+            clearTimeout(autoSpeakTimeout);
+            speakKana(currentChar);
+          }
+        });
+      }
+
       loadAutoPlayPref();
+      loadSessionPref();
       updateAutoPlayButton();
+      updateSessionButtons();
       initState();
+      sessionCap = resolveSessionCap();
+      updateSessionCounter();
       updateGroupTabs();
       updateGroupProgressBar();
       nextCard();

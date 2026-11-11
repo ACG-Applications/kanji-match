@@ -69,6 +69,34 @@
         text-transform: uppercase; color: #00e676; opacity: 0.9;
       }
 
+      /* SESSION PICKER */
+      .session-bar {
+        display: flex; gap: 6px; padding: 0 20px 8px; justify-content: center;
+        align-items: center; z-index: 10; flex-shrink: 0;
+        flex-wrap: wrap;
+      }
+      .session-bar-label {
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; color: #666; margin-right: 4px;
+      }
+      .session-btn {
+        background: #1e1e1e; border: 1.5px solid #2a2a2a; color: #888;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+        cursor: pointer; padding: 6px 14px; border-radius: 20px;
+        transition: all 0.15s ease; font-family: inherit;
+      }
+      .session-btn:hover:not(.active) { border-color: #444; color: #ccc; }
+      .session-btn.active {
+        background: #ffd54f; border-color: #ffd54f; color: #000;
+      }
+      .session-counter {
+        font-size: 0.72rem; font-weight: 700; color: #ffd54f;
+        padding: 4px 12px; border-radius: 20px;
+        background: rgba(255, 213, 79, 0.12);
+        border: 1px solid rgba(255, 213, 79, 0.3);
+        letter-spacing: 0.04em;
+      }
+
       /* GROUP TABS */
       .mode-tabs {
         display: flex; gap: 6px; padding: 0 20px 12px; justify-content: center; z-index: 10;
@@ -173,6 +201,43 @@
         height: 100%; background: #00e676; width: 0%; transition: width 0.3s ease;
       }
 
+      /* SESSION COMPLETE PANEL */
+      .session-complete {
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center; padding: 2rem 1rem; max-width: 340px;
+        animation: fadeInUp 0.3s ease;
+      }
+      .session-complete .trophy {
+        font-size: 4rem; margin-bottom: 12px;
+      }
+      .session-complete h2 {
+        font-size: 1.4rem; color: #fff; margin-bottom: 8px;
+      }
+      .session-complete p {
+        font-size: 0.9rem; color: #888; margin-bottom: 24px;
+        line-height: 1.5;
+      }
+      .session-complete .buttons {
+        display: flex; flex-direction: column; gap: 10px; width: 100%;
+      }
+      .session-complete button {
+        padding: 14px 24px; border-radius: 50px; border: none;
+        font-family: inherit; font-size: 0.95rem; font-weight: 800;
+        cursor: pointer; transition: transform 0.1s ease;
+        letter-spacing: 0.03em;
+      }
+      .session-complete button:active { transform: scale(0.97); }
+      .session-complete .continue-btn {
+        background: #00e676; color: #000; box-shadow: 0 4px 0 #009624;
+      }
+      .session-complete .home-btn {
+        background: #333; color: #fff;
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
       /* TOAST */
       .toast-popup {
         position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
@@ -191,6 +256,8 @@
         .speaker-btn { width: 90px; height: 90px; font-size: 2rem; }
         .game-area { gap: 16px; padding-top: 10px; }
         .autoplay-btn { font-size: 0.65rem; padding: 5px 10px; }
+        .session-btn { font-size: 0.65rem; padding: 5px 10px; }
+        .session-counter { font-size: 0.65rem; padding: 3px 10px; }
       }
     </style>
   </head>
@@ -206,6 +273,15 @@
       </div>
     </div>
 
+    <!-- SESSION PICKER -->
+    <div class="session-bar">
+      <span class="session-bar-label">Session</span>
+      <button class="session-btn" data-size="10">10</button>
+      <button class="session-btn active" data-size="20">20</button>
+      <button class="session-btn" data-size="all">All</button>
+      <span class="session-counter" id="sessionCounter">0 / 20</span>
+    </div>
+
     <div class="mode-tabs" id="modeTabs">
       <button class="mode-tab active" data-group="basic">Basic</button>
       <button class="mode-tab" data-group="voiced">Voiced</button>
@@ -216,7 +292,7 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
 
-    <div class="game-area">
+    <div class="game-area" id="gameArea">
       <button class="speaker-btn" id="speakerBtn" title="Play sound">🔊</button>
       <div class="instruction">Tap the kana you hear</div>
       <div class="grid" id="grid"></div>
@@ -240,7 +316,14 @@
       const SCRIPT = "hiragana";
       const GRID_SIZE = 4; // 2x2 grid
       const AUTOPLAY_STORAGE_KEY = `kanaAutoplay_${SCRIPT}`;
+      const SESSION_STORAGE_KEY = "kanaSessionSize";
       let AUTO_PLAY = true;
+
+      // Session size: 10, 20, or "all" (resolved per-group)
+      let sessionSizeMode = 20;
+      let sessionCap = 20;
+      let sessionAnswered = 0;
+      let sessionComplete = false;
 
       const HOMOPHONE_PAIRS = [
         ["じ", "ぢ"], ["ず", "づ"],
@@ -269,6 +352,9 @@
       const toastPopup    = document.getElementById("toastPopup");
       const modeTabs      = document.getElementById("modeTabs");
       const autoPlayBtn   = document.getElementById("autoPlayBtn");
+      const gameArea      = document.getElementById("gameArea");
+      const sessionCounter = document.getElementById("sessionCounter");
+      const sessionBtns   = document.querySelectorAll(".session-btn");
 
       // ============================================================
       // AUTOPLAY PERSISTENCE
@@ -304,10 +390,69 @@
         AUTO_PLAY = !AUTO_PLAY;
         saveAutoPlayPref();
         updateAutoPlayButton();
-        if (AUTO_PLAY && currentChar) {
+        if (AUTO_PLAY && currentChar && !sessionComplete) {
           clearTimeout(autoSpeakTimeout);
           speakKana(currentChar);
         }
+      }
+
+      // ============================================================
+      // SESSION SIZE
+      // ============================================================
+      function loadSessionPref() {
+        try {
+          const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+          if (stored === "all") sessionSizeMode = "all";
+          else if (stored === "10") sessionSizeMode = 10;
+          else if (stored === "20") sessionSizeMode = 20;
+        } catch (e) {
+          console.warn("[session] load failed:", e);
+        }
+      }
+
+      function saveSessionPref() {
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, String(sessionSizeMode));
+        } catch (e) {
+          console.warn("[session] save failed:", e);
+        }
+      }
+
+      function resolveSessionCap() {
+        const poolLength = getGroupPool(SCRIPT, currentGroup).length;
+        if (sessionSizeMode === "all") return poolLength;
+        return Math.min(sessionSizeMode, poolLength);
+      }
+
+      function updateSessionButtons() {
+        sessionBtns.forEach(btn => {
+          const size = btn.dataset.size;
+          let isActive = false;
+          if (size === "all") isActive = (sessionSizeMode === "all");
+          else isActive = (Number(size) === sessionSizeMode);
+          btn.classList.toggle("active", isActive);
+        });
+      }
+
+      function updateSessionCounter() {
+        sessionCounter.textContent = `${sessionAnswered} / ${sessionCap}`;
+      }
+
+      function setSessionSize(mode) {
+        sessionSizeMode = (mode === "all") ? "all" : Number(mode);
+        saveSessionPref();
+        updateSessionButtons();
+        // Changing session size restarts the session counter but preserves mastery.
+        sessionCap = resolveSessionCap();
+        sessionAnswered = 0;
+        sessionComplete = false;
+        // If we're in the complete panel, dismiss it.
+        restoreGameArea();
+        updateSessionCounter();
+        updateGroupProgressBar();
+        updateGroupTabs();
+        nextCard();
+        showToast(`Session size: ${sessionSizeMode === "all" ? "All" : sessionSizeMode}`);
       }
 
       // ============================================================
@@ -381,18 +526,11 @@
 
       function releaseSpeakingState(onEnd) {
         isSpeaking = false;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.remove("speaking");
-        }
+        if (speakerBtn) speakerBtn.classList.remove("speaking");
         if (onEnd) onEnd();
       }
 
-      /**
-       * Play a kana's sound. Cancels anything currently in-flight,
-       * resets the speaking flag, tries the MP3 first, falls back to TTS.
-       */
       function speakKana(char, onEnd) {
-        // --- 1. Tear down anything currently playing ---
         clearTtsWatchdog();
         if (currentAudio) {
           currentAudio.onended = null;
@@ -406,10 +544,8 @@
         if (window.speechSynthesis) {
           window.speechSynthesis.cancel();
         }
-        // We are starting fresh — the speaking flag no longer refers to anything valid.
         isSpeaking = false;
 
-        // --- 2. Resolve romaji lookup ---
         let lookupChar = char;
         if (SCRIPT === "katakana") {
           const allKana = [...BASIC_KANA, ...DAKUTEN_KANA, ...HANDAKUTEN_KANA, ...YOON_DIGRAPHS];
@@ -422,24 +558,20 @@
           return;
         }
 
-        // --- 3. Pick folder ---
         let folder = "seion";
         if (DAKUON_CHARS.includes(lookupChar)) folder = "dakuon";
         else if (HANDAKUON_CHARS.includes(lookupChar)) folder = "handakuon";
         else if ([...lookupChar].length > 1) folder = "yoon";
 
-        // --- 4. Play MP3 ---
         isSpeaking = true;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.add("speaking");
-        }
+        if (speakerBtn) speakerBtn.classList.add("speaking");
 
         const audioPath = `sounds/${folder}/${romaji}.mp3`;
         const audio = new Audio(audioPath);
         currentAudio = audio;
 
         audio.onended = () => {
-          if (currentAudio !== audio) return; // stale handler
+          if (currentAudio !== audio) return;
           currentAudio = null;
           releaseSpeakingState(onEnd);
         };
@@ -462,10 +594,6 @@
         }
       }
 
-      /**
-       * Single-play TTS with a watchdog timer. Guarantees onEnd fires exactly once,
-       * regardless of whether the browser calls onend / onerror / neither.
-       */
       function fallbackToTTS(char, onEnd) {
         if (!window.speechSynthesis) {
           releaseSpeakingState(onEnd);
@@ -473,9 +601,7 @@
         }
 
         isSpeaking = true;
-        if (typeof speakerBtn !== "undefined" && speakerBtn) {
-          speakerBtn.classList.add("speaking");
-        }
+        if (speakerBtn) speakerBtn.classList.add("speaking");
 
         const utter = new SpeechSynthesisUtterance(char);
         utter.lang = "ja-JP";
@@ -497,13 +623,11 @@
 
         utter.onend = finish;
         utter.onerror = (e) => {
-          if (e && e.error === "interrupted") return; // we cancelled it; ignore
+          if (e && e.error === "interrupted") return;
           console.warn(`[tts] error for ${char}:`, e?.error);
           finish();
         };
 
-        // Watchdog: force-finish if the browser never reports completion.
-        // Estimate: ~400ms per character + 1.5s cushion.
         const estimate = Math.max(1500, char.length * 400 + 1500);
         clearTtsWatchdog();
         ttsWatchdog = setTimeout(() => {
@@ -557,10 +681,80 @@
       }
 
       // ============================================================
+      // SESSION COMPLETE PANEL
+      // ============================================================
+      function showSessionComplete() {
+        sessionComplete = true;
+        isAnswered = true;
+        clearTimeout(autoSpeakTimeout);
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (currentAudio) {
+          try { currentAudio.pause(); } catch (e) {}
+          currentAudio = null;
+        }
+        isSpeaking = false;
+
+        const groupName = currentGroup.charAt(0).toUpperCase() + currentGroup.slice(1);
+        gameArea.innerHTML = `
+          <div class="session-complete">
+            <div class="trophy">🎉</div>
+            <h2>Session Complete</h2>
+            <p>You drilled <strong>${sessionAnswered}</strong> ${groupName} kana.<br>
+               Progress on the bar above reflects your overall mastery.</p>
+            <div class="buttons">
+              <button class="continue-btn" id="continueBtn">Continue · New Session</button>
+              <button class="home-btn" id="homeBtn">Back to Home</button>
+            </div>
+          </div>
+        `;
+        document.getElementById("continueBtn").addEventListener("click", () => {
+          sessionAnswered = 0;
+          sessionComplete = false;
+          sessionCap = resolveSessionCap();
+          restoreGameArea();
+          updateSessionCounter();
+          updateGroupProgressBar();
+          updateGroupTabs();
+          nextCard();
+        });
+        document.getElementById("homeBtn").addEventListener("click", () => {
+          window.location.href = "K12-Kana-Hub.html";
+        });
+      }
+
+      function restoreGameArea() {
+        gameArea.innerHTML = `
+          <button class="speaker-btn" id="speakerBtn" title="Play sound">🔊</button>
+          <div class="instruction">Tap the kana you hear</div>
+          <div class="grid" id="grid"></div>
+          <div class="card-progress">
+            <span id="cardProgressLabel">New</span>
+            <div class="card-progress-bar"><div class="card-progress-fill" id="cardProgressFill"></div></div>
+          </div>
+        `;
+        // Re-bind DOM refs after innerHTML replacement
+        const newSpeakerBtn = document.getElementById("speakerBtn");
+        newSpeakerBtn.addEventListener("click", () => {
+          clearTimeout(autoSpeakTimeout);
+          if (currentChar) speakKana(currentChar);
+        });
+        // The grid and card-progress refs are re-queried inside renderGrid/updateCardProgress each time.
+      }
+
+      // After restoreGameArea, the top-of-file const refs are stale — so we
+      // re-fetch inside the functions that need them.
+      function getSpeakerBtn() { return document.getElementById("speakerBtn"); }
+      function getGridEl() { return document.getElementById("grid"); }
+      function getCardProgressLabel() { return document.getElementById("cardProgressLabel"); }
+      function getCardProgressFill() { return document.getElementById("cardProgressFill"); }
+
+      // ============================================================
       // GRID RENDER
       // ============================================================
       function renderGrid(chars) {
-        gridEl.innerHTML = "";
+        const grid = getGridEl();
+        if (!grid) return;
+        grid.innerHTML = "";
         chars.forEach(char => {
           const btn = document.createElement("button");
           btn.className = "cell";
@@ -568,7 +762,7 @@
           btn.dataset.char = char;
           if ([...char].length > 1) btn.dataset.length = "2";
           btn.addEventListener("click", () => handleTap(char, btn));
-          gridEl.appendChild(btn);
+          grid.appendChild(btn);
         });
       }
 
@@ -576,9 +770,13 @@
       // CARD FLOW
       // ============================================================
       function nextCard() {
+        if (sessionComplete) return;
+
         if (!groupUnlocked(SCRIPT, currentGroup)) {
           const unlocked = unlockedGroups(SCRIPT);
           currentGroup = unlocked[unlocked.length - 1] || "basic";
+          sessionCap = resolveSessionCap();
+          updateSessionCounter();
         }
 
         const char = pickNextKana(SCRIPT, currentGroup);
@@ -590,6 +788,13 @@
         renderGrid(currentGrid);
         updateCardProgress();
 
+        const labelEl = getCardProgressLabel();
+        const fillEl  = getCardProgressFill();
+        if (labelEl && fillEl && currentChar) {
+          labelEl.innerText = getProgressLabel(SCRIPT, currentChar);
+          fillEl.style.width = (getProgressValue(SCRIPT, currentChar) * 100) + "%";
+        }
+
         if (AUTO_PLAY) {
           clearTimeout(autoSpeakTimeout);
           autoSpeakTimeout = setTimeout(() => speakKana(char), 250);
@@ -597,42 +802,46 @@
       }
 
       function handleTap(char, btn) {
-        if (isAnswered || !currentChar) return;
+        if (isAnswered || !currentChar || sessionComplete) return;
         clearTimeout(autoSpeakTimeout);
         isAnswered = true;
 
         const correct = isHomophoneMatch(char, currentChar);
         const exact = char === currentChar;
 
-        gridEl.querySelectorAll(".cell").forEach(c => {
-          c.classList.add("disabled");
-          if (c.dataset.char === currentChar) c.classList.add(correct ? "correct" : "reveal");
-        });
+        const grid = getGridEl();
+        if (grid) {
+          grid.querySelectorAll(".cell").forEach(c => {
+            c.classList.add("disabled");
+            if (c.dataset.char === currentChar) c.classList.add(correct ? "correct" : "reveal");
+          });
+        }
         if (!exact) {
-          if (correct) {
-            btn.classList.add("correct");
-          } else {
-            btn.classList.add("wrong");
-          }
+          if (correct) btn.classList.add("correct");
+          else btn.classList.add("wrong");
         }
 
         recordListeningAnswer(SCRIPT, currentChar, correct);
+        sessionAnswered++;
+        updateSessionCounter();
         updateCardProgress();
         updateGroupProgressBar();
 
-        setTimeout(() => nextCard(), correct ? 550 : 1100);
+        // Session cap check: if we've hit it, show complete panel after the feedback delay.
+        const capReached = (sessionAnswered >= sessionCap);
+
+        setTimeout(() => {
+          if (capReached) {
+            showSessionComplete();
+          } else {
+            nextCard();
+          }
+        }, correct ? 550 : 1100);
       }
 
       // ============================================================
       // EVENTS
       // ============================================================
-      speakerBtn.addEventListener("click", () => {
-        clearTimeout(autoSpeakTimeout);
-        if (currentChar) speakKana(currentChar);
-      });
-
-      autoPlayBtn.addEventListener("click", toggleAutoPlay);
-
       document.getElementById("backBtn").addEventListener("click", () => {
         window.location.href = "K12-Kana-Hub.html";
       });
@@ -640,10 +849,24 @@
       document.getElementById("resetBtn").addEventListener("click", () => {
         if (!confirm(`Reset all ${SCRIPT} listening progress? This cannot be undone.`)) return;
         resetAllState();
+        sessionAnswered = 0;
+        sessionComplete = false;
+        sessionCap = resolveSessionCap();
+        restoreGameArea();
         updateGroupProgressBar();
         updateGroupTabs();
+        updateSessionCounter();
         nextCard();
         showToast("Progress reset.");
+      });
+
+      autoPlayBtn.addEventListener("click", toggleAutoPlay);
+
+      sessionBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const size = btn.dataset.size;
+          setSessionSize(size);
+        });
       });
 
       modeTabs.addEventListener("click", (e) => {
@@ -652,16 +875,34 @@
         const g = tab.dataset.group;
         if (g === currentGroup) return;
         currentGroup = g;
+        sessionCap = resolveSessionCap();
+        // If we already exceeded the new cap, end the session immediately.
+        if (sessionAnswered >= sessionCap && sessionAnswered > 0) {
+          updateGroupTabs();
+          updateGroupProgressBar();
+          updateSessionCounter();
+          showSessionComplete();
+          return;
+        }
+        updateSessionCounter();
         updateGroupTabs();
-        nextCard();
+        updateGroupProgressBar();
+        if (!sessionComplete) {
+          restoreGameArea();
+          nextCard();
+        }
       });
 
       // ============================================================
       // INIT
       // ============================================================
       loadAutoPlayPref();
+      loadSessionPref();
       updateAutoPlayButton();
+      updateSessionButtons();
       initState();
+      sessionCap = resolveSessionCap();
+      updateSessionCounter();
       updateGroupTabs();
       updateGroupProgressBar();
       nextCard();

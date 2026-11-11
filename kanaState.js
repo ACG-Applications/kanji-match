@@ -11,7 +11,7 @@
 // TUNING CONSTANTS  (single place to adjust feel)
 // ------------------------------------------------------------
 const MASTERY = {
-  STEP_UP:        0.08,   // correct  → mastery += this
+  STEP_UP:        0.10,   // correct  → mastery += this  (was 0.08; +25% pace)
   STEP_DOWN:      0.12,   // wrong    → mastery -= this  (asymmetric: wrong hurts more)
   MIN:            0.0,
   MAX:            1.0,
