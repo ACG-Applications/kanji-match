@@ -12,7 +12,10 @@
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#111111" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Katakana Match" />
     <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
 
@@ -32,7 +35,13 @@
         min-height: 100dvh;
         display: flex;
         flex-direction: column;
-        font-family: "Segoe UI", "Noto Sans JP", "Roboto", system-ui, -apple-system, sans-serif;
+        font-family:
+          "Segoe UI",
+          "Noto Sans JP",
+          "Roboto",
+          system-ui,
+          -apple-system,
+          sans-serif;
         overflow: hidden;
       }
 
@@ -64,7 +73,10 @@
         transition: opacity 0.15s;
         border-radius: 12px;
       }
-      .nav-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+      .nav-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+      }
 
       /* NEW: Drills button */
       .drills-btn {
@@ -80,8 +92,12 @@
         margin-left: 4px;
         transition: all 0.15s ease;
       }
-      .drills-btn:hover { background: rgba(0, 230, 118, 0.25); }
-      .drills-btn:active { transform: scale(0.95); }
+      .drills-btn:hover {
+        background: rgba(0, 230, 118, 0.25);
+      }
+      .drills-btn:active {
+        transform: scale(0.95);
+      }
 
       .score-container {
         display: flex;
@@ -91,8 +107,18 @@
         letter-spacing: 1px;
       }
 
-      .score-correct { color: #00e676; display: flex; align-items: center; gap: 8px; }
-      .score-wrong   { color: #d500f9; display: flex; align-items: center; gap: 8px; }
+      .score-correct {
+        color: #00e676;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .score-wrong {
+        color: #d500f9;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
       /* MODE TABS */
       .mode-tabs {
@@ -163,17 +189,26 @@
         font-weight: 900;
         line-height: 1;
         cursor: pointer;
-        transition: transform 0.1s ease, opacity 0.2s ease, font-size 0.2s ease;
+        transition:
+          transform 0.1s ease,
+          opacity 0.2s ease,
+          font-size 0.2s ease;
         font-family: "Noto Sans JP", sans-serif;
         margin-bottom: 12px;
         text-align: center;
         animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
 
-      .target-kana.digraph { font-size: 8rem; }
+      .target-kana.digraph {
+        font-size: 8rem;
+      }
 
-      .target-kana:active { transform: scale(0.92); }
-      .target-kana.speaking { color: #ffd54f; }
+      .target-kana:active {
+        transform: scale(0.92);
+      }
+      .target-kana.speaking {
+        color: #ffd54f;
+      }
 
       /* STREAK INDICATOR DOTS */
       .streak-indicator {
@@ -198,6 +233,18 @@
         background: #00e676;
         border-color: #00e676;
         box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
+      }
+
+      /* AUDIO HINT — "sound plays twice" */
+      .audio-hint {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: #666;
+        margin-top: -20px;
+        margin-bottom: 28px;
+        text-align: center;
+        user-select: none;
       }
 
       /* 2x2 GRID FOR HIRAGANA OPTIONS */
@@ -226,7 +273,9 @@
         box-shadow: 0 4px 0 #000000;
       }
 
-      .option-btn.digraph { font-size: 2.2rem; }
+      .option-btn.digraph {
+        font-size: 2.2rem;
+      }
 
       .option-btn:active:not(:disabled) {
         transform: translateY(4px);
@@ -254,8 +303,14 @@
 
       /* ANIMATIONS */
       @keyframes popIn {
-        0% { transform: scale(0.8); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
 
       /* SIGNATURE PILL */
@@ -277,61 +332,146 @@
         background: #ffffff;
         padding: 2px 12px;
       }
-      .antonio-signature:hover { opacity: 1; }
+      .antonio-signature:hover {
+        opacity: 1;
+      }
 
       /* SIGNATURE MODAL */
       .signature-modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);
-        display: flex; justify-content: center; align-items: center;
-        z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
       }
-      .signature-modal-overlay.active { opacity: 1; visibility: visible; }
+      .signature-modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
       .signature-modal {
-        background: #fff7ec; border-radius: 30px; padding: 2rem 1.8rem;
-        text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        border: 3px solid #d4a94a; max-width: 90vw; width: 320px;
-        color: #2d3e2a; transform: scale(0.9); transition: transform 0.3s;
+        background: #fff7ec;
+        border-radius: 30px;
+        padding: 2rem 1.8rem;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        border: 3px solid #d4a94a;
+        max-width: 90vw;
+        width: 320px;
+        color: #2d3e2a;
+        transform: scale(0.9);
+        transition: transform 0.3s;
       }
-      .signature-modal-overlay.active .signature-modal { transform: scale(1); }
+      .signature-modal-overlay.active .signature-modal {
+        transform: scale(1);
+      }
       .signature-modal img {
-        width: 100%; height: auto; max-height: 160px; border-radius: 16px;
-        border: 2px solid #eedfc2; background: white; padding: 6px; margin-bottom: 1.5rem;
+        width: 100%;
+        height: auto;
+        max-height: 160px;
+        border-radius: 16px;
+        border: 2px solid #eedfc2;
+        background: white;
+        padding: 6px;
+        margin-bottom: 1.5rem;
       }
-      .signature-modal h2 { margin: 0 0 8px 0; font-size: 1.5rem; }
-      .signature-modal p { margin: 0; font-size: 0.95rem; line-height: 1.5; }
+      .signature-modal h2 {
+        margin: 0 0 8px 0;
+        font-size: 1.5rem;
+      }
+      .signature-modal p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
       .signature-modal button {
-        margin-top: 20px; background: #4a6a7a; color: white; border: none;
-        padding: 8px 24px; border-radius: 50px; font-weight: bold; cursor: pointer;
-        box-shadow: 0 4px 0 #2a4a5a; font-family: inherit;
+        margin-top: 20px;
+        background: #4a6a7a;
+        color: white;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #2a4a5a;
+        font-family: inherit;
       }
 
       .toast-popup {
-        position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
-        background: #333; color: #fff; padding: 10px 20px; border-radius: 40px;
-        font-size: 0.85rem; font-weight: 600; z-index: 9000; opacity: 0;
-        pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
-        max-width: 90vw; text-align: center;
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        background: #333;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        z-index: 9000;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.25s ease,
+          transform 0.25s ease;
+        max-width: 90vw;
+        text-align: center;
       }
-      .toast-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      .toast-popup.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
 
       /* PAUSE SCREEN */
       .pause-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(17, 17, 17, 0.95); z-index: 50;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        opacity: 0; visibility: hidden; transition: opacity 0.2s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(17, 17, 17, 0.95);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease;
       }
-      .pause-overlay.active { opacity: 1; visibility: visible; }
-      .pause-overlay h2 { font-size: 2rem; margin-bottom: 20px; }
-      
+      .pause-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .pause-overlay h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+      }
+
       .pause-overlay button {
-        background: #00e676; color: #000; border: none; padding: 16px 40px;
-        border-radius: 50px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;
-        cursor: pointer; width: 260px; font-family: inherit;
+        background: #00e676;
+        color: #000;
+        border: none;
+        padding: 16px 40px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        cursor: pointer;
+        width: 260px;
+        font-family: inherit;
       }
       .pause-overlay button.secondary {
-        background: #333; color: #fff;
+        background: #333;
+        color: #fff;
       }
 
       /* NEW: Drills section inside pause overlay */
@@ -371,28 +511,52 @@
         gap: 4px;
         margin-bottom: 0;
       }
-      .drill-row .btn-listen { background: #2e8b57; }
-      .drill-row .btn-read { background: #2a7a9a; }
-      .drill-row .btn-mix { background: #b8860b; }
+      .drill-row .btn-listen {
+        background: #2e8b57;
+      }
+      .drill-row .btn-read {
+        background: #2a7a9a;
+      }
+      .drill-row .btn-mix {
+        background: #b8860b;
+      }
 
       /* MASTERED CELEBRATION MODAL */
       .mastered-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(17, 17, 17, 0.95); z-index: 60;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(17, 17, 17, 0.95);
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         padding: 20px;
-        opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
         text-align: center;
       }
-      .mastered-overlay.active { opacity: 1; visibility: visible; }
+      .mastered-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
       .mastered-overlay .trophy {
         font-size: 5rem;
         margin-bottom: 16px;
         animation: bounce 1.5s ease-in-out infinite;
       }
       @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-12px); }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
       }
       .mastered-overlay h2 {
         font-size: 1.8rem;
@@ -407,12 +571,21 @@
         line-height: 1.5;
       }
       .mastered-overlay button {
-        background: #00e676; color: #000; border: none; padding: 16px 40px;
-        border-radius: 50px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px;
-        cursor: pointer; width: 260px; font-family: inherit;
+        background: #00e676;
+        color: #000;
+        border: none;
+        padding: 16px 40px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        cursor: pointer;
+        width: 260px;
+        font-family: inherit;
       }
       .mastered-overlay button.secondary {
-        background: #333; color: #fff;
+        background: #333;
+        color: #fff;
       }
     </style>
   </head>
@@ -420,14 +593,22 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="nav-btn" id="backBtn" title="Back to Home">← Home</button>
+        <button class="nav-btn" id="backBtn" title="Back to Home">
+          ← Home
+        </button>
         <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
         <!-- NEW: Single entry point to the Kana Hub -->
-        <button class="drills-btn" id="hubBtn" title="Open Kana Drills">🎧 Drills</button>
+        <button class="drills-btn" id="hubBtn" title="Open Kana Drills">
+          🎧 Drills
+        </button>
       </div>
       <div class="score-container">
-        <div class="score-correct"><span>✔</span> <span id="correctScore">0</span></div>
-        <div class="score-wrong"><span>✖</span> <span id="wrongScore">0</span></div>
+        <div class="score-correct">
+          <span>✔</span> <span id="correctScore">0</span>
+        </div>
+        <div class="score-wrong">
+          <span>✖</span> <span id="wrongScore">0</span>
+        </div>
       </div>
     </div>
 
@@ -443,7 +624,12 @@
     </div>
 
     <!-- SIGNATURE PILL -->
-    <img src="icons/Antonio.png" alt="ACG" class="antonio-signature" id="antonioSignature" />
+    <img
+      src="icons/Antonio.png"
+      alt="ACG"
+      class="antonio-signature"
+      id="antonioSignature"
+    />
 
     <!-- GAME AREA -->
     <div class="game-area" id="gameArea">
@@ -453,6 +639,8 @@
         <div class="streak-dot" id="dot1"></div>
         <div class="streak-dot" id="dot2"></div>
       </div>
+
+      <div class="audio-hint" id="audioHint">🔊 Sound plays twice</div>
 
       <div class="options-grid" id="optionsGrid"></div>
     </div>
@@ -464,7 +652,7 @@
       <button class="secondary" id="replayBtn">🔁 Replay This Mode</button>
       <button class="secondary" id="resetBtn">⟳ Reset This Mode</button>
       <button class="secondary" id="exitBtn">🏠 Home</button>
-      
+
       <!-- NEW: Drills section -->
       <div class="pause-drills">
         <h3>Kana Drills</h3>
@@ -480,7 +668,9 @@
     <div class="mastered-overlay" id="masteredOverlay">
       <div class="trophy">🏆</div>
       <h2 id="masteredTitle">All Katakana Mastered!</h2>
-      <p id="masteredText">You got every single one right twice in a row. That's real mastery.</p>
+      <p id="masteredText">
+        You got every single one right twice in a row. That's real mastery.
+      </p>
       <button id="masteredReplayBtn">🔁 Play Again</button>
       <button class="secondary" id="masteredResetBtn">⟳ Reset Progress</button>
     </div>
@@ -490,7 +680,12 @@
       <div class="signature-modal">
         <img src="icons/Antonio.png" alt="ACG Applications Signature" />
         <h2>ACG Applications</h2>
-        <p>Kanji Master &amp; Katakana Study<br>Built with care. 漢字 &amp; カタカナ.<br><br><span style="font-size:0.8rem; opacity:0.8;">Built with DeepSeek</span></p>
+        <p>
+          Kanji Master &amp; Katakana Study<br />Built with care. 漢字 &amp;
+          カタカナ.<br /><br /><span style="font-size: 0.8rem; opacity: 0.8"
+            >Built with DeepSeek</span
+          >
+        </p>
         <button id="closeSigBtn">Close</button>
       </div>
     </div>
@@ -507,20 +702,24 @@
       // MODE CONFIGURATION
       // ============================================================
       const MODES = {
-        basic:  { pool: POOL_BASIC,  label: "Basic",  itemNoun: "basic Katakana" },
-        voiced: { pool: POOL_VOICED, label: "Voiced", itemNoun: "voiced Katakana" },
-        yoon:   { pool: POOL_YOON,   label: "Yōon",   itemNoun: "Yōon digraphs" },
+        basic: { pool: POOL_BASIC, label: "Basic", itemNoun: "basic Katakana" },
+        voiced: {
+          pool: POOL_VOICED,
+          label: "Voiced",
+          itemNoun: "voiced Katakana",
+        },
+        yoon: { pool: POOL_YOON, label: "Yōon", itemNoun: "Yōon digraphs" },
       };
 
       const STORAGE_KEYS = {
-        basic:  "katakanaMatchStreaks_basic_v2",
+        basic: "katakanaMatchStreaks_basic_v2",
         voiced: "katakanaMatchStreaks_voiced_v2",
-        yoon:   "katakanaMatchStreaks_yoon_v2",
+        yoon: "katakanaMatchStreaks_yoon_v2",
       };
 
       // Migration sources (both only apply to Basic mode)
-      const LEGACY_KEY_V1 = "katakanaMatchMastery_v1";        // oldest — binary set
-      const LEGACY_KEY_V2 = "katakanaMatchStreaks_v2";        // intermediate — single-pool streak map
+      const LEGACY_KEY_V1 = "katakanaMatchMastery_v1"; // oldest — binary set
+      const LEGACY_KEY_V2 = "katakanaMatchStreaks_v2"; // intermediate — single-pool streak map
 
       // ============================================================
       // STATE
@@ -555,7 +754,8 @@
       let audioCtx = null;
 
       function playSound(type) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx)
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -564,17 +764,31 @@
         if (type === "correct") {
           osc.type = "sine";
           osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
+          osc.frequency.exponentialRampToValueAtTime(
+            1320,
+            audioCtx.currentTime + 0.1,
+          );
           gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+          gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioCtx.currentTime + 0.3,
+          );
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
         } else {
           osc.type = "triangle";
           osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.2);
+          osc.frequency.exponentialRampToValueAtTime(
+            110,
+            audioCtx.currentTime + 0.2,
+          );
           gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+          gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioCtx.currentTime + 0.3,
+          );
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
         }
       }
 
@@ -600,7 +814,7 @@
       }
 
       function silenceSpeech() {
-        speechGeneration++;              // invalidate all pending callbacks
+        speechGeneration++; // invalidate all pending callbacks
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       }
 
@@ -616,7 +830,7 @@
           u.lang = "ja-JP";
           u.rate = 0.85;
           const voices = window.speechSynthesis.getVoices();
-          const jp = voices.find(v => v.lang.startsWith("ja"));
+          const jp = voices.find((v) => v.lang.startsWith("ja"));
           if (jp) u.voice = jp;
           return u;
         };
@@ -695,6 +909,24 @@
         saveStreaksForMode(currentMode, streaks);
       }
 
+      // Fade the hint after the player has answered 3 questions.
+      let hintAnsweredCount = 0;
+      const audioHintEl = document.getElementById("audioHint");
+      const origHandleAnswer = handleAnswer;
+      handleAnswer = function (sel, btn) {
+        if (!isAnswered) {
+          hintAnsweredCount++;
+          if (hintAnsweredCount >= 3 && audioHintEl) {
+            audioHintEl.style.transition = "opacity 0.6s ease";
+            audioHintEl.style.opacity = "0";
+            setTimeout(() => {
+              audioHintEl.style.display = "none";
+            }, 700);
+          }
+        }
+        return origHandleAnswer(sel, btn);
+      };
+
       // ============================================================
       // ONE-TIME MIGRATION (Basic mode only)
       // ============================================================
@@ -715,7 +947,9 @@
               return;
             }
           }
-        } catch (e) { console.warn("[migration] v2 failed", e); }
+        } catch (e) {
+          console.warn("[migration] v2 failed", e);
+        }
 
         try {
           const v1 = localStorage.getItem(LEGACY_KEY_V1);
@@ -723,14 +957,22 @@
             const arr = JSON.parse(v1);
             if (Array.isArray(arr)) {
               const migrated = {};
-              arr.forEach(kana => { migrated[kana] = REQUIRED_STREAK; });
+              arr.forEach((kana) => {
+                migrated[kana] = REQUIRED_STREAK;
+              });
               localStorage.setItem(basicKey, JSON.stringify(migrated));
               localStorage.removeItem(LEGACY_KEY_V1);
-              console.log(`[migration] Migrated ${arr.length} from v1 → basic_v2`);
-              showToast(`Migrated ${arr.length} mastered Katakana to new format.`);
+              console.log(
+                `[migration] Migrated ${arr.length} from v1 → basic_v2`,
+              );
+              showToast(
+                `Migrated ${arr.length} mastered Katakana to new format.`,
+              );
             }
           }
-        } catch (e) { console.warn("[migration] v1 failed", e); }
+        } catch (e) {
+          console.warn("[migration] v1 failed", e);
+        }
       }
 
       // ============================================================
@@ -743,11 +985,13 @@
       function updateProgressBar() {
         const pool = currentPool();
         const totalStreakPoints = pool.reduce(
-          (sum, item) => sum + Math.min(streaks[item.kata] || 0, REQUIRED_STREAK),
-          0
+          (sum, item) =>
+            sum + Math.min(streaks[item.kata] || 0, REQUIRED_STREAK),
+          0,
         );
         const maxPoints = pool.length * REQUIRED_STREAK;
-        const percentage = maxPoints > 0 ? (totalStreakPoints / maxPoints) * 100 : 0;
+        const percentage =
+          maxPoints > 0 ? (totalStreakPoints / maxPoints) * 100 : 0;
         progressBar.style.width = percentage + "%";
       }
 
@@ -775,7 +1019,7 @@
 
         const pool = currentPool();
         const available = pool.filter(
-          item => (streaks[item.kata] || 0) < REQUIRED_STREAK
+          (item) => (streaks[item.kata] || 0) < REQUIRED_STREAK,
         );
 
         if (available.length === 0) {
@@ -791,12 +1035,16 @@
         speakKatakana(currentQuestion.kata, true);
 
         // Generate 3 wrong Hiragana
-        const wrongPool = pool.filter(item => item.hira !== currentQuestion.hira);
-        const wrongOptions = shuffleArray(wrongPool).slice(0, 3).map(item => item.hira);
+        const wrongPool = pool.filter(
+          (item) => item.hira !== currentQuestion.hira,
+        );
+        const wrongOptions = shuffleArray(wrongPool)
+          .slice(0, 3)
+          .map((item) => item.hira);
         options = shuffleArray([currentQuestion.hira, ...wrongOptions]);
 
         optionsGrid.innerHTML = "";
-        options.forEach(hira => {
+        options.forEach((hira) => {
           const btn = document.createElement("button");
           btn.className = "option-btn";
           if (currentMode === "yoon") btn.classList.add("digraph");
@@ -815,7 +1063,7 @@
         const kana = currentQuestion.kata;
         const prevStreak = streaks[kana] || 0;
 
-        document.querySelectorAll(".option-btn").forEach(btn => {
+        document.querySelectorAll(".option-btn").forEach((btn) => {
           btn.classList.add("disabled");
           if (btn.innerText === currentQuestion.hira) {
             btn.classList.add("correct");
@@ -851,12 +1099,16 @@
 
           // DISTRACTOR: partial demotion (Interpretation 3)
           if (selectedHira !== currentQuestion.hira) {
-            const distractor = currentPool().find(item => item.hira === selectedHira);
+            const distractor = currentPool().find(
+              (item) => item.hira === selectedHira,
+            );
             if (distractor && streaks[distractor.kata] > 0) {
               const prev = streaks[distractor.kata];
               streaks[distractor.kata] = prev - 1;
               if (prev >= REQUIRED_STREAK) {
-                showToast(`"${distractor.kata}" weakened — one wrong tap noticed.`);
+                showToast(
+                  `"${distractor.kata}" weakened — one wrong tap noticed.`,
+                );
               }
             }
           }
@@ -895,7 +1147,7 @@
         clearTimeout(autoNextTimeout);
 
         // Update tab visuals
-        document.querySelectorAll(".mode-tab").forEach(tab => {
+        document.querySelectorAll(".mode-tab").forEach((tab) => {
           tab.classList.toggle("active", tab.dataset.mode === currentMode);
         });
 
@@ -958,7 +1210,11 @@
       });
 
       document.getElementById("replayBtn").addEventListener("click", () => {
-        if (confirm(`🔁 Replay "${MODES[currentMode].label}" from start? This clears streaks for this mode only.`)) {
+        if (
+          confirm(
+            `🔁 Replay "${MODES[currentMode].label}" from start? This clears streaks for this mode only.`,
+          )
+        ) {
           replayCurrentMode();
         }
       });
@@ -973,39 +1229,63 @@
         window.location.href = "home.html";
       });
 
-      document.getElementById("masteredReplayBtn").addEventListener("click", replayCurrentMode);
-      document.getElementById("masteredResetBtn").addEventListener("click", () => {
-        if (confirm("Reset all progress in this mode?")) replayCurrentMode();
-      });
+      document
+        .getElementById("masteredReplayBtn")
+        .addEventListener("click", replayCurrentMode);
+      document
+        .getElementById("masteredResetBtn")
+        .addEventListener("click", () => {
+          if (confirm("Reset all progress in this mode?")) replayCurrentMode();
+        });
 
       // Mode tabs
-      document.querySelectorAll(".mode-tab").forEach(tab => {
+      document.querySelectorAll(".mode-tab").forEach((tab) => {
         tab.addEventListener("click", () => switchMode(tab.dataset.mode));
       });
 
       // Signature modal
-      document.getElementById("antonioSignature").addEventListener("click", () => {
-        document.getElementById("signatureModal").classList.add("active");
-      });
+      document
+        .getElementById("antonioSignature")
+        .addEventListener("click", () => {
+          document.getElementById("signatureModal").classList.add("active");
+        });
       document.getElementById("closeSigBtn").addEventListener("click", () => {
         document.getElementById("signatureModal").classList.remove("active");
       });
-      document.getElementById("signatureModal").addEventListener("click", (e) => {
-        if (e.target.id === "signatureModal") {
-          document.getElementById("signatureModal").classList.remove("active");
-        }
-      });
+      document
+        .getElementById("signatureModal")
+        .addEventListener("click", (e) => {
+          if (e.target.id === "signatureModal") {
+            document
+              .getElementById("signatureModal")
+              .classList.remove("active");
+          }
+        });
 
       // NEW: Hub and Drills openers
-      function openHub() { window.location.href = "K12-Kana-Hub.html"; }
-      function openListening() { window.location.href = "K9-Kana-Listening.html"; }
-      function openReading() { window.location.href = "K10-Kana-Reading.html"; }
-      function openMixed() { window.location.href = "K11-Kana-Mixed.html"; }
+      function openHub() {
+        window.location.href = "K12-Kana-Hub.html";
+      }
+      function openListening() {
+        window.location.href = "K9-Kana-Listening.html";
+      }
+      function openReading() {
+        window.location.href = "K10-Kana-Reading.html";
+      }
+      function openMixed() {
+        window.location.href = "K11-Kana-Mixed.html";
+      }
 
       document.getElementById("hubBtn").addEventListener("click", openHub);
-      document.getElementById("pauseListenBtn").addEventListener("click", openListening);
-      document.getElementById("pauseReadBtn").addEventListener("click", openReading);
-      document.getElementById("pauseMixBtn").addEventListener("click", openMixed);
+      document
+        .getElementById("pauseListenBtn")
+        .addEventListener("click", openListening);
+      document
+        .getElementById("pauseReadBtn")
+        .addEventListener("click", openReading);
+      document
+        .getElementById("pauseMixBtn")
+        .addEventListener("click", openMixed);
 
       // ============================================================
       // INIT
