@@ -746,7 +746,7 @@
       // ============================================================
       // SESSION COMPLETE PANEL
       // ============================================================
-      function showSessionComplete() {
+            function showSessionComplete() {
         sessionComplete = true;
         isAnswered = true;
         clearTimeout(autoSpeakTimeout);
@@ -756,15 +756,35 @@
           currentAudio = null;
         }
         isSpeaking = false;
-        updateModeIndicator(null);
+        if (typeof updateModeIndicator === "function") updateModeIndicator(null);
 
         const groupName = currentGroup.charAt(0).toUpperCase() + currentGroup.slice(1);
+        const accuracy = sessionAnswered > 0 ? (sessionCorrect / sessionAnswered) : 0;
+        
+        let icon = "📈";
+        let title = "Session Complete";
+        let msg = `You got <strong>${sessionCorrect} / ${sessionAnswered}</strong> correct.<br>Good effort! Keep practicing to lock them in.`;
+
+        // 4-Tier Feedback System
+        if (accuracy === 1.0) {
+          icon = "👑";
+          title = "You're a Champion!";
+          msg = `<strong>100% Perfect!</strong> You got all ${sessionAnswered} correct.<br>Flawless execution!`;
+        } else if (accuracy >= 0.8) {
+          icon = "🏆";
+          title = "Excellent Work!";
+          msg = `You got <strong>${sessionCorrect} / ${sessionAnswered}</strong> correct.<br>You're really getting the hang of this!`;
+        } else if (accuracy < 0.4) {
+          icon = "💪";
+          title = "Session Complete";
+          msg = `You got <strong>${sessionCorrect} / ${sessionAnswered}</strong> correct.<br>More review needed — mistakes are how we learn.`;
+        }
+
         gameArea.innerHTML = `
           <div class="session-complete">
-            <div class="trophy">🎉</div>
-            <h2>Session Complete</h2>
-            <p>You drilled <strong>${sessionAnswered}</strong> ${groupName} cards.<br>
-               Progress on the bar above reflects your overall mastery.</p>
+            <div class="trophy">${icon}</div>
+            <h2>${title}</h2>
+            <p>${msg}</p>
             <div class="buttons">
               <button class="continue-btn" id="continueBtn">Continue · New Session</button>
               <button class="home-btn" id="homeBtn">Back to Home</button>
@@ -776,10 +796,11 @@
           sessionCorrect = 0;
           sessionComplete = false;
           sessionCap = resolveSessionCap();
+          if (typeof restoreGameArea === "function") restoreGameArea();
           updateSessionCounter();
           updateGroupProgressBar();
           updateGroupTabs();
-          resetMixedRun();
+          if (typeof resetMixedRun === "function") resetMixedRun();
           nextCard();
         });
         document.getElementById("homeBtn").addEventListener("click", () => {
