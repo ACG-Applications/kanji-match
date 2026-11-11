@@ -593,14 +593,8 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="nav-btn" id="backBtn" title="Back to Home">
-          ← Home
-        </button>
+        <button class="nav-btn" id="backBtn" title="Back to Hub">← Hub</button>
         <button class="nav-btn" id="pauseBtn" title="Pause">⏸</button>
-        <!-- NEW: Single entry point to the Kana Hub -->
-        <button class="drills-btn" id="hubBtn" title="Open Kana Drills">
-          🎧 Drills
-        </button>
       </div>
       <div class="score-container">
         <div class="score-correct">
@@ -1196,7 +1190,7 @@
       });
 
       document.getElementById("backBtn").addEventListener("click", () => {
-        window.location.href = "home.html";
+        window.location.href = "K12-Kana-Hub.html";
       });
 
       document.getElementById("pauseBtn").addEventListener("click", () => {
@@ -1237,7 +1231,10 @@
         .addEventListener("click", replayCurrentMode);
       document
         .getElementById("masteredHubBtn")
-        .addEventListener("click", openHub);
+        .addEventListener(
+          "click",
+          () => (window.location.href = "K12-Kana-Hub.html"),
+        );
       document
         .getElementById("masteredResetBtn")
         .addEventListener("click", () => {
