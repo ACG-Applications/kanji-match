@@ -719,13 +719,16 @@
           msg = `You got <strong>${sessionCorrect} / ${sessionAnswered}</strong> correct.<br>More review needed — mistakes are how we learn.`;
         }
 
+               // Change the primary button text if they didn't get a perfect score
+        const primaryBtnText = accuracy === 1.0 ? "Continue · Next Set" : "🔁 Try Again";
+
         gameArea.innerHTML = `
           <div class="session-complete">
             <div class="trophy">${icon}</div>
             <h2>${title}</h2>
             <p>${msg}</p>
             <div class="buttons">
-              <button class="continue-btn" id="continueBtn">Continue · New Session</button>
+              <button class="continue-btn" id="continueBtn">${primaryBtnText}</button>
               <button class="home-btn" id="homeBtn">Back to Home</button>
             </div>
           </div>
