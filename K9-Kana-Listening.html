@@ -114,9 +114,24 @@
       .mode-tab.locked { opacity: 0.35; cursor: not-allowed; }
       .mode-tab.locked::after { content: " 🔒"; }
 
-      /* PROGRESS BAR */
-      .progress-bar-container { width: 100%; height: 4px; background: #333; z-index: 10; flex-shrink: 0; }
-      .progress-bar { height: 100%; background: #ffd54f; width: 0%; transition: width 0.4s ease; }
+      /* PROGRESS BARS */
+      .session-progress-container {
+        width: 100%; height: 6px; background: #333; z-index: 10; flex-shrink: 0;
+        margin-bottom: 4px;
+      }
+      .session-progress-bar {
+        height: 100%; background: #00e676; width: 0%;
+        transition: width 0.4s ease;
+        box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
+      }
+      
+      .mastery-progress-container { 
+        width: 100%; height: 3px; background: #222; z-index: 10; flex-shrink: 0; 
+      }
+      .mastery-progress-bar { 
+        height: 100%; background: #ffd54f; width: 0%; 
+        transition: width 0.4s ease; opacity: 0.4;
+      }
 
       /* GAME AREA */
       .game-area {
@@ -289,7 +304,12 @@
     </div>
 
     <div class="progress-bar-container">
-      <div class="progress-bar" id="progressBar"></div>
+      <div class="session-progress-container">
+        <div class="session-progress-bar" id="sessionProgressBar"></div>
+      </div>
+      <div class="mastery-progress-container">
+        <div class="mastery-progress-bar" id="progressBar"></div>
+      </div>
     </div>
 
     <div class="game-area" id="gameArea">
@@ -319,7 +339,6 @@
       const SESSION_STORAGE_KEY = "kanaSessionSize";
       let AUTO_PLAY = true;
 
-      // Session size: 10, 20, or "all" (resolved per-group)
       let sessionSizeMode = 20;
       let sessionCap = 20;
       let sessionAnswered = 0;
@@ -343,12 +362,9 @@
       let audioPrimed = false;
 
       // DOM
-      const gridEl        = document.getElementById("grid");
-      const speakerBtn    = document.getElementById("speakerBtn");
       const progressBar   = document.getElementById("progressBar");
+      const sessionProgressBar = document.getElementById("sessionProgressBar");
       const progressLabel = document.getElementById("progressLabel");
-      const cardProgressLabel = document.getElementById("cardProgressLabel");
-      const cardProgressFill  = document.getElementById("cardProgressFill");
       const toastPopup    = document.getElementById("toastPopup");
       const modeTabs      = document.getElementById("modeTabs");
       const autoPlayBtn   = document.getElementById("autoPlayBtn");
@@ -436,17 +452,17 @@
 
       function updateSessionCounter() {
         sessionCounter.textContent = `${sessionAnswered} / ${sessionCap}`;
+        const pct = sessionCap > 0 ? (sessionAnswered / sessionCap) * 100 : 0;
+        sessionProgressBar.style.width = pct + "%";
       }
 
       function setSessionSize(mode) {
         sessionSizeMode = (mode === "all") ? "all" : Number(mode);
         saveSessionPref();
         updateSessionButtons();
-        // Changing session size restarts the session counter but preserves mastery.
         sessionCap = resolveSessionCap();
         sessionAnswered = 0;
         sessionComplete = false;
-        // If we're in the complete panel, dismiss it.
         restoreGameArea();
         updateSessionCounter();
         updateGroupProgressBar();
@@ -738,7 +754,6 @@
           clearTimeout(autoSpeakTimeout);
           if (currentChar) speakKana(currentChar);
         });
-        // The grid and card-progress refs are re-queried inside renderGrid/updateCardProgress each time.
       }
 
       // After restoreGameArea, the top-of-file const refs are stale — so we
