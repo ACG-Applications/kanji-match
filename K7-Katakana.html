@@ -233,6 +233,23 @@
         border: none;
       }
 
+      /* NEW: Autoplay toggle button */
+      .autoplay-btn {
+        background: #1b4a36;
+        color: #fff5e6;
+        border: none;
+        padding: 5px 14px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .autoplay-btn.off {
+        background: #a0a0a0;
+        color: #333;
+      }
+
       .card-face {
         background: #fffef8;
         margin: 12px 16px;
@@ -646,7 +663,19 @@
           >🎴 Card <span id="currentIdxDisplay">1</span> /
           <span id="sessionSize">0</span></span
         >
-        <button class="filter-toggle" id="filterToggleBtn">🎯 Show All</button>
+        <div style="display: flex; gap: 6px; align-items: center">
+          <button class="filter-toggle" id="filterToggleBtn">
+            🎯 Show All
+          </button>
+          <!-- NEW: Autoplay Toggle -->
+          <button
+            class="autoplay-btn"
+            id="autoPlayBtn"
+            title="Toggle auto-play sound"
+          >
+            🔊 Auto
+          </button>
+        </div>
         <span class="mastered-badge"
           >⭐ Mastered <span id="masteredCount">0</span> /
           <span id="totalPoolCount">0</span></span
@@ -785,6 +814,10 @@
       let revealedEnglish = false;
       let activeFilterOnlyUnmastered = false;
 
+      // NEW: Autoplay state
+      const AUTOPLAY_KEY = "katakanaWords_autoplay";
+      let AUTO_PLAY = true;
+
       const katakanaEl = document.getElementById("katakanaText");
       const tapHint = document.getElementById("tapHint");
       const meaningEl = document.getElementById("englishMeaning");
@@ -820,6 +853,33 @@
         toast.classList.add("show");
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove("show"), duration);
+      }
+
+      // NEW: Autoplay logic
+      function loadAutoPlayPref() {
+        try {
+          const stored = localStorage.getItem(AUTOPLAY_KEY);
+          if (stored !== null) AUTO_PLAY = stored === "true";
+        } catch (e) {}
+        updateAutoPlayButton();
+      }
+
+      function updateAutoPlayButton() {
+        if (AUTO_PLAY) {
+          autoPlayBtn.textContent = "🔊 Auto";
+          autoPlayBtn.classList.remove("off");
+        } else {
+          autoPlayBtn.textContent = "🔇 Off";
+          autoPlayBtn.classList.add("off");
+        }
+      }
+
+      function toggleAutoPlay() {
+        AUTO_PLAY = !AUTO_PLAY;
+        try {
+          localStorage.setItem(AUTOPLAY_KEY, AUTO_PLAY ? "true" : "false");
+        } catch (e) {}
+        updateAutoPlayButton();
       }
 
       const sigModal = document.getElementById("signatureModal");
@@ -1080,6 +1140,7 @@
         currentPosition = (currentPosition + 1) % sessionWords.length;
         revealedEnglish = false;
         loadCard(true);
+        if (AUTO_PLAY) speakKatakana();
       }
 
       function prevCard() {
@@ -1379,6 +1440,8 @@
 
       function init() {
         loadMastery();
+        loadAutoPlayPref();
+        autoPlayBtn.addEventListener("click", toggleAutoPlay);
         totalPoolCountSpan.innerText = TOTAL_POOL_SIZE;
 
         revealBtn.addEventListener("click", revealMeaning);
@@ -1394,29 +1457,6 @@
         modalOverlay.addEventListener("click", (e) => {
           if (e.target === modalOverlay) closeModal();
         });
-
-        document
-          .getElementById("homeBtn")
-          .addEventListener(
-            "click",
-            () => (window.location.href = "K12-Kana-Hub.html"),
-          );
-        document
-          .getElementById("matchKanaBtn")
-          .addEventListener(
-            "click",
-            () => (window.location.href = "K8-Katakana-Match.html"),
-          );
-
-        document
-          .getElementById("kanaListeningBtn")
-          .addEventListener("click", openKanaListening);
-        document
-          .getElementById("kanaReadingBtn")
-          .addEventListener("click", openKanaReading);
-        document
-          .getElementById("kanaMixedBtn")
-          .addEventListener("click", openKanaMixed);
 
         window.addEventListener("keydown", (e) => {
           if (modalOverlay.classList.contains("active")) {
