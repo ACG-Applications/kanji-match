@@ -345,6 +345,7 @@
       let sessionSizeMode = 20;
       let sessionCap = 20;
       let sessionAnswered = 0;
+      let sessionCorrect = 0;
       let sessionComplete = false;
 
       const HOMOPHONE_PAIRS = [
@@ -452,9 +453,10 @@
         });
       }
 
-      function updateSessionCounter() {
+            function updateSessionCounter() {
         sessionCounter.textContent = `${sessionAnswered} / ${sessionCap}`;
-        const pct = sessionCap > 0 ? (sessionAnswered / sessionCap) * 100 : 0;
+        // The bar now reflects CORRECT answers, not total attempts.
+        const pct = sessionCap > 0 ? (sessionCorrect / sessionCap) * 100 : 0;
         sessionProgressBar.style.width = pct + "%";
       }
 
@@ -464,6 +466,7 @@
         updateSessionButtons();
         sessionCap = resolveSessionCap();
         sessionAnswered = 0;
+        sessionCorrect = 0;
         sessionComplete = false;
         restoreGameArea();
         updateSessionCounter();
@@ -708,6 +711,7 @@
         `;
         document.getElementById("continueBtn").addEventListener("click", () => {
           sessionAnswered = 0;
+          sessionCorrect = 0;
           sessionComplete = false;
           sessionCap = resolveSessionCap();
           restoreGameArea();
@@ -844,6 +848,7 @@
         speakKana(currentChar);
 
         recordReadingAnswer(SCRIPT, currentChar, correct);
+        if (correct) sessionCorrect++;
         sessionAnswered++;
         updateSessionCounter();
         updateCardProgress();
@@ -867,6 +872,7 @@
         if (!confirm(`Reset all ${SCRIPT} reading progress? This cannot be undone.`)) return;
         resetAllState();
         sessionAnswered = 0;
+        sessionCorrect = 0;
         sessionComplete = false;
         sessionCap = resolveSessionCap();
         restoreGameArea();
