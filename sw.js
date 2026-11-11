@@ -7,7 +7,7 @@
 //   - Added K9K, K10K, K11K (Katakana drill variants)
 //   - Bumped version so all clients pick up the new routing
 
-const CACHE_VERSION = "kanji-master-v21";
+const CACHE_VERSION = "kanji-master-v25";
 const ASSETS_TO_CACHE = [
   "./",
   "./home.html",
@@ -39,7 +39,7 @@ self.addEventListener("install", (event) => {
     caches
       .open(CACHE_VERSION)
       .then((cache) => cache.addAll(ASSETS_TO_CACHE))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -50,12 +50,10 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys
-            .filter((k) => k !== CACHE_VERSION)
-            .map((k) => caches.delete(k))
-        )
+          keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)),
+        ),
       )
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -89,6 +87,6 @@ self.addEventListener("fetch", (event) => {
             statusText: "Offline",
           });
         });
-    })
+    }),
   );
 });
