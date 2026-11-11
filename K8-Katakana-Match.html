@@ -627,18 +627,47 @@
 
     <!-- GAME AREA -->
     <div class="game-area" id="gameArea">
-      <div class="target-kana" id="targetKana">ア</div>
-
-      <div class="streak-indicator" id="streakIndicator">
-        <div class="streak-dot" id="dot1"></div>
-        <div class="streak-dot" id="dot2"></div>
+      <!-- Hidden Wait Screen -->
+      <div
+        id="waitScreen"
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          opacity: 0.5;
+        "
+      >
+        <div style="font-size: 4rem; margin-bottom: 20px">👆</div>
+        <h2 style="font-size: 1.2rem; font-weight: 600">
+          Select a mode above to start
+        </h2>
       </div>
 
-      <div class="audio-hint" id="audioHint">
-        🔊 Sound plays twice. You can click on the Kana to hear it again.
-      </div>
+      <!-- The actual game, hidden by default -->
+      <div
+        id="playArea"
+        style="
+          display: none;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <div class="target-kana" id="targetKana">ア</div>
 
-      <div class="options-grid" id="optionsGrid"></div>
+        <div class="streak-indicator" id="streakIndicator">
+          <div class="streak-dot" id="dot1"></div>
+          <div class="streak-dot" id="dot2"></div>
+        </div>
+
+        <div class="audio-hint" id="audioHint">
+          🔊 Sound plays twice. You can click on the Kana to hear it again.
+        </div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+      </div>
     </div>
 
     <!-- PAUSE SCREEN -->
@@ -721,7 +750,7 @@
       // ============================================================
       // STATE
       // ============================================================
-      let currentMode = "basic";
+      let currentMode = null;
       let streaks = {}; // Per-mode streaks, loaded from STORAGE_KEYS[currentMode]
       let currentQuestion = null;
       let options = [];
@@ -1126,7 +1155,11 @@
         if (!MODES[newMode]) return;
 
         // Persist current mode's streaks before switching
-        saveCurrentStreaks();
+        if (currentMode) saveCurrentStreaks();
+
+        // Swap from Wait Screen to Play Area
+        document.getElementById("waitScreen").style.display = "none";
+        document.getElementById("playArea").style.display = "flex";
 
         // Load new mode's streaks
         currentMode = newMode;
@@ -1304,9 +1337,23 @@
       document.addEventListener("keydown", primeOnFirstGesture);
 
       runMigrations();
-      streaks = loadStreaksForMode(currentMode);
-      updateProgressBar();
-      startNewQuestion();
+
+      // If no mode is selected on load, show the wait screen.
+      // Do not start the game yet.
+      if (currentMode === null) {
+        document.getElementById("waitScreen").style.display = "flex";
+        document.getElementById("playArea").style.display = "none";
+        document
+          .querySelectorAll(".mode-tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        // updateProgressBar();  <-- Removed to prevent crash
+      } else {
+        document.getElementById("waitScreen").style.display = "none";
+        document.getElementById("playArea").style.display = "flex";
+        streaks = loadStreaksForMode(currentMode);
+        updateProgressBar();
+        startNewQuestion();
+      }
     </script>
   </body>
 </html>
