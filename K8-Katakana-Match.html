@@ -674,6 +674,7 @@
         You got every single one right twice in a row. That's real mastery.
       </p>
       <button id="masteredReplayBtn">🔁 Play Again</button>
+      <button class="secondary" id="masteredHubBtn">🎧 Back to Kana Hub</button>
       <button class="secondary" id="masteredResetBtn">⟳ Reset Progress</button>
     </div>
 
@@ -1234,6 +1235,9 @@
       document
         .getElementById("masteredReplayBtn")
         .addEventListener("click", replayCurrentMode);
+      document
+        .getElementById("masteredHubBtn")
+        .addEventListener("click", openHub);
       document
         .getElementById("masteredResetBtn")
         .addEventListener("click", () => {
