@@ -391,12 +391,24 @@
           padding: 20px;
         }
       }
-    </style>
+          /* Brand mark (top right) */
+      .antonio-signature {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #d4a94a;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        background: #fff7ec;
+        flex: 0 0 auto;
+      }
+</style>
   </head>
   <body>
     <div class="top-bar">
       <button class="nav-btn" id="backBtn" title="Back to Index">← Back</button>
       <button class="help-btn" id="helpBtn">❓ How it works</button>
+        <img src="icons/Antonio.png" alt="ACG Applications" class="antonio-signature" />
     </div>
 
     <div class="script-tabs" id="scriptTabs">
@@ -787,6 +799,14 @@
       // ============================================================
       initState();
       updateUI();
+    </script>
+  
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
     </script>
   </body>
 </html>

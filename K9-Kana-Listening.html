@@ -274,7 +274,33 @@
         .session-btn { font-size: 0.65rem; padding: 5px 10px; }
         .session-counter { font-size: 0.65rem; padding: 3px 10px; }
       }
-    </style>
+          /* Brand mark (top right) */
+      .antonio-signature {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #d4a94a;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        background: #fff7ec;
+        flex: 0 0 auto;
+      }
+
+      /* Short landscape: the answer tiles were pushed below the fold */
+      @media (orientation: landscape) and (max-height: 520px) {
+        .top-bar { padding: 4px 10px; }
+        .session-bar { padding: 3px 10px; }
+        .script-tabs { padding: 3px 10px; }
+        .game-area { padding: 6px 12px; gap: 8px; }
+        .speaker-btn {
+          width: 64px; height: 64px; font-size: 1.6rem;
+          margin-top: 0; box-shadow: 0 4px 0 #000;
+        }
+        .instruction { font-size: 0.75rem; min-height: 1em; }
+        .grid { gap: 8px; max-width: 420px; }
+        .cell { font-size: 2rem; border-radius: 14px; }
+      }
+</style>
   </head>
   <body>
     <div class="top-bar">
@@ -285,6 +311,7 @@
       <div class="top-bar-right">
         <button class="autoplay-btn" id="autoPlayBtn" title="Toggle auto-play sound">🔊 Auto</button>
         <button class="nav-btn" id="resetBtn" title="Reset this script">⟳</button>
+        <img src="icons/Antonio.png" alt="ACG Applications" class="antonio-signature" />
       </div>
     </div>
 
@@ -956,6 +983,14 @@
       if (window.speechSynthesis) {
         window.speechSynthesis.getVoices();
         window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+      }
+    </script>
+  
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
       }
     </script>
   </body>
