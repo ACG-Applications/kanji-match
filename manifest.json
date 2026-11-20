@@ -34,7 +34,7 @@
       "name": "Kanji Match",
       "short_name": "Kanji",
       "description": "Play the kanji matching game",
-      "url": "index.html",
+      "url": "index.html?play=true",
       "icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
