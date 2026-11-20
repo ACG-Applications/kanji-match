@@ -1166,7 +1166,98 @@
           height: 24px;
         }
       }
-    </style>
+    
+      /* ── Set-complete splash ──────────────────────────────── */
+      .set-complete-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(38, 32, 24, 0.55);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+      }
+
+      .set-complete-overlay.show { display: flex; }
+
+      .set-complete-card {
+        width: 100%;
+        max-width: 360px;
+        text-align: center;
+        background: #fffdf7;
+        color: #2a241c;
+        border: 2px solid #cfe3cf;
+        border-radius: 20px;
+        padding: 22px 24px 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        animation: scPop 0.22s ease-out;
+      }
+
+      @keyframes scPop {
+        from { transform: translateY(10px) scale(0.97); opacity: 0; }
+        to { transform: none; opacity: 1; }
+      }
+
+      .set-complete-card .sc-emoji { font-size: 2.2rem; line-height: 1; margin-bottom: 6px; }
+      .set-complete-card h2 { margin: 0 0 12px; font-size: 1.1rem; }
+
+      .sc-last {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        background: #eef7ee;
+        border: 1px solid #cfe3cf;
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+      }
+
+      .sc-last .sc-reading { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; }
+      .sc-last .sc-kanji { font-size: 1.15rem; font-weight: 600; }
+      .sc-last .sc-meaning { font-size: 0.82rem; color: #5c554a; font-style: italic; }
+
+      .sc-speak {
+        border: none;
+        background: #4a8a6a;
+        color: #fff;
+        cursor: pointer;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+
+      .sc-speak:hover { background: #3a7a5a; }
+      .sc-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+      .sc-btn {
+        font: inherit;
+        font-size: 0.92rem;
+        font-weight: 700;
+        padding: 10px 18px;
+        border-radius: 40px;
+        cursor: pointer;
+        border: 1px solid #cbbfa8;
+        background: #f2ead9;
+        color: #2a241c;
+      }
+
+      .sc-btn.primary { background: #4a8a6a; border-color: #4a8a6a; color: #fff; }
+      .sc-btn.primary:hover { background: #3a7a5a; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .set-complete-card { animation: none; }
+      }
+
+      @media print {
+        .set-complete-overlay { display: none !important; }
+      }
+</style>
   </head>
   <body>
     <div class="game-container">
@@ -1371,6 +1462,7 @@
       const QUIZ_KEY = "kanjiMasterQuiz_v1";
 
       let currentOriginalSetIndex = 0;
+      let lastMatchSummary = null;   // last correct pair, shown in the set-complete splash
       let carryoverPairs = [];
       let activeDeck = [];
       let selectedCardIndex = null;
@@ -2321,14 +2413,7 @@
         messageDiv.style.background = "#c8e6c9";
         messageDiv.style.border = "3px solid #4caf50";
 
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "next-set-container";
-        btnContainer.innerHTML = `
-          <button class="next-set-btn" onclick="advanceToNextSet()">
-            ▶ Next Set
-          </button>
-        `;
-        gridContainer.appendChild(btnContainer);
+        showSetCompleteSplash(setNum);
 
         document.querySelectorAll(".card:not(.matched)").forEach((c) => {
           c.style.cursor = "default";
@@ -2339,7 +2424,87 @@
         updateStatusBadge();
       }
 
+      function showSetCompleteSplash(setNum) {
+        removeSetCompleteSplash();
+
+        const last = lastMatchSummary || {};
+        const hasLast = !!(last.reading || last.kanji);
+        const overlay = document.createElement("div");
+        overlay.id = "setCompleteOverlay";
+        overlay.className = "set-complete-overlay show";
+        overlay.innerHTML =
+          '<div class="set-complete-card" role="dialog" aria-modal="true" aria-labelledby="setCompleteTitle">' +
+          '<div class="sc-emoji" aria-hidden="true">🎉</div>' +
+          '<h2 id="setCompleteTitle">Set ' + setNum + "/" + MASTER_SETS.length + ' complete!</h2>' +
+          (hasLast
+            ? '<div class="sc-last">' +
+              '<button class="sc-speak" type="button" title="Hear it again" aria-label="Hear it again">🔊</button>' +
+              (last.reading ? '<span class="sc-reading">' + last.reading + "</span>" : "") +
+              (last.kanji ? '<span class="sc-kanji">' + last.kanji + "</span>" : "") +
+              (last.meaning ? '<span class="sc-meaning">' + last.meaning + "</span>" : "") +
+              "</div>"
+            : "") +
+          '<div class="sc-actions">' +
+          '<button class="sc-btn primary" id="scNextBtn" type="button">▶ Next set</button>' +
+          '<button class="sc-btn" id="scStayBtn" type="button">Stay here</button>' +
+          "</div></div>";
+
+        document.body.appendChild(overlay);
+
+        const speakBtn = overlay.querySelector(".sc-speak");
+        if (speakBtn) {
+          speakBtn.addEventListener("click", () => {
+            const say = last.reading || last.kanji;
+            if (say) speakJapanese(say);
+          });
+        }
+
+        overlay.querySelector("#scNextBtn").addEventListener("click", () => {
+          removeSetCompleteSplash();
+          advanceToNextSet();
+        });
+
+        overlay.querySelector("#scStayBtn").addEventListener("click", () => {
+          removeSetCompleteSplash();
+          showNextSetButton();
+        });
+
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) {
+            removeSetCompleteSplash();
+            showNextSetButton();
+          }
+        });
+
+        document.addEventListener("keydown", handleSplashKeydown);
+
+        const nextBtn = overlay.querySelector("#scNextBtn");
+        if (nextBtn) nextBtn.focus();
+      }
+
+      function handleSplashKeydown(e) {
+        if (e.key !== "Escape") return;
+        removeSetCompleteSplash();
+        showNextSetButton();
+      }
+
+      function removeSetCompleteSplash() {
+        const overlay = document.getElementById("setCompleteOverlay");
+        if (overlay) overlay.remove();
+        document.removeEventListener("keydown", handleSplashKeydown);
+      }
+
+      // After "Stay here" the reader can review the finished board and advance when ready.
+      function showNextSetButton() {
+        if (document.querySelector(".next-set-container")) return;
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "next-set-container";
+        btnContainer.innerHTML = '<button class="next-set-btn" onclick="advanceToNextSet()">▶ Next Set</button>';
+        gridContainer.appendChild(btnContainer);
+      }
+
       function advanceToNextSet() {
+        removeSetCompleteSplash();
         const btnContainer = document.querySelector(".next-set-container");
         if (btnContainer) btnContainer.remove();
 
@@ -2436,6 +2601,18 @@
             messageDiv.innerHTML = "✔️ Correct! Great job!";
           }
 
+          // Remember the pair (so the set-complete splash can still show it) and read the
+          // reading aloud, so the match is heard as well as seen.
+          if (pairRef) {
+            lastMatchSummary = {
+              reading: pairRef.hiragana || "",
+              kanji: pairRef.kanji || "",
+              meaning: pairRef.meaning || "",
+            };
+            const spoken = pairRef.hiragana || pairRef.kanji || "";
+            if (spoken) speakJapanese(spoken);
+          }
+
           const pairKey = pairRef ? (pairRef.id || pairRef.kanji + "_" + pairRef.hiragana) : null;
           if (pairKey) {
             const originalLength = carryoverPairs.length;
@@ -2452,10 +2629,12 @@
 
           const allNowMatched = activeDeck.every((c) => c.matched === true);
           if (allNowMatched) {
+            // Give the last match long enough to be read (and heard) before the
+            // completion splash covers the board.
             setTimeout(() => {
               checkCompletionAndAdvance();
               updateProgress();
-            }, 600);
+            }, 1800);
           }
           updateProgress();
         } else {
